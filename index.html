@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- @dsCard group="UI Kit — Website" name="Website — One-Page Studio Site" subtitle="Full interactive Aura Nails marketing site (hero above fold)" viewport="1280x720" -->
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aura Nails MF — Handlová</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Iconography is self-contained inline SVG (see Icons.jsx) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          porcelain: '#F7F2EF', cream: '#EEE6E1', sand: '#E2D7D0',
+          beige: '#D3C3BA', blush: '#DEC8C0',
+          gold: '#3E2727', goldDeep: '#8C6E62', champagne: '#CBB9B0',
+          ink: '#3E2727', ink2: '#6E5B55', ink3: '#9D8B84',
+        },
+        fontFamily: {
+          display: ['"Cormorant Garamond"', 'serif'],
+          sans: ['Jost', 'system-ui', 'sans-serif'],
+        },
+        letterSpacing: { label: '0.34em', caps: '0.22em' },
+        boxShadow: {
+          soft: '0 10px 34px -16px rgba(62,39,39,0.18)',
+          lift: '0 34px 70px -28px rgba(62,39,39,0.24)',
+          gold: '0 12px 30px -12px rgba(62,39,39,0.30)',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #F7F2EF; font-family: 'Jost', sans-serif; -webkit-font-smoothing: antialiased; }
+  /* Soft warm "aura" mesh behind transparent sections */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(58vw 52vh at 80% -8%, rgba(222,200,192,0.50), transparent 60%),
+      radial-gradient(52vw 46vh at 6% 10%, rgba(203,185,176,0.30), transparent 60%),
+      radial-gradient(54vw 52vh at 52% 112%, rgba(222,200,192,0.38), transparent 62%);
+  }
+  .eyebrow { font-family:'Jost',sans-serif; font-weight:400; font-size:.72rem; letter-spacing:.34em; text-transform:uppercase; }
+  ::selection { background: #DEC8C0; color: #3E2727; }
+  /* gentle reveal */
+  .reveal { opacity:0; transform: translateY(22px); transition: opacity 1s cubic-bezier(.22,.61,.36,1), transform 1s cubic-bezier(.22,.61,.36,1); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity:1 !important; transform:none !important; transition:none !important; } }
+  image-slot { display:block; }
+  .grain { background-image: radial-gradient(rgba(148,115,59,0.05) 1px, transparent 1px); background-size: 4px 4px; }
+
+  /* ── Glassmorphism + organic depth ───────────────────────── */
+  .glass {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(16px) saturate(1.08);
+    -webkit-backdrop-filter: blur(16px) saturate(1.08);
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 30px 60px -30px rgba(62,39,39,0.20);
+  }
+  .glass-cream {
+    background: rgba(238,230,225,0.58);
+    backdrop-filter: blur(16px) saturate(1.05);
+    -webkit-backdrop-filter: blur(16px) saturate(1.05);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 30px 60px -30px rgba(62,39,39,0.20);
+  }
+  .glass-blush {
+    background: rgba(222,200,192,0.40);
+    backdrop-filter: blur(16px) saturate(1.05);
+    -webkit-backdrop-filter: blur(16px) saturate(1.05);
+    border: 1px solid rgba(255,255,255,0.50);
+    box-shadow: 0 30px 60px -30px rgba(62,39,39,0.22);
+  }
+  /* Micro-interaction: soft organic lift */
+  .lift { transition: transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease, border-color .45s ease, background-color .45s ease; will-change: transform; }
+  .lift:hover { transform: translateY(-6px) scale(1.015); box-shadow: 0 48px 90px -34px rgba(62,39,39,0.34); border-color: rgba(62,39,39,0.55); }
+  @media (prefers-reduced-motion: reduce) { .lift:hover { transform: none; } }
+  /* Jemné klesanie šípky-srdiečka na tlačidle Rezervovať (pri hoveri) */
+  @keyframes auraNudgeDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+  .nudge-down { animation: auraNudgeDown 1.6s var(--aura-ease, cubic-bezier(.22,.61,.36,1)) infinite; }
+  a:hover .nudge-down, button:hover .nudge-down { animation-duration: 0.9s; }
+  @media (prefers-reduced-motion: reduce) { .nudge-down { animation: none; } }
+
+  /* Galéria modal — vstupná animácia */
+  @keyframes auraModalIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes auraModalRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  .aura-modal { animation: auraModalIn .4s ease forwards; }
+  .aura-modal-inner { animation: auraModalRise .6s cubic-bezier(.22,.61,.36,1) forwards; }
+
+  /* ── Teplý fallback na html — nikdy nečerná ── */
+  html { background-color: #E8DACE; }
+  /* ── Fixné pozadie: tvoja fotka (drží pri scrollovaní) + teplý gradient ako základ ── */
+  #aura-bg {
+    position: fixed; inset: 0; z-index: -2;
+    background-image:
+      url('assets/photos/pozadie.jpg?v=6'),
+      linear-gradient(135deg, #F3EBE3 0%, #E8DACE 45%, #D8C5B5 100%);
+    background-size: cover, cover;
+    background-position: 32% center, center;
+    background-repeat: no-repeat, no-repeat;
+  }
+  /* jemný závoj pre čitelnýosť textu nad pozadím */
+  #aura-veil { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(180deg, rgba(247,242,239,0.28) 0%, rgba(247,242,239,0.14) 32%, rgba(247,242,239,0.22) 100%); }
+</style>
+</head>
+<body style="background-color: transparent; font-family: Jost">
+<div id="aura-bg"></div>
+<div id="aura-veil"></div>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="image-slot.js"></script>
+
+<script type="text/babel" src="primitives.jsx"></script>
+<script type="text/babel" src="Icons.jsx"></script>
+<script type="text/babel" src="Nav.jsx"></script>
+<script type="text/babel" src="Hero.jsx"></script>
+<script type="text/babel" src="Philosophy.jsx"></script>
+<script type="text/babel" src="Services.jsx"></script>
+<script type="text/babel" src="Premeny.jsx"></script>
+<script type="text/babel" src="Quiz.jsx"></script>
+<script type="text/babel" src="About.jsx"></script>
+<script type="text/babel" src="Certifikaty.jsx"></script>
+<script type="text/babel" src="GalleryModal.jsx"></script>
+<script type="text/babel" src="AuraPass.jsx"></script>
+<script type="text/babel" src="Booking.jsx"></script>
+<script type="text/babel" src="Footer.jsx"></script>
+<script type="text/babel" src="App.jsx"></script>
+</body>
+</html>
