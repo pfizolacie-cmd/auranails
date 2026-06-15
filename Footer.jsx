@@ -12,8 +12,11 @@ function Footer() {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          {['instagram', 'facebook'].map((ic) => (
-            <a key={ic} href="#" className="flex items-center justify-center w-10 h-10 rounded-full border border-ink/12 text-ink2 hover:text-goldDeep hover:border-gold/40 transition-all">
+          {[
+            ['instagram', 'https://www.instagram.com/aura_nails_mf/'],
+            ['facebook', 'https://www.facebook.com/profile.php?id=61579592324120'],
+          ].map(([ic, href]) => (
+            <a key={ic} href={href} target="_blank" rel="noreferrer" className="flex items-center justify-center w-10 h-10 rounded-full border border-ink/12 text-ink2 hover:text-goldDeep hover:border-gold/40 transition-all">
               <Icon name={ic} size={18} />
             </a>
           ))}

@@ -7,22 +7,21 @@ function Hero() {
   };
 
   const socials = [
-    ['facebook', 'https://facebook.com'],
-    ['twitter', 'https://twitter.com'],
-    ['instagram', 'https://instagram.com/aura_nails_mf'],
+    ['facebook', 'https://www.facebook.com/profile.php?id=61579592324120'],
+    ['instagram', 'https://www.instagram.com/aura_nails_mf/'],
     ['mail', 'mailto:aura.nails.mf@gmail.com'],
   ];
 
   return (
     <section id="top" className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 py-28 text-center">
       {/* rámček s názvom */}
-      <div className="reveal in relative inline-flex flex-col items-center justify-center px-10 sm:px-20 py-14 sm:py-16"
+      <div className="reveal in relative inline-flex flex-col items-center justify-center max-w-full px-6 sm:px-20 py-11 sm:py-16"
         style={{ border: '1px solid rgba(62,39,39,0.45)' }}>
-        <span className="font-sans text-[.7rem] sm:text-[.74rem] tracking-[.34em] uppercase text-ink2 mb-5">
+        <span className="font-sans text-[.62rem] sm:text-[.74rem] tracking-[.3em] sm:tracking-[.34em] uppercase text-ink2 mb-5 text-center">
           Nechtové štúdio · Handlová
         </span>
         <h1 className="font-display font-light text-ink leading-[0.92] tracking-[.01em] whitespace-nowrap"
-          style={{ fontSize: 'clamp(2.8rem, 8vw, 5.6rem)' }}>
+          style={{ fontSize: 'clamp(2.2rem, 11vw, 5.6rem)' }}>
           Aura Nails
         </h1>
         <span className="font-display italic text-ink2 mt-5 whitespace-nowrap" style={{ fontSize: 'clamp(1.2rem, 3.4vw, 1.9rem)' }}>
@@ -31,7 +30,7 @@ function Hero() {
       </div>
 
       {/* podtext */}
-      <p className="reveal in font-sans font-light text-ink2 mt-10 max-w-lg leading-[1.8] text-[1.02rem] tracking-[.02em]">
+      <p className="reveal in font-sans font-light text-ink2 mt-10 max-w-lg leading-[1.8] text-[.98rem] sm:text-[1.02rem] tracking-[.02em]">
         Každá služba zahŕňa konzultáciu, dokonalú hygienu a čas venovaný len vám.
         Oáza pokoja v srdci Handlovej.
       </p>

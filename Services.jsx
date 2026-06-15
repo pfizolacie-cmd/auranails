@@ -75,7 +75,7 @@ function Services({ onBook }) {
         <div className="reveal glass rounded-[32px] overflow-hidden grid lg:grid-cols-[300px_1fr]">
 
           {/* Index column */}
-          <nav className="relative p-3 sm:p-5 lg:p-6 lg:border-r" style={{ borderColor: 'rgba(62,39,39,0.10)' }}>
+          <nav className="relative min-w-0 p-3 sm:p-5 lg:p-6 lg:border-r" style={{ borderColor: 'rgba(62,39,39,0.10)' }}>
             <div className="hidden lg:flex items-center justify-between px-3 mb-4">
               <span className="eyebrow text-ink3" style={{ fontSize: '.58rem', letterSpacing: '.24em' }}>Kategórie</span>
               <span className="font-display text-ink3 text-[1rem]">{num(active)} / {num(CATALOG.length - 1)}</span>
@@ -99,7 +99,7 @@ function Services({ onBook }) {
           </nav>
 
           {/* Content column */}
-          <div className="p-7 sm:p-10 lg:p-12" style={{ transition: 'opacity .26s ease', opacity: fading ? 0 : 1 }}>
+          <div className="min-w-0 p-7 sm:p-10 lg:p-12" style={{ transition: 'opacity .26s ease', opacity: fading ? 0 : 1 }}>
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0">
                 <div className="eyebrow" style={{ color: '#8C6E62', fontSize: '.6rem', letterSpacing: '.24em' }}>{cat.kicker}</div>
