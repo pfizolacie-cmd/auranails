@@ -181,6 +181,18 @@ function useCollection(name) {
   return items;
 }
 
+function useOwnClientDoc(uid) {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    if (!db || !uid) { setData(null); return; }
+    const unsub = db.collection('clients').doc(uid).onSnapshot((doc) => {
+      setData(doc.exists ? { id: doc.id, ...doc.data() } : null);
+    }, (err) => console.error('own client doc', err));
+    return unsub;
+  }, [uid]);
+  return data;
+}
+
 function usePricing() {
   const [categories, setCategories] = useState(null);
   useEffect(() => {
@@ -207,10 +219,10 @@ function SetupNotice() {
 
 /* ---------- app ---------- */
 function App() {
-  const clients = useCollection('clients');
-  const requests = useCollection('requests');
-  const appointments = useCollection('appointments');
-  const pricing = usePricing();
+  const clientsRaw = useCollection('clients');
+  const requestsRaw = useCollection('requests');
+  const appointmentsRaw = useCollection('appointments');
+  const pricingRaw = usePricing();
   const seededRef = useRef(false);
   useEffect(() => {
     if (db && !seededRef.current) {
@@ -230,6 +242,7 @@ function App() {
     if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); return; }
     db.collection('admins').doc(authUser.uid).get().then((doc) => setIsAdmin(doc.exists)).catch(() => setIsAdmin(false));
   }, [authUser]);
+  const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
 
   const [state, setStateRaw] = useState({
     screen: 'login', clientTab: 'home',
@@ -267,11 +280,30 @@ function App() {
   const initials = (name) => name.split(' ').map((w) => w[0]).slice(0, 2).join('');
 
   if (!FIREBASE_READY) return <SetupNotice />;
-  if (clients === null || requests === null || appointments === null || pricing === null || authUser === undefined) {
+  // Wait only for data the current role is actually allowed to read — an
+  // unauthenticated visitor should reach the login screen immediately
+  // instead of waiting forever on collections that require sign-in.
+  if (authUser === undefined) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+  }
+  if (authUser && isAdmin === null) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+  }
+  if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null)) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+  }
+  if (authUser && !isAdmin && (appointmentsRaw === null || pricingRaw === null)) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
 
-  const loggedInClient = authUser ? (clients.find((c) => c.id === authUser.uid) || null) : null;
+  const loggedInClient = myClientDoc;
+  // For a non-admin client, `clients`/`requests` stay null forever (the
+  // security rules correctly deny listing them) — fall back to empty
+  // arrays so admin-only computations below never crash for that role.
+  const clients = clientsRaw || [];
+  const requests = requestsRaw || [];
+  const appointments = appointmentsRaw || [];
+  const pricing = pricingRaw || [];
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
