@@ -1,12 +1,19 @@
-// Sem vlož konfiguráciu z Firebase konzoly (Project settings → Your apps → SDK setup and configuration).
-// Tieto hodnoty NIE sú tajné heslo — je normálne, že sú viditeľné vo verejnom kóde appky.
-// Skutočná ochrana dát je nastavená cez Firestore Security Rules (pozri NAVOD-DATABAZA.md).
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
-window.firebaseConfig = {
-  apiKey: "VLOZ_SEM_API_KEY",
-  authDomain: "VLOZ_SEM_AUTH_DOMAIN",
-  projectId: "VLOZ_SEM_PROJECT_ID",
-  storageBucket: "VLOZ_SEM_STORAGE_BUCKET",
-  messagingSenderId: "VLOZ_SEM_SENDER_ID",
-  appId: "VLOZ_SEM_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyDALdC08ZULv_i_WydPr6pe2d0riO4q3ic",
+  authDomain: "aura-nails-kalendar.firebaseapp.com",
+  databaseURL: "https://aura-nails-kalendar-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "aura-nails-kalendar",
+  storageBucket: "aura-nails-kalendar.firebasestorage.app",
+  messagingSenderId: "45357190349",
+  appId: "1:45357190349:web:40b9871fcd3e3cc963ad84",
+  measurementId: "G-HZK5XRS2CD"
 };
+
+// Inicializácia Firebase
+const app = initializeApp(firebaseConfig);
+
+// Export databázy pre zvyšok aplikácie
+export const db = getDatabase(app);
