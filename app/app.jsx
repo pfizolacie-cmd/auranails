@@ -1,4 +1,4 @@
-const { useState, useRef, useEffect } = React;
+const { useState, useRef, useEffect, useMemo } = React;
 
 /* ---------- helpers ---------- */
 function st(cssText) {
@@ -36,30 +36,52 @@ function Icon({ name, size = 22, style = {}, strokeWidth = 1.4 }) {
   );
 }
 
-/* ---------- demo data ---------- */
+/* ---------- date helpers (real calendar, not a fixed demo window) ---------- */
 const SK_DOW = ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So'];
 const SK_MON = ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'];
 const CLOSE_HOUR = 18;
-const ADMIN_APPOINTMENTS_SEED = [
-  { dateIdx: 0, time: '9:00', name: 'Zuzana Kráľová', service: 'Gélové nechty — Stredné', duration: 2 },
-  { dateIdx: 0, time: '11:00', name: 'Petra Novotná', service: 'SPA manikúra s peelingom', duration: 1 },
-  { dateIdx: 0, time: '14:00', name: 'Michaela Vidová', service: 'Francúzska manikúra', duration: 0.5 },
-  { dateIdx: 2, time: '10:00', name: 'Ivana Baková', service: 'IBX regeneračná kúra', duration: 2 },
-  { dateIdx: 5, time: '9:00', name: 'Simona Tóthová', service: 'Manikúra', duration: 1 },
-  { dateIdx: 5, time: '14:00', name: 'Katarína Hudecová', service: 'Gélové nechty — Dlhé', duration: 2 },
-];
-const BASE_BOOKINGS = ADMIN_APPOINTMENTS_SEED.map((a) => ({ dateIdx: a.dateIdx, start: timeToHours(a.time), duration: a.duration }));
+
+function isoOffset(daysFromToday) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + daysFromToday);
+  return d.toISOString().slice(0, 10);
+}
+function isoParts(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dateObj = new Date(y, m - 1, d);
+  return { dow: SK_DOW[dateObj.getDay()], num: d, mon: SK_MON[m - 1] };
+}
+function buildDateOptions() {
+  const out = [];
+  for (let i = 0; i < 12; i++) {
+    const iso = isoOffset(i);
+    out.push({ iso, ...isoParts(iso) });
+  }
+  return out;
+}
+function isoLabel(iso) {
+  const p = isoParts(iso);
+  return `${p.dow} ${p.num}. ${p.mon}`;
+}
+function parseDateToIso(text) {
+  const m = text.match(/(\d{1,2})/);
+  if (!m) return null;
+  const day = parseInt(m[1], 10);
+  const found = buildDateOptions().find((d) => d.num === day);
+  return found ? found.iso : null;
+}
 function timeToHours(t) { const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60; }
 function overlaps(aStart, aDur, bStart, bDur) { return aStart < bStart + bDur && bStart < aStart + aDur; }
-function slotAvailable(dateIdx, timeStr, durationHours, extraBookings) {
+function slotAvailable(iso, timeStr, durationHours, appointments) {
   const start = timeToHours(timeStr);
   if (start + durationHours > CLOSE_HOUR) return false;
-  const all = extraBookings ? BASE_BOOKINGS.concat(extraBookings) : BASE_BOOKINGS;
-  return !all.some((b) => b.dateIdx === dateIdx && overlaps(start, durationHours, b.start, b.duration));
+  return !appointments.some((a) => a.date === iso && overlaps(start, durationHours, timeToHours(a.time), a.duration));
 }
+function buildTimeOptions() { return ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']; }
 const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 }, { label: '1,5 h', val: 1.5 }, { label: '2 h', val: 2 }];
-const DEMO_TODAY_MD = '08-08';
 const BIRTHDAY_DISCOUNT_CODE = 'NARODENINY10';
+const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
 
 const CENNIK = [
   { name: 'Gélové nechty', sub: 'Predĺženie & spevnenie', items: [
@@ -83,31 +105,92 @@ const SERVICE_OPTIONS = [
   { name: 'Odborná starostlivosť', sub: 'IBX kúra, regenerácia', duration: 1.5 },
   { name: 'Dizajn a doplnky', sub: 'Francúzska, babyboomer', duration: 0.5 },
 ];
-const ADMIN_REQUESTS_SEED = [
-  { id: 1, name: 'Ivana Baková', phone: '+421 905 123 456', service: 'IBX regeneračná kúra', date: 'Št 13. aug', time: '14:00' },
-  { id: 2, name: 'Simona Tóthová', phone: '+421 911 222 333', service: 'Nová modelácia — Dlhé', date: 'Pi 14. aug', time: '16:00' },
-  { id: 3, name: 'Katarína Hudecová', phone: '+421 902 555 111', service: 'Francúzska manikúra', date: 'So 15. aug', time: '10:00' },
-];
-const ADMIN_CLIENTS_SEED = [
-  { id: 1, name: 'Zuzana Kráľová', phone: '+421 905 111 222', stamps: 3, visits: 8, lastVisit: '13. júl 2026', notes: 'Alergia na akrylát — používať len gél. Preferuje tichšiu hudbu.', birthday: '2026-08-08', history: [{ service: 'Gélové nechty — Stredné', date: '13. júl 2026' }, { service: 'Gél lak', date: '2. jún 2026' }, { service: 'SPA manikúra', date: '18. apr 2026' }] },
-  { id: 2, name: 'Petra Novotná', phone: '+421 918 333 444', stamps: 5, visits: 14, lastVisit: '2. aug 2026', notes: '', birthday: '', history: [{ service: 'SPA manikúra s peelingom', date: '2. aug 2026' }, { service: 'IBX kúra', date: '5. júl 2026' }] },
-  { id: 3, name: 'Ivana Baková', phone: '+421 905 123 456', stamps: 1, visits: 2, lastVisit: '20. jún 2026', notes: '', birthday: '', history: [{ service: 'IBX regeneračná kúra', date: '20. jún 2026' }] },
-  { id: 4, name: 'Katarína Hudecová', phone: '+421 902 555 111', stamps: 0, visits: 1, lastVisit: '15. máj 2026', notes: '', birthday: '', history: [{ service: 'Francúzska manikúra', date: '15. máj 2026' }] },
-  { id: 5, name: 'Simona Tóthová', phone: '+421 911 222 333', stamps: 4, visits: 9, lastVisit: '28. júl 2026', notes: 'Krátke nechty, citlivá kutikula.', birthday: '', history: [{ service: 'Nová modelácia — Dlhé', date: '28. júl 2026' }, { service: 'Babyboomer', date: '30. jún 2026' }] },
-];
+
+/* ---------- Firebase setup ---------- */
+const FIREBASE_READY = typeof window.firebaseConfig === 'object'
+  && window.firebaseConfig.apiKey && window.firebaseConfig.apiKey.indexOf('VLOZ_') === -1;
+let db = null;
+if (FIREBASE_READY) {
+  try {
+    firebase.initializeApp(window.firebaseConfig);
+    db = firebase.firestore();
+  } catch (e) { console.error('Firebase init error', e); }
+}
+
+async function seedIfEmpty() {
+  const snap = await db.collection('clients').limit(1).get();
+  if (!snap.empty) return;
+  const clientsSeed = [
+    { name: 'Zuzana Kráľová', phone: '+421 905 111 222', stamps: 3, visits: 8, lastVisit: '13. júl 2026', notes: 'Alergia na akrylát — používať len gél. Preferuje tichšiu hudbu.', birthday: '2026-08-08', history: [{ service: 'Gélové nechty — Stredné', date: '13. júl 2026' }, { service: 'Gél lak', date: '2. jún 2026' }, { service: 'SPA manikúra', date: '18. apr 2026' }] },
+    { name: 'Petra Novotná', phone: '+421 918 333 444', stamps: 5, visits: 14, lastVisit: '2. aug 2026', notes: '', birthday: '', history: [{ service: 'SPA manikúra s peelingom', date: '2. aug 2026' }, { service: 'IBX kúra', date: '5. júl 2026' }] },
+    { name: 'Ivana Baková', phone: '+421 905 123 456', stamps: 1, visits: 2, lastVisit: '20. jún 2026', notes: '', birthday: '', history: [{ service: 'IBX regeneračná kúra', date: '20. jún 2026' }] },
+    { name: 'Katarína Hudecová', phone: '+421 902 555 111', stamps: 0, visits: 1, lastVisit: '15. máj 2026', notes: '', birthday: '', history: [{ service: 'Francúzska manikúra', date: '15. máj 2026' }] },
+    { name: 'Simona Tóthová', phone: '+421 911 222 333', stamps: 4, visits: 9, lastVisit: '28. júl 2026', notes: 'Krátke nechty, citlivá kutikula.', birthday: '', history: [{ service: 'Nová modelácia — Dlhé', date: '28. júl 2026' }, { service: 'Babyboomer', date: '30. jún 2026' }] },
+  ];
+  const appointmentsSeed = [
+    { date: isoOffset(0), time: '9:00', name: 'Zuzana Kráľová', service: 'Gélové nechty — Stredné', duration: 2, manual: false },
+    { date: isoOffset(0), time: '11:00', name: 'Petra Novotná', service: 'SPA manikúra s peelingom', duration: 1, manual: false },
+    { date: isoOffset(0), time: '14:00', name: 'Michaela Vidová', service: 'Francúzska manikúra', duration: 0.5, manual: false },
+    { date: isoOffset(2), time: '10:00', name: 'Ivana Baková', service: 'IBX regeneračná kúra', duration: 2, manual: false },
+    { date: isoOffset(5), time: '9:00', name: 'Simona Tóthová', service: 'Manikúra', duration: 1, manual: false },
+    { date: isoOffset(5), time: '14:00', name: 'Katarína Hudecová', service: 'Gélové nechty — Dlhé', duration: 2, manual: false },
+  ];
+  const requestsSeed = [
+    { name: 'Ivana Baková', phone: '+421 905 123 456', service: 'IBX regeneračná kúra', date: isoOffset(4), time: '14:00' },
+    { name: 'Simona Tóthová', phone: '+421 911 222 333', service: 'Nová modelácia — Dlhé', date: isoOffset(5), time: '16:00' },
+    { name: 'Katarína Hudecová', phone: '+421 902 555 111', service: 'Francúzska manikúra', date: isoOffset(6), time: '10:00' },
+  ];
+  const batch = db.batch();
+  clientsSeed.forEach((c) => batch.set(db.collection('clients').doc(), c));
+  appointmentsSeed.forEach((a) => batch.set(db.collection('appointments').doc(), a));
+  requestsSeed.forEach((r) => batch.set(db.collection('requests').doc(), r));
+  await batch.commit();
+}
+
+function useCollection(name) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    if (!db) return;
+    const unsub = db.collection(name).onSnapshot((snap) => {
+      setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    }, (err) => console.error(name, err));
+    return unsub;
+  }, [name]);
+  return items;
+}
+
+/* ---------- setup notice (shown until firebase-config.js is filled in) ---------- */
+function SetupNotice() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center', fontFamily: 'var(--font-sans)', color: 'var(--ink)', background: 'var(--porcelain)' }}>
+      <div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', marginBottom: 12 }}>Appka ešte nie je pripojená k databáze</div>
+        <p style={{ color: 'var(--ink-2)', maxWidth: 380, lineHeight: 1.6 }}>Doplň prosím Firebase konfiguráciu do súboru <code>firebase-config.js</code> podľa priloženého návodu.</p>
+      </div>
+    </div>
+  );
+}
 
 /* ---------- app ---------- */
 function App() {
+  const clients = useCollection('clients');
+  const requests = useCollection('requests');
+  const appointments = useCollection('appointments');
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (db && !seededRef.current) { seededRef.current = true; seedIfEmpty().catch((e) => console.error('seed error', e)); }
+  }, []);
+
   const [state, setStateRaw] = useState({
     screen: 'login', clientTab: 'home',
-    booking: { step: 0, serviceIdx: null, dateIdx: null, time: null, done: false },
-    profileView: 'main', passStamps: 3, passReward: false, expandedCat: 0,
-    adminTab: 'overview', adminRequests: ADMIN_REQUESTS_SEED.slice(),
-    adminClients: ADMIN_CLIENTS_SEED.map((c) => ({ ...c })), selectedClientId: null,
-    toast: { visible: false, msg: '' }, dayBefore: true, hourBefore: true,
+    booking: { step: 0, serviceIdx: null, dateIso: null, time: null, done: false },
+    profileView: 'main', expandedCat: 0,
+    adminTab: 'overview', selectedClientId: null,
+    toast: { visible: false, msg: '' },
+    dayBefore: true, hourBefore: true,
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDate: '', newClientTime: '',
-    newClientService: '', newClientDuration: 1.5, nextClientId: 100, manualAppts: [],
-    adminSelectedDateIdx: 0, clientBirthday: '2026-08-08',
+    newClientService: '', newClientDuration: 1.5,
+    adminSelectedDate: isoOffset(0),
   });
   const s = state;
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
@@ -120,23 +203,12 @@ function App() {
   };
   const initials = (name) => name.split(' ').map((w) => w[0]).slice(0, 2).join('');
 
-  const buildDateOptions = () => {
-    const start = new Date(2026, 7, 7);
-    const out = [];
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(start); d.setDate(start.getDate() + i);
-      out.push({ idx: i, dow: SK_DOW[d.getDay()], num: d.getDate(), mon: SK_MON[d.getMonth()] });
-    }
-    return out;
-  };
-  const parseDateToIdx = (text) => {
-    const m = text.match(/(\d{1,2})/);
-    if (!m) return null;
-    const day = parseInt(m[1], 10);
-    const found = buildDateOptions().find((d) => d.num === day);
-    return found ? found.idx : null;
-  };
-  const buildTimeOptions = () => ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  if (!FIREBASE_READY) return <SetupNotice />;
+  if (clients === null || requests === null || appointments === null) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+  }
+
+  const loggedInClient = clients.find((c) => c.name === DEMO_CLIENT_NAME) || null;
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
@@ -154,9 +226,10 @@ function App() {
   const goReminders = () => set({ clientTab: 'profile', profileView: 'reminders' });
   const backToProfile = () => set({ profileView: 'main' });
 
-  const isoToMd = (iso) => (iso ? iso.slice(5) : '');
-  const isBirthdayToday = isoToMd(s.clientBirthday) === DEMO_TODAY_MD;
-  const setClientBirthday = (e) => set({ clientBirthday: e.target.value });
+  const todayIso = isoOffset(0);
+  const clientBirthday = loggedInClient ? (loggedInClient.birthday || '') : '';
+  const isBirthdayToday = clientBirthday && clientBirthday.slice(5) === todayIso.slice(5);
+  const setClientBirthday = (e) => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ birthday: e.target.value }); };
 
   const navBtn = (active) => `all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:${active ? 'var(--espresso)' : 'var(--ink-3)'};min-width:44px`;
   const headerMap = {
@@ -174,13 +247,12 @@ function App() {
   }));
   const dates = buildDateOptions();
   const dateOptions = dates.map((d) => ({
-    dow: d.dow, num: d.num, mon: d.mon, select: () => setBooking({ dateIdx: d.idx }),
-    style: `all:unset;cursor:pointer;text-align:center;padding:10px 4px;border-radius:14px;color:${b.dateIdx === d.idx ? 'var(--porcelain)' : 'var(--ink)'};background:${b.dateIdx === d.idx ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIdx === d.idx ? 'var(--espresso)' : 'var(--line)'}`,
+    dow: d.dow, num: d.num, mon: d.mon, select: () => setBooking({ dateIso: d.iso }),
+    style: `all:unset;cursor:pointer;text-align:center;padding:10px 4px;border-radius:14px;color:${b.dateIso === d.iso ? 'var(--porcelain)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const svcDuration = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].duration : 1;
-  const manualBookings = s.manualAppts.filter((m) => m.dateIdx !== null && m.dateIdx !== undefined).map((m) => ({ dateIdx: m.dateIdx, start: timeToHours(m.time), duration: m.duration || 1.5 }));
   const timeOptions = buildTimeOptions().map((t) => {
-    const taken = b.dateIdx === null ? false : !slotAvailable(b.dateIdx, t, svcDuration, manualBookings);
+    const taken = b.dateIso === null ? false : !slotAvailable(b.dateIso, t, svcDuration, appointments);
     const selected = b.time === t;
     return {
       label: t, taken, select: () => !taken && setBooking({ time: t }),
@@ -189,31 +261,46 @@ function App() {
   });
   const booking_selectedService = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].name : '—';
   const booking_durationLabel = svcDuration === 0.5 ? '30 min' : svcDuration === 1 ? '1 h' : `${svcDuration} h`;
-  const selDate = b.dateIdx !== null ? dates.find((d) => d.idx === b.dateIdx) : null;
-  const booking_selectedDate = selDate ? `${selDate.dow} ${selDate.num}. ${selDate.mon}` : '—';
+  const booking_selectedDate = b.dateIso ? isoLabel(b.dateIso) : '—';
   const bookingSummary = `${booking_selectedService} · ${booking_selectedDate} · ${b.time || '—'}`;
-  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && b.dateIdx === null) || (step2 && !b.time);
+  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && b.dateIso === null) || (step2 && !b.time);
   const nextStep = () => !nextDisabled && setBooking({ step: Math.min(3, b.step + 1) });
   const prevStep = () => setBooking({ step: Math.max(0, b.step - 1) });
   const btnBase = 'all:unset;cursor:pointer;padding:12px 26px;border-radius:999px;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase';
   const prevBtnStyle = `${btnBase};color:${step0 ? 'var(--ink-3)' : 'var(--ink-2)'};border:1px solid var(--line-gold);opacity:${step0 ? 0.4 : 1};visibility:${step0 ? 'hidden' : 'visible'}`;
   const nextBtnStyle = `${btnBase};color:var(--porcelain);background:var(--espresso);opacity:${nextDisabled ? 0.4 : 1}`;
-  const submitBooking = () => setBooking({ done: true });
-  const resetBooking = () => set({ booking: { step: 0, serviceIdx: null, dateIdx: null, time: null, done: false } });
+  const submitBooking = async () => {
+    if (!loggedInClient) return;
+    await db.collection('requests').add({
+      name: loggedInClient.name, phone: loggedInClient.phone, service: booking_selectedService,
+      date: b.dateIso, time: b.time,
+    });
+    setBooking({ done: true });
+  };
+  const resetBooking = () => set({ booking: { step: 0, serviceIdx: null, dateIso: null, time: null, done: false } });
 
+  const clientStamps = loggedInClient ? loggedInClient.stamps : 0;
   const passStampDots = [0, 1, 2, 3, 4].map((i) => {
-    const on = i < s.passStamps;
-    const isNext = i === s.passStamps && !s.passReward;
+    const on = i < clientStamps;
     return {
-      click: () => { if (i === s.passStamps) set({ passStamps: s.passStamps + 1 }); else if (i === s.passStamps - 1) set({ passStamps: s.passStamps - 1 }); },
-      style: `aspect-ratio:1;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : isNext ? '1.5px dashed var(--line-gold)' : '1px solid var(--line)'}`,
+      click: () => {
+        if (!loggedInClient) return;
+        if (i === clientStamps) db.collection('clients').doc(loggedInClient.id).update({ stamps: clientStamps + 1 });
+        else if (i === clientStamps - 1) db.collection('clients').doc(loggedInClient.id).update({ stamps: clientStamps - 1 });
+      },
+      style: `aspect-ratio:1;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : i === clientStamps ? '1.5px dashed var(--line-gold)' : '1px solid var(--line)'}`,
     };
   });
-  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:${s.passStamps >= 5 ? 'pointer' : 'not-allowed'};display:flex;flex-direction:column;align-items:center;justify-content:center;background:${s.passReward ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${s.passReward || s.passStamps >= 5 ? (s.passReward ? 'var(--porcelain)' : 'var(--mocha)') : 'var(--ink-3)'};border:2px solid ${s.passStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
-  const claimReward = () => { if (s.passStamps >= 5 && !s.passReward) { set({ passReward: true }); showToast('Odmena uplatnená! ✨'); } };
-  const resetPass = () => set({ passStamps: 0, passReward: false });
-  const passShowReset = s.passStamps > 0 || s.passReward;
-  const passHelperText = s.passReward ? 'Vaša odmena je pripravená — rituál s darčekom vás čaká pri návšteve.' : s.passStamps < 5 ? 'Klikajte na kruhy a vyskúšajte si zbieranie pečiatok.' : 'Máte 5 pečiatok — kliknite na darček a uplatnite odmenu!';
+  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:${clientStamps >= 5 ? 'pointer' : 'not-allowed'};display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--ink-3)'};border:2px solid ${clientStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const claimReward = () => {
+    if (loggedInClient && clientStamps >= 5) {
+      db.collection('clients').doc(loggedInClient.id).update({ stamps: 0 });
+      showToast('Odmena uplatnená! ✨');
+    }
+  };
+  const resetPass = () => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ stamps: 0 }); };
+  const passShowReset = clientStamps > 0;
+  const passHelperText = clientStamps < 5 ? 'Klikajte na kruhy a vyskúšajte si zbieranie pečiatok.' : 'Máte 5 pečiatok — kliknite na darček a uplatnite odmenu!';
 
   const cennikCategories = CENNIK.map((cat, i) => ({
     name: cat.name, sub: cat.sub, items: cat.items, open: s.expandedCat === i,
@@ -222,18 +309,14 @@ function App() {
   }));
 
   const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'rgba(140,110,98,.14)' : 'rgba(62,39,39,.08)'};color:${tone === 'pending' ? 'var(--mocha)' : 'var(--espresso)'}`;
-  const upcomingAppts = [
-    { service: 'Gélové nechty — Stredné', date: 'Št 13. aug', time: '14:00', badgeLabel: 'Potvrdené', badgeStyle: badge() },
-    { service: 'SPA manikúra s peelingom', date: 'Po 24. aug', time: '10:00', badgeLabel: 'Čaká', badgeStyle: badge('pending') },
-  ];
-  const historyAppts = [
-    { service: 'Gél lak', date: 'Ut 21. júl', time: '11:00' },
-    { service: 'Babyboomer', date: 'St 24. jún', time: '15:00' },
-  ];
+  const myAppointments = loggedInClient ? appointments.filter((a) => a.name === loggedInClient.name) : [];
+  const upcomingAppts = myAppointments.filter((a) => a.date >= todayIso).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date))
+    .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined) }));
+  const historyAppts = myAppointments.filter((a) => a.date < todayIso).sort((a, bb) => bb.date.localeCompare(a.date))
+    .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time }));
   const notifications = [
-    { icon: 'clock', title: 'Pripomienka termínu', text: 'Zajtra o 14:00 vás čakáme na Gélové nechty.', time: 'pred 2 h' },
-    { icon: 'check', title: 'Termín potvrdený', text: 'Michaela potvrdila váš termín na 13. augusta.', time: 'včera' },
-    { icon: 'sparkle', title: 'Nová pečiatka!', text: 'Za dnešnú návštevu ste získali pečiatku do Aura Pass.', time: '21. júl' },
+    { icon: 'clock', title: 'Pripomienka termínu', text: 'Váš najbližší termín sa blíži.', time: '' },
+    { icon: 'sparkle', title: 'Aura Pass', text: `Aktuálne máte ${clientStamps}/5 pečiatok.`, time: '' },
   ];
   if (isBirthdayToday) {
     notifications.unshift({ icon: 'gift', title: 'Všetko najlepšie k narodeninám!', text: `Nech je váš deň krásny ako vaše nechty. Darček od nás: 10 % zľava na ďalšiu starostlivosť s kódom ${BIRTHDAY_DISCOUNT_CODE}.`, time: 'dnes' });
@@ -249,50 +332,61 @@ function App() {
   const goOverview = () => set({ adminTab: 'overview' });
   const goRequests = () => set({ adminTab: 'requests' });
   const goClients = () => set({ adminTab: 'clients', selectedClientId: null });
-  const hasPending = s.adminRequests.length > 0;
+  const hasPending = requests.length > 0;
   const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky' };
 
-  const allAdminAppts = ADMIN_APPOINTMENTS_SEED.concat(s.manualAppts.filter((m) => m.dateIdx !== null && m.dateIdx !== undefined).map((m) => ({ dateIdx: m.dateIdx, time: m.time, name: m.name, service: m.service, duration: m.duration || 1.5, manual: true })));
   const calendarDates = buildDateOptions();
   const countsByDate = {};
-  allAdminAppts.forEach((a) => { countsByDate[a.dateIdx] = (countsByDate[a.dateIdx] || 0) + 1; });
+  appointments.forEach((a) => { countsByDate[a.date] = (countsByDate[a.date] || 0) + 1; });
   const occupancyColor = (n) => (n === 0 ? 'var(--line)' : n <= 1 ? 'var(--taupe)' : n <= 2 ? 'var(--mocha)' : 'var(--espresso)');
   const calendarStrip = calendarDates.map((d) => {
-    const count = countsByDate[d.idx] || 0;
-    const selected = s.adminSelectedDateIdx === d.idx;
+    const count = countsByDate[d.iso] || 0;
+    const selected = s.adminSelectedDate === d.iso;
     return {
-      dow: d.dow, num: d.num, select: () => set({ adminSelectedDateIdx: d.idx }),
+      dow: d.dow, num: d.num, select: () => set({ adminSelectedDate: d.iso }),
       style: `all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px;border-radius:14px;flex-shrink:0;width:42px;background:${selected ? 'var(--espresso)' : 'transparent'};color:${selected ? 'var(--porcelain)' : 'var(--ink)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line)'}`,
       dotStyle: `width:6px;height:6px;border-radius:50%;background:${selected ? 'var(--porcelain)' : occupancyColor(count)}`,
     };
   });
-  const selDateObj = calendarDates.find((d) => d.idx === s.adminSelectedDateIdx);
-  const calendarSelectedLabel = selDateObj ? `${selDateObj.dow} ${selDateObj.num}. ${selDateObj.mon}` : '';
-  const selectedDayAppts = allAdminAppts.filter((a) => a.dateIdx === s.adminSelectedDateIdx).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
-    const matched = s.adminClients.find((c) => c.name === a.name);
+  const calendarSelectedLabel = isoLabel(s.adminSelectedDate);
+  const selectedDayAppts = appointments.filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
+    const matched = clients.find((c) => c.name === a.name);
     return { ...a, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined), open: () => matched && set({ adminTab: 'clients', selectedClientId: matched.id }) };
   });
   const noDayAppts = selectedDayAppts.length === 0;
-  const adminTodayCount = countsByDate[0] || 0;
-  const adminPendingCount = s.adminRequests.length;
-  const noRequests = s.adminRequests.length === 0;
-  const adminRequestsList = s.adminRequests.map((r) => ({
-    ...r,
-    approve: () => { set({ adminRequests: s.adminRequests.filter((x) => x.id !== r.id) }); showToast('Rezervácia potvrdená'); },
-    reject: () => { set({ adminRequests: s.adminRequests.filter((x) => x.id !== r.id) }); showToast('Žiadosť zamietnutá'); },
+  const adminTodayCount = countsByDate[todayIso] || 0;
+  const adminPendingCount = requests.length;
+  const noRequests = requests.length === 0;
+  const adminRequestsList = requests.map((r) => ({
+    ...r, dateLabel: isoLabel(r.date),
+    approve: async () => {
+      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: 1.5, manual: false });
+      const matched = clients.find((c) => c.name === r.name);
+      if (matched) {
+        await db.collection('clients').doc(matched.id).update({
+          visits: (matched.visits || 0) + 1,
+          lastVisit: isoLabel(r.date),
+          stamps: Math.min(5, (matched.stamps || 0) + 1),
+          history: [{ service: r.service, date: isoLabel(r.date) }, ...(matched.history || [])],
+        });
+      }
+      await db.collection('requests').doc(r.id).delete();
+      showToast('Rezervácia potvrdená');
+    },
+    reject: async () => { await db.collection('requests').doc(r.id).delete(); showToast('Žiadosť zamietnutá'); },
   }));
 
   const clientsListView = s.selectedClientId === null;
-  const adminClientsList = s.adminClients.map((c) => ({ ...c, initials: initials(c.name), open: () => set({ selectedClientId: c.id }) }));
-  const selClient = s.adminClients.find((c) => c.id === s.selectedClientId) || { name: '', phone: '', visits: 0, lastVisit: '', stamps: 0, history: [] };
+  const adminClientsList = clients.map((c) => ({ ...c, initials: initials(c.name), open: () => set({ selectedClientId: c.id }) }));
+  const selClient = clients.find((c) => c.id === s.selectedClientId) || { name: '', phone: '', visits: 0, lastVisit: '', stamps: 0, history: [] };
   const selClientInitials = initials(selClient.name || '—');
   const selClientHistory = selClient.history || [];
   const selClientStamps = [0, 1, 2, 3, 4].map((i) => ({
     style: `aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${i < selClient.stamps ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${i < selClient.stamps ? 'var(--porcelain)' : 'var(--ink-3)'};border:1px solid ${i < selClient.stamps ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const backToClients = () => set({ selectedClientId: null });
-  const updateClientNotes = (e) => set({ adminClients: s.adminClients.map((c) => (c.id === s.selectedClientId ? { ...c, notes: e.target.value } : c)) });
-  const updateClientBirthday = (e) => set({ adminClients: s.adminClients.map((c) => (c.id === s.selectedClientId ? { ...c, birthday: e.target.value } : c)) });
+  const updateClientNotes = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ notes: e.target.value }); };
+  const updateClientBirthday = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ birthday: e.target.value }); };
   const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDate: '', newClientTime: '', newClientService: '' });
   const cancelAddClient = () => set({ addFormOpen: false });
   const durationPresetOptions = DURATION_PRESETS.map((d) => ({
@@ -301,18 +395,23 @@ function App() {
   }));
   const saveDisabled = !s.newClientName.trim();
   const saveBtnStyle = `all:unset;cursor:${saveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${saveDisabled ? 0.5 : 1}`;
-  const saveNewClient = () => {
+  const saveNewClient = async () => {
     if (saveDisabled) return;
-    const id = s.nextClientId;
     const hasAppt = s.newClientDate.trim() && s.newClientTime.trim();
-    const newClient = { id, name: s.newClientName.trim(), phone: s.newClientPhone.trim() || '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [] };
-    const dateIdx = hasAppt ? parseDateToIdx(s.newClientDate.trim()) : null;
-    const newManual = hasAppt ? [{ id, clientId: id, date: s.newClientDate.trim(), time: s.newClientTime.trim(), service: s.newClientService.trim() || 'Bez upresnenia', name: newClient.name, dateIdx, duration: s.newClientDuration }] : [];
-    set({ adminClients: [newClient, ...s.adminClients], manualAppts: [...newManual, ...s.manualAppts], addFormOpen: false, nextClientId: id + 1 });
+    const newClientRef = await db.collection('clients').add({
+      name: s.newClientName.trim(), phone: s.newClientPhone.trim() || '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+    });
+    if (hasAppt) {
+      const iso = parseDateToIso(s.newClientDate.trim());
+      if (iso) {
+        await db.collection('appointments').add({ date: iso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: s.newClientDuration, manual: true });
+      }
+    }
+    set({ addFormOpen: false });
     showToast(hasAppt ? 'Klientka a termín pridané' : 'Klientka pridaná');
   };
-  const addStampSel = () => set({ adminClients: s.adminClients.map((c) => (c.id === s.selectedClientId ? { ...c, stamps: Math.min(5, c.stamps + 1) } : c)) });
-  const removeStampSel = () => set({ adminClients: s.adminClients.map((c) => (c.id === s.selectedClientId ? { ...c, stamps: Math.max(0, c.stamps - 1) } : c)) });
+  const addStampSel = () => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ stamps: Math.min(5, (selClient.stamps || 0) + 1) }); };
+  const removeStampSel = () => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ stamps: Math.max(0, (selClient.stamps || 0) - 1) }); };
 
   const inputStyle = 'all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px';
 
@@ -348,7 +447,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Prototyp — bez skutočného hesla, len na ukážku.</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo.</p>
         </div>
       )}
 
@@ -366,7 +465,7 @@ function App() {
 
           {tabHome && (
             <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.95rem;color:var(--ink-2);margin-bottom:18px')}>Dobrý deň, <span style={{ color: 'var(--ink)' }}>Zuzana</span> 🤍</div>
+              <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.95rem;color:var(--ink-2);margin-bottom:18px')}>Dobrý deň, <span style={{ color: 'var(--ink)' }}>{loggedInClient ? loggedInClient.name.split(' ')[0] : ''}</span> 🤍</div>
               {isBirthdayToday && (
                 <div style={st('border-radius:24px;padding:22px;background:var(--white);border:1px solid var(--line-gold);box-shadow:var(--shadow-md);margin-bottom:16px;text-align:center')}>
                   <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mocha);margin-bottom:10px')}>Darček od Aura Nails</div>
@@ -375,14 +474,16 @@ function App() {
                   <span style={st('display:inline-block;font-family:var(--font-sans);font-size:.8rem;letter-spacing:.1em;color:var(--espresso);padding:9px 18px;border-radius:999px;border:1px dashed var(--line-gold);background:var(--cream)')}>{BIRTHDAY_DISCOUNT_CODE}</span>
                 </div>
               )}
-              <div style={st('border-radius:24px;padding:22px;background:linear-gradient(135deg,var(--taupe-light),var(--espresso));color:var(--porcelain);box-shadow:var(--shadow-lg);margin-bottom:20px')}>
-                <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe-light);margin-bottom:8px')}>Váš najbližší termín</div>
-                <div style={st('font-family:var(--font-display);font-size:1.5rem;margin-bottom:6px')}>Gélové nechty · Stredné</div>
-                <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.9rem;opacity:.9')}>Štvrtok 13. augusta · 14:00</div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                  <span style={st('font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(247,242,239,.18);border:1px solid rgba(247,242,239,.35)')}>Potvrdené</span>
+              {upcomingAppts.length > 0 && (
+                <div style={st('border-radius:24px;padding:22px;background:linear-gradient(135deg,var(--taupe-light),var(--espresso));color:var(--porcelain);box-shadow:var(--shadow-lg);margin-bottom:20px')}>
+                  <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe-light);margin-bottom:8px')}>Váš najbližší termín</div>
+                  <div style={st('font-family:var(--font-display);font-size:1.5rem;margin-bottom:6px')}>{upcomingAppts[0].service}</div>
+                  <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.9rem;opacity:.9')}>{upcomingAppts[0].date} · {upcomingAppts[0].time}</div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                    <span style={st('font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(247,242,239,.18);border:1px solid rgba(247,242,239,.35)')}>{upcomingAppts[0].badgeLabel}</span>
+                  </div>
                 </div>
-              </div>
+              )}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 22 }}>
                 <button onClick={goBooking} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
                   <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}>
@@ -392,7 +493,7 @@ function App() {
                 </button>
                 <button onClick={goPass} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
                   <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}><Icon name="heart" size={17} /></span>
-                  <span style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink)')}>Aura Pass ({s.passStamps}/5)</span>
+                  <span style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink)')}>Aura Pass ({clientStamps}/5)</span>
                 </button>
                 <button onClick={goPricing} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
                   <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}><Icon name="list" size={17} /></span>
@@ -501,7 +602,7 @@ function App() {
                       <div style={st('font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)')}>MF · Handlová</div>
                     </div>
                   </div>
-                  <span style={st('font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(62,39,39,.1);color:var(--mocha);border:1px solid var(--line-gold)')}>{s.passStamps}/5</span>
+                  <span style={st('font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(62,39,39,.1);color:var(--mocha);border:1px solid var(--line-gold)')}>{clientStamps}/5</span>
                 </div>
                 <div style={{ height: 1, background: 'var(--line-gold)', marginBottom: 18 }}></div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
@@ -565,16 +666,17 @@ function App() {
                 <React.Fragment>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
                     <img src="assets/michaela.jpg" alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--line-gold)' }} />
-                    <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>Zuzana Kráľová</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>+421 905 111 222</div></div>
+                    <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? loggedInClient.phone : ''}</div></div>
                   </div>
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={s.clientBirthday} onChange={setClientBirthday} style={{ all: 'unset', fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)', textAlign: 'right' }} />
+                    <input type="date" value={clientBirthday} onChange={setClientBirthday} style={{ all: 'unset', fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)', textAlign: 'right' }} />
                   </div>
                   <div style={st('display:flex;flex-direction:column;border-radius:18px;border:1px solid var(--line);background:var(--white);margin-bottom:22px;overflow:hidden')}>
                     <button onClick={goReminders} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:15px 16px')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>Pripomienky a upozornenia</span><Icon name="arrow" size={14} /></button>
                   </div>
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nadchádzajúce</div>
+                  {upcomingAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Žiadne nadchádzajúce termíny.</p>}
                   {upcomingAppts.map((a, i) => (
                     <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
                       <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{a.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{a.date} · {a.time}</div></div>
@@ -582,6 +684,7 @@ function App() {
                     </div>
                   ))}
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História</div>
+                  {historyAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadna história.</p>}
                   {historyAppts.map((h, i) => (
                     <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
                       <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{h.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{h.date} · {h.time}</div></div>
@@ -691,7 +794,7 @@ function App() {
                     <span style={st('font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(140,110,98,.14);color:var(--mocha)')}>Nová</span>
                   </div>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
-                  <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 14 }}>{r.date} · {r.time}</div>
+                  <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 14 }}>{r.dateLabel} · {r.time}</div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={r.reject} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
                     <button onClick={r.approve} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Potvrdiť</button>
