@@ -240,6 +240,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(null); // null = unknown/checking
   useEffect(() => {
     if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); return; }
+    setIsAdmin(null); // never reuse a stale true/false from a previous sign-in while this one is still being checked
     db.collection('admins').doc(authUser.uid).get().then((doc) => setIsAdmin(doc.exists)).catch(() => setIsAdmin(false));
   }, [authUser]);
   const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
