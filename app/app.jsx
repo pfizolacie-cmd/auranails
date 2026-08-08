@@ -263,13 +263,23 @@ function App() {
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
 
   useEffect(() => {
-    if (authUser && isAdmin !== null && (s.screen === 'login' || s.screen === 'client-auth' || s.screen === 'admin-auth')) {
+    if (authUser && isAdmin !== null && (s.screen === 'login' || s.screen === 'client-auth' || (s.screen === 'admin-auth' && isAdmin))) {
       set({ screen: isAdmin ? 'admin' : 'client', clientTab: 'home', adminTab: 'overview' });
     }
     if (authUser === null && (s.screen === 'client' || s.screen === 'admin')) {
       set({ screen: 'login' });
     }
   }, [authUser, isAdmin]);
+  // A signed-in account that turns out not to be an admin, while on the
+  // admin login screen specifically, gets signed back out with an
+  // explanation — kept separate from the effect above so the two never
+  // race (one routing to 'client' the instant the other is rejecting it).
+  useEffect(() => {
+    if (authUser && isAdmin === false && s.screen === 'admin-auth') {
+      auth.signOut();
+      set({ authError: 'Tento účet nemá administrátorský prístup.' });
+    }
+  }, [authUser, isAdmin, s.screen]);
   const setBooking = (patch) => setStateRaw((prev) => ({ ...prev, booking: { ...prev.booking, ...patch } }));
   const toastTimer = useRef(null);
   const showToast = (msg) => {
@@ -329,14 +339,8 @@ function App() {
   };
   const doAdminLogin = async () => {
     set({ authError: '' });
-    try {
-      const cred = await auth.signInWithEmailAndPassword(s.authEmail.trim(), s.authPassword);
-      const adminDoc = await db.collection('admins').doc(cred.user.uid).get();
-      if (!adminDoc.exists) {
-        await auth.signOut();
-        set({ authError: 'Tento účet nemá administrátorský prístup.' });
-      }
-    } catch (e) { set({ authError: authErrorSk(e.code) }); }
+    try { await auth.signInWithEmailAndPassword(s.authEmail.trim(), s.authPassword); }
+    catch (e) { set({ authError: authErrorSk(e.code) }); }
   };
 
   const tabHome = s.clientTab === 'home', tabBooking = s.clientTab === 'booking', tabPass = s.clientTab === 'pass',
