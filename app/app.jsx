@@ -238,11 +238,18 @@ function App() {
     return auth.onAuthStateChanged((u) => setAuthUser(u));
   }, []);
   const [isAdmin, setIsAdmin] = useState(null); // null = unknown/checking
+  const [isAdminForUid, setIsAdminForUid] = useState(null); // which uid the isAdmin value above was actually resolved for
   useEffect(() => {
-    if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); return; }
-    setIsAdmin(null); // never reuse a stale true/false from a previous sign-in while this one is still being checked
-    db.collection('admins').doc(authUser.uid).get().then((doc) => setIsAdmin(doc.exists)).catch(() => setIsAdmin(false));
+    if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); setIsAdminForUid(authUser === null ? null : null); return; }
+    setIsAdmin(null);
+    db.collection('admins').doc(authUser.uid).get()
+      .then((doc) => { setIsAdmin(doc.exists); setIsAdminForUid(authUser.uid); })
+      .catch(() => { setIsAdmin(false); setIsAdminForUid(authUser.uid); });
   }, [authUser]);
+  // Whether isAdmin above genuinely reflects the CURRENTLY signed-in
+  // account — false right after a fresh sign-in, until the check for that
+  // specific uid finishes, so a leftover value from before is never reused.
+  const isAdminFresh = authUser ? isAdminForUid === authUser.uid : true;
   const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
 
   const [state, setStateRaw] = useState({
@@ -264,23 +271,24 @@ function App() {
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
 
   useEffect(() => {
-    if (authUser && isAdmin !== null && (s.screen === 'login' || s.screen === 'client-auth' || (s.screen === 'admin-auth' && isAdmin))) {
+    if (authUser && isAdminFresh && (s.screen === 'login' || s.screen === 'client-auth' || (s.screen === 'admin-auth' && isAdmin))) {
       set({ screen: isAdmin ? 'admin' : 'client', clientTab: 'home', adminTab: 'overview' });
     }
     if (authUser === null && (s.screen === 'client' || s.screen === 'admin')) {
       set({ screen: 'login' });
     }
-  }, [authUser, isAdmin]);
+  }, [authUser, isAdmin, isAdminFresh]);
   // A signed-in account that turns out not to be an admin, while on the
   // admin login screen specifically, gets signed back out with an
-  // explanation — kept separate from the effect above so the two never
-  // race (one routing to 'client' the instant the other is rejecting it).
+  // explanation. Gated on isAdminFresh so this can only fire once the
+  // check has genuinely completed for THIS sign-in — never on a leftover
+  // `false` left over from being signed out a moment before.
   useEffect(() => {
-    if (authUser && isAdmin === false && s.screen === 'admin-auth') {
+    if (authUser && isAdminFresh && isAdmin === false && s.screen === 'admin-auth') {
       auth.signOut();
       set({ authError: 'Tento účet nemá administrátorský prístup.' });
     }
-  }, [authUser, isAdmin, s.screen]);
+  }, [authUser, isAdmin, isAdminFresh, s.screen]);
   const setBooking = (patch) => setStateRaw((prev) => ({ ...prev, booking: { ...prev.booking, ...patch } }));
   const toastTimer = useRef(null);
   const showToast = (msg) => {
@@ -297,7 +305,7 @@ function App() {
   if (authUser === undefined) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
-  if (authUser && isAdmin === null) {
+  if (authUser && !isAdminFresh) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null)) {
