@@ -40,6 +40,7 @@ function Icon({ name, size = 22, style = {}, strokeWidth = 1.4 }) {
 const SK_DOW = ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So'];
 const SK_MON = ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'];
 const CLOSE_HOUR = 18;
+const OPEN_HOUR = 8;
 
 function isoOffset(daysFromToday) {
   const d = new Date();
@@ -83,22 +84,6 @@ const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 
 const BIRTHDAY_DISCOUNT_CODE = 'NARODENINY10';
 const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
 
-const CENNIK = [
-  { name: 'Gélové nechty', sub: 'Predĺženie & spevnenie', items: [
-    { label: 'Nová modelácia — Krátke', price: '33 €' }, { label: 'Nová modelácia — Stredné', price: '35 €' },
-    { label: 'Nová modelácia — Dlhé', price: '38 €' }, { label: 'Doplnenie — Krátke', price: '30 €' },
-    { label: 'Doplnenie — Stredné', price: '32 €' }, { label: 'Doplnenie — Dlhé', price: '35 €' },
-    { label: 'Jednorázové', price: '40 €' }, { label: 'Gél lak', price: '28 €' } ] },
-  { name: 'Manikúra', sub: 'Starostlivosť', items: [
-    { label: 'Prístrojová manikúra', price: '20 €' }, { label: 'SPA manikúra s peelingom', price: '25 €' },
-    { label: 'Hydratačný zábal a masáž rúk', price: '10 €' } ] },
-  { name: 'Odborná starostlivosť', sub: 'Zdravie nechtov', items: [
-    { label: 'Odstránenie nechtov', price: '15 €' }, { label: 'Odstránenie + prístrojová manikúra', price: '25 €' },
-    { label: 'IBX regeneračná kúra', price: '15 €' }, { label: 'IBX kúra + prístrojová manikúra', price: '25 €' } ] },
-  { name: 'Dizajn a doplnky', sub: 'Doplnky', items: [
-    { label: 'Francúzska manikúra', price: '3 €' }, { label: 'Francúzska manikúra (vstavaná)', price: '5 €' },
-    { label: 'Babyboomer (vstavaný)', price: '3 €' }, { label: 'Oprava nechtu mimo termín', price: '3 €' } ] },
-];
 const SERVICE_OPTIONS = [
   { name: 'Gélové nechty', sub: 'Modeláž, doplnenie, gél lak', duration: 2 },
   { name: 'Manikúra', sub: 'Prístrojová, SPA, hydratácia', duration: 1 },
@@ -110,11 +95,26 @@ const SERVICE_OPTIONS = [
 const FIREBASE_READY = typeof window.firebaseConfig === 'object'
   && window.firebaseConfig.apiKey && window.firebaseConfig.apiKey.indexOf('VLOZ_') === -1;
 let db = null;
+let auth = null;
 if (FIREBASE_READY) {
   try {
     firebase.initializeApp(window.firebaseConfig);
     db = firebase.firestore();
+    auth = firebase.auth();
   } catch (e) { console.error('Firebase init error', e); }
+}
+function authErrorSk(code) {
+  const map = {
+    'auth/email-already-in-use': 'Tento email už je zaregistrovaný.',
+    'auth/invalid-email': 'Neplatný email.',
+    'auth/weak-password': 'Heslo musí mať aspoň 6 znakov.',
+    'auth/wrong-password': 'Nesprávne heslo.',
+    'auth/user-not-found': 'Účet s týmto emailom neexistuje.',
+    'auth/invalid-credential': 'Nesprávny email alebo heslo.',
+    'auth/missing-password': 'Zadajte heslo.',
+    'auth/too-many-requests': 'Príliš veľa pokusov, skúste to o chvíľu.',
+  };
+  return map[code] || 'Nastala chyba, skúste to znova.';
 }
 
 async function seedIfEmpty() {
@@ -147,6 +147,28 @@ async function seedIfEmpty() {
   await batch.commit();
 }
 
+const CENNIK_SEED = [
+  { name: 'Gélové nechty', sub: 'Predĺženie & spevnenie', items: [
+    { label: 'Nová modelácia — Krátke', price: '33 €' }, { label: 'Nová modelácia — Stredné', price: '35 €' },
+    { label: 'Nová modelácia — Dlhé', price: '38 €' }, { label: 'Doplnenie — Krátke', price: '30 €' },
+    { label: 'Doplnenie — Stredné', price: '32 €' }, { label: 'Doplnenie — Dlhé', price: '35 €' },
+    { label: 'Jednorázové', price: '40 €' }, { label: 'Gél lak', price: '28 €' } ] },
+  { name: 'Manikúra', sub: 'Starostlivosť', items: [
+    { label: 'Prístrojová manikúra', price: '20 €' }, { label: 'SPA manikúra s peelingom', price: '25 €' },
+    { label: 'Hydratačný zábal a masáž rúk', price: '10 €' } ] },
+  { name: 'Odborná starostlivosť', sub: 'Zdravie nechtov', items: [
+    { label: 'Odstránenie nechtov', price: '15 €' }, { label: 'Odstránenie + prístrojová manikúra', price: '25 €' },
+    { label: 'IBX regeneračná kúra', price: '15 €' }, { label: 'IBX kúra + prístrojová manikúra', price: '25 €' } ] },
+  { name: 'Dizajn a doplnky', sub: 'Doplnky', items: [
+    { label: 'Francúzska manikúra', price: '3 €' }, { label: 'Francúzska manikúra (vstavaná)', price: '5 €' },
+    { label: 'Babyboomer (vstavaný)', price: '3 €' }, { label: 'Oprava nechtu mimo termín', price: '3 €' } ] },
+];
+async function seedPricingIfMissing() {
+  const doc = await db.collection('settings').doc('cennik').get();
+  if (doc.exists) return;
+  await db.collection('settings').doc('cennik').set({ categories: CENNIK_SEED });
+}
+
 function useCollection(name) {
   const [items, setItems] = useState(null);
   useEffect(() => {
@@ -157,6 +179,18 @@ function useCollection(name) {
     return unsub;
   }, [name]);
   return items;
+}
+
+function usePricing() {
+  const [categories, setCategories] = useState(null);
+  useEffect(() => {
+    if (!db) return;
+    const unsub = db.collection('settings').doc('cennik').onSnapshot((doc) => {
+      setCategories(doc.exists ? (doc.data().categories || []) : []);
+    }, (err) => console.error('pricing', err));
+    return unsub;
+  }, []);
+  return categories;
 }
 
 /* ---------- setup notice (shown until firebase-config.js is filled in) ---------- */
@@ -176,10 +210,26 @@ function App() {
   const clients = useCollection('clients');
   const requests = useCollection('requests');
   const appointments = useCollection('appointments');
+  const pricing = usePricing();
   const seededRef = useRef(false);
   useEffect(() => {
-    if (db && !seededRef.current) { seededRef.current = true; seedIfEmpty().catch((e) => console.error('seed error', e)); }
+    if (db && !seededRef.current) {
+      seededRef.current = true;
+      seedIfEmpty().catch((e) => console.error('seed error', e));
+      seedPricingIfMissing().catch((e) => console.error('seed pricing error', e));
+    }
   }, []);
+
+  const [authUser, setAuthUser] = useState(undefined); // undefined = not yet known, null = signed out
+  useEffect(() => {
+    if (!auth) return;
+    return auth.onAuthStateChanged((u) => setAuthUser(u));
+  }, []);
+  const [isAdmin, setIsAdmin] = useState(null); // null = unknown/checking
+  useEffect(() => {
+    if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); return; }
+    db.collection('admins').doc(authUser.uid).get().then((doc) => setIsAdmin(doc.exists)).catch(() => setIsAdmin(false));
+  }, [authUser]);
 
   const [state, setStateRaw] = useState({
     screen: 'login', clientTab: 'home',
@@ -191,9 +241,22 @@ function App() {
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDate: '', newClientTime: '',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
+    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '',
+    blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
+    addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
+    clientSearch: '',
   });
   const s = state;
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
+
+  useEffect(() => {
+    if (authUser && isAdmin !== null && (s.screen === 'login' || s.screen === 'client-auth' || s.screen === 'admin-auth')) {
+      set({ screen: isAdmin ? 'admin' : 'client', clientTab: 'home', adminTab: 'overview' });
+    }
+    if (authUser === null && (s.screen === 'client' || s.screen === 'admin')) {
+      set({ screen: 'login' });
+    }
+  }, [authUser, isAdmin]);
   const setBooking = (patch) => setStateRaw((prev) => ({ ...prev, booking: { ...prev.booking, ...patch } }));
   const toastTimer = useRef(null);
   const showToast = (msg) => {
@@ -204,17 +267,45 @@ function App() {
   const initials = (name) => name.split(' ').map((w) => w[0]).slice(0, 2).join('');
 
   if (!FIREBASE_READY) return <SetupNotice />;
-  if (clients === null || requests === null || appointments === null) {
+  if (clients === null || requests === null || appointments === null || pricing === null || authUser === undefined) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
 
-  const loggedInClient = clients.find((c) => c.name === DEMO_CLIENT_NAME) || null;
+  const loggedInClient = authUser ? (clients.find((c) => c.id === authUser.uid) || null) : null;
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
-  const goClient = () => set({ screen: 'client', clientTab: 'home' });
-  const goAdmin = () => set({ screen: 'admin', adminTab: 'overview' });
-  const backToLogin = () => set({ screen: 'login' });
+  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '' });
+  const goAdminAuth = () => set({ screen: 'admin-auth', authError: '', authEmail: '', authPassword: '' });
+  const backToEntry = () => set({ screen: 'login', authError: '' });
+  const backToLogin = () => { if (auth) auth.signOut(); set({ screen: 'login', authMode: 'login', authEmail: '', authPassword: '', authName: '', authError: '' }); };
+
+  const doClientRegister = async () => {
+    set({ authError: '' });
+    if (!s.authName.trim()) { set({ authError: 'Zadajte meno a priezvisko.' }); return; }
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(s.authEmail.trim(), s.authPassword);
+      await db.collection('clients').doc(cred.user.uid).set({
+        name: s.authName.trim(), email: s.authEmail.trim(), phone: '', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+      });
+    } catch (e) { set({ authError: authErrorSk(e.code) }); }
+  };
+  const doClientLogin = async () => {
+    set({ authError: '' });
+    try { await auth.signInWithEmailAndPassword(s.authEmail.trim(), s.authPassword); }
+    catch (e) { set({ authError: authErrorSk(e.code) }); }
+  };
+  const doAdminLogin = async () => {
+    set({ authError: '' });
+    try {
+      const cred = await auth.signInWithEmailAndPassword(s.authEmail.trim(), s.authPassword);
+      const adminDoc = await db.collection('admins').doc(cred.user.uid).get();
+      if (!adminDoc.exists) {
+        await auth.signOut();
+        set({ authError: 'Tento účet nemá administrátorský prístup.' });
+      }
+    } catch (e) { set({ authError: authErrorSk(e.code) }); }
+  };
 
   const tabHome = s.clientTab === 'home', tabBooking = s.clientTab === 'booking', tabPass = s.clientTab === 'pass',
     tabPricing = s.clientTab === 'pricing', tabProfile = s.clientTab === 'profile';
@@ -270,10 +361,10 @@ function App() {
   const prevBtnStyle = `${btnBase};color:${step0 ? 'var(--ink-3)' : 'var(--ink-2)'};border:1px solid var(--line-gold);opacity:${step0 ? 0.4 : 1};visibility:${step0 ? 'hidden' : 'visible'}`;
   const nextBtnStyle = `${btnBase};color:var(--porcelain);background:var(--espresso);opacity:${nextDisabled ? 0.4 : 1}`;
   const submitBooking = async () => {
-    if (!loggedInClient) return;
+    if (!loggedInClient || !authUser) return;
     await db.collection('requests').add({
-      name: loggedInClient.name, phone: loggedInClient.phone, service: booking_selectedService,
-      date: b.dateIso, time: b.time,
+      name: loggedInClient.name, phone: loggedInClient.phone || '', service: booking_selectedService,
+      date: b.dateIso, time: b.time, clientUid: authUser.uid,
     });
     setBooking({ done: true });
   };
@@ -302,13 +393,13 @@ function App() {
   const passShowReset = clientStamps > 0;
   const passHelperText = clientStamps < 5 ? 'Klikajte na kruhy a vyskúšajte si zbieranie pečiatok.' : 'Máte 5 pečiatok — kliknite na darček a uplatnite odmenu!';
 
-  const cennikCategories = CENNIK.map((cat, i) => ({
+  const cennikCategories = pricing.map((cat, i) => ({
     name: cat.name, sub: cat.sub, items: cat.items, open: s.expandedCat === i,
     toggle: () => set({ expandedCat: s.expandedCat === i ? null : i }),
     chevStyle: `display:flex;transform:rotate(${s.expandedCat === i ? 90 : 0}deg);transition:transform .3s;color:var(--ink-3)`,
   }));
 
-  const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'rgba(140,110,98,.14)' : 'rgba(62,39,39,.08)'};color:${tone === 'pending' ? 'var(--mocha)' : 'var(--espresso)'}`;
+  const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'rgba(140,110,98,.14)' : tone === 'blocked' ? 'rgba(178,59,59,.12)' : 'rgba(62,39,39,.08)'};color:${tone === 'pending' ? 'var(--mocha)' : tone === 'blocked' ? '#b23b3b' : 'var(--espresso)'}`;
   const myAppointments = loggedInClient ? appointments.filter((a) => a.name === loggedInClient.name) : [];
   const upcomingAppts = myAppointments.filter((a) => a.date >= todayIso).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date))
     .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined) }));
@@ -328,12 +419,31 @@ function App() {
   const toggleDayBefore = () => set({ dayBefore: !s.dayBefore });
   const toggleHourBefore = () => set({ hourBefore: !s.hourBefore });
 
-  const adminTabOverview = s.adminTab === 'overview', adminTabRequests = s.adminTab === 'requests', adminTabClients = s.adminTab === 'clients';
+  const adminTabOverview = s.adminTab === 'overview', adminTabRequests = s.adminTab === 'requests', adminTabClients = s.adminTab === 'clients', adminTabPricing = s.adminTab === 'pricing';
   const goOverview = () => set({ adminTab: 'overview' });
   const goRequests = () => set({ adminTab: 'requests' });
   const goClients = () => set({ adminTab: 'clients', selectedClientId: null });
+  const goPricingAdmin = () => set({ adminTab: 'pricing' });
   const hasPending = requests.length > 0;
-  const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky' };
+  const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky', pricing: 'Cenník' };
+
+  const updatePricing = (newCategories) => db.collection('settings').doc('cennik').set({ categories: newCategories });
+  const deletePricingCategory = (catIdx) => updatePricing(pricing.filter((_, i) => i !== catIdx));
+  const deletePricingItem = (catIdx, itemIdx) => updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: c.items.filter((_, j) => j !== itemIdx) } : c)));
+  const openAddItem = (catIdx) => set({ addItemCatIndex: catIdx, newItemLabel: '', newItemPrice: '' });
+  const cancelAddItem = () => set({ addItemCatIndex: null });
+  const saveNewItem = (catIdx) => {
+    if (!s.newItemLabel.trim() || !s.newItemPrice.trim()) return;
+    updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: [...c.items, { label: s.newItemLabel.trim(), price: s.newItemPrice.trim() }] } : c)));
+    set({ addItemCatIndex: null, newItemLabel: '', newItemPrice: '' });
+  };
+  const openAddCategory = () => set({ addCatFormOpen: true, newCatName: '', newCatSub: '' });
+  const cancelAddCategory = () => set({ addCatFormOpen: false });
+  const saveNewCategory = () => {
+    if (!s.newCatName.trim()) return;
+    updatePricing([...pricing, { name: s.newCatName.trim(), sub: s.newCatSub.trim(), items: [] }]);
+    set({ addCatFormOpen: false, newCatName: '', newCatSub: '' });
+  };
 
   const calendarDates = buildDateOptions();
   const countsByDate = {};
@@ -351,9 +461,25 @@ function App() {
   const calendarSelectedLabel = isoLabel(s.adminSelectedDate);
   const selectedDayAppts = appointments.filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
     const matched = clients.find((c) => c.name === a.name);
-    return { ...a, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined), open: () => matched && set({ adminTab: 'clients', selectedClientId: matched.id }) };
+    return {
+      ...a,
+      badgeLabel: a.blocked ? 'Zatvorené' : (a.manual ? 'Telefonicky' : 'Potvrdené'),
+      badgeStyle: badge(a.blocked ? 'blocked' : (a.manual ? 'pending' : undefined)),
+      open: a.blocked ? () => deleteBlock(a.id) : (() => matched && set({ adminTab: 'clients', selectedClientId: matched.id })),
+    };
   });
   const noDayAppts = selectedDayAppts.length === 0;
+  const openBlockForm = () => set({ blockFormOpen: true, blockAllDay: true, blockTime: '8:00', blockDuration: 1 });
+  const cancelBlockForm = () => set({ blockFormOpen: false });
+  const saveBlock = async () => {
+    const duration = s.blockAllDay ? (CLOSE_HOUR - OPEN_HOUR) : s.blockDuration;
+    const time = s.blockAllDay ? `${OPEN_HOUR}:00` : s.blockTime;
+    await db.collection('appointments').add({ date: s.adminSelectedDate, time, duration, blocked: true, name: 'Voľno', service: s.blockAllDay ? 'Celý deň voľno' : 'Blokovaný čas', manual: true });
+    set({ blockFormOpen: false });
+    showToast('Voľno nastavené');
+  };
+  const deleteBlock = async (id) => { await db.collection('appointments').doc(id).delete(); showToast('Voľno zrušené'); };
+  const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.72rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
   const adminTodayCount = countsByDate[todayIso] || 0;
   const adminPendingCount = requests.length;
   const noRequests = requests.length === 0;
@@ -378,6 +504,11 @@ function App() {
 
   const clientsListView = s.selectedClientId === null;
   const adminClientsList = clients.map((c) => ({ ...c, initials: initials(c.name), open: () => set({ selectedClientId: c.id }) }));
+  const clientSearchLower = s.clientSearch.trim().toLowerCase();
+  const adminClientsListFiltered = clientSearchLower
+    ? adminClientsList.filter((c) => (c.name || '').toLowerCase().includes(clientSearchLower) || (c.email || '').toLowerCase().includes(clientSearchLower) || (c.phone || '').toLowerCase().includes(clientSearchLower))
+    : adminClientsList;
+  const noSearchResults = clientSearchLower && adminClientsListFiltered.length === 0;
   const selClient = clients.find((c) => c.id === s.selectedClientId) || { name: '', phone: '', visits: 0, lastVisit: '', stamps: 0, history: [] };
   const selClientInitials = initials(selClient.name || '—');
   const selClientHistory = selClient.history || [];
@@ -427,7 +558,7 @@ function App() {
           </div>
           <div style={st('font-family:var(--font-display);font-size:1.5rem;color:var(--ink);text-align:center;margin-bottom:8px')}>Prihlásenie</div>
           <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.88rem;color:var(--ink-2);text-align:center;line-height:1.6;margin:0 0 32px')}>Vyberte, ako chcete pokračovať</p>
-          <button onClick={goClient} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--white);border:1px solid var(--line-gold);box-shadow:var(--shadow-md);margin-bottom:14px')}>
+          <button onClick={goClientAuth} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--white);border:1px solid var(--line-gold);box-shadow:var(--shadow-md);margin-bottom:14px')}>
             <span style={st('width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso);flex-shrink:0')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-4 3.2-6.4 7-6.4s7 2.4 7 6.4" /></svg>
             </span>
@@ -437,7 +568,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--ink-3)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <button onClick={goAdmin} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--espresso);box-shadow:var(--shadow-md);margin-bottom:28px')}>
+          <button onClick={goAdminAuth} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--espresso);box-shadow:var(--shadow-md);margin-bottom:28px')}>
             <span style={st('width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(247,242,239,0.14);color:var(--taupe-light);flex-shrink:0')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5l1.7 5.6 5.6 1.7-5.6 1.7L12 17.8l-1.7-5.6L4.7 10.5l5.6-1.7z" /></svg>
             </span>
@@ -448,6 +579,39 @@ function App() {
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
           <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo.</p>
+        </div>
+      )}
+
+      {s.screen === 'client-auth' && (
+        <div style={st('flex:1;display:flex;flex-direction:column;padding:76px 30px 40px;box-sizing:border-box;background:var(--porcelain)')}>
+          <button onClick={backToEntry} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:24px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Späť</button>
+          <div style={st('display:flex;flex-direction:column;align-items:center;margin-bottom:28px')}>
+            <img src="assets/aura-mark.svg" alt="" style={{ width: 44, height: 44, marginBottom: 12 }} />
+            <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink)')}>{s.authMode === 'login' ? 'Prihlásenie klientky' : 'Vytvorenie účtu'}</div>
+          </div>
+          {s.authMode === 'register' && (
+            <input value={s.authName} onChange={(e) => set({ authName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
+          )}
+          <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
+          <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
+          {s.authError && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
+          <button onClick={s.authMode === 'login' ? doClientLogin : doClientRegister} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:15px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:6px;margin-bottom:18px;box-shadow:var(--shadow-md)')}>{s.authMode === 'login' ? 'Prihlásiť sa' : 'Zaregistrovať sa'}</button>
+          <button onClick={() => set({ authMode: s.authMode === 'login' ? 'register' : 'login', authError: '' })} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:var(--mocha)')}>{s.authMode === 'login' ? 'Nemáte účet? Zaregistrujte sa' : 'Už máte účet? Prihláste sa'}</button>
+        </div>
+      )}
+
+      {s.screen === 'admin-auth' && (
+        <div style={st('flex:1;display:flex;flex-direction:column;padding:76px 30px 40px;box-sizing:border-box;background:var(--porcelain)')}>
+          <button onClick={backToEntry} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:24px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Späť</button>
+          <div style={st('display:flex;flex-direction:column;align-items:center;margin-bottom:28px')}>
+            <img src="assets/aura-mark.svg" alt="" style={{ width: 44, height: 44, marginBottom: 12 }} />
+            <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink)')}>Prihlásenie — Michaela</div>
+          </div>
+          <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
+          <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
+          {s.authError && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
+          <button onClick={doAdminLogin} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:15px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:6px;box-shadow:var(--shadow-md)')}>Prihlásiť sa</button>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:24px;line-height:1.6')}>Účet pre admin prístup zakladá majiteľ appky ručne vo Firebase konzole.</p>
         </div>
       )}
 
@@ -666,7 +830,7 @@ function App() {
                 <React.Fragment>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
                     <img src="assets/michaela.jpg" alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--line-gold)' }} />
-                    <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? loggedInClient.phone : ''}</div></div>
+                    <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? (loggedInClient.email || loggedInClient.phone) : ''}</div></div>
                   </div>
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Dátum narodenia</span>
@@ -767,7 +931,39 @@ function App() {
                   </button>
                 ))}
               </div>
-              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>{calendarSelectedLabel}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>{calendarSelectedLabel}</div>
+                {!s.blockFormOpen && <button onClick={openBlockForm} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Voľno</button>}
+              </div>
+              {s.blockFormOpen && (
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:16px')}>
+                  <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Nastaviť voľno — {calendarSelectedLabel}</div>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                    <button onClick={() => set({ blockAllDay: true })} style={st(blockTimePresetStyle(s.blockAllDay))}>Celý deň</button>
+                    <button onClick={() => set({ blockAllDay: false })} style={st(blockTimePresetStyle(!s.blockAllDay))}>Konkrétny čas</button>
+                  </div>
+                  {!s.blockAllDay && (
+                    <React.Fragment>
+                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Od</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+                        {buildTimeOptions().map((t, i) => (
+                          <button key={i} onClick={() => set({ blockTime: t })} style={st(blockTimePresetStyle(s.blockTime === t))}>{t}</button>
+                        ))}
+                      </div>
+                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie</div>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                        {DURATION_PRESETS.map((d, i) => (
+                          <button key={i} onClick={() => set({ blockDuration: d.val })} style={st(blockTimePresetStyle(s.blockDuration === d.val))}>{d.label}</button>
+                        ))}
+                      </div>
+                    </React.Fragment>
+                  )}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={cancelBlockForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                    <button onClick={saveBlock} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Uložiť</button>
+                  </div>
+                </div>
+              )}
               {noDayAppts && <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-3);padding:8px 0')}>Žiadne termíny na tento deň.</p>}
               {selectedDayAppts.map((ap, i) => (
                 <button key={i} onClick={ap.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;padding:14px 0;border-bottom:1px solid var(--line)')}>
@@ -835,10 +1031,12 @@ function App() {
                   {!s.addFormOpen && (
                     <button onClick={openAddClient} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:13px;border-radius:999px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px')}>+ Pridať klientku</button>
                   )}
-                  {adminClientsList.map((c, i) => (
+                  <input value={s.clientSearch} onChange={(e) => set({ clientSearch: e.target.value })} placeholder="Hľadať podľa mena, emailu alebo telefónu" style={st(inputStyle + ';margin-bottom:16px')} />
+                  {noSearchResults && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)', textAlign: 'center', padding: '20px 0' }}>Žiadna klientka nezodpovedá hľadaniu.</p>}
+                  {adminClientsListFiltered.map((c, i) => (
                     <button key={i} onClick={c.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:13px 0;border-bottom:1px solid var(--line)')}>
                       <span style={st('width:40px;height:40px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;flex-shrink:0')}>{c.initials}</span>
-                      <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>{c.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{c.phone}</div></div>
+                      <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>{c.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{c.email || c.phone}</div></div>
                       <span style={{ fontSize: '.68rem', letterSpacing: '.06em', color: 'var(--mocha)', flexShrink: 0 }}>{c.stamps}/5</span>
                     </button>
                   ))}
@@ -884,6 +1082,55 @@ function App() {
             </div>
           )}
 
+          {adminTabPricing && (
+            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
+              <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-2);margin:0 0 18px;line-height:1.6')}>Zmeny sa hneď zobrazia klientkam v appke.</p>
+              {pricing.map((cat, ci) => (
+                <div key={ci} style={st('border-radius:18px;background:var(--white);border:1px solid var(--line);margin-bottom:14px;overflow:hidden;padding:16px')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div><span style={{ fontFamily: 'var(--font-display)', fontSize: '1.08rem', color: 'var(--ink)', display: 'block' }}>{cat.name}</span><span style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>{cat.sub}</span></div>
+                    <button onClick={() => deletePricingCategory(ci)} style={st('all:unset;cursor:pointer;color:#b23b3b;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase')}>Zmazať</button>
+                  </div>
+                  {cat.items.map((it, ii) => (
+                    <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)')}>
+                      <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-2)' }}>{it.label}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)' }}>{it.price}</span>
+                        <button onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1')}>×</button>
+                      </span>
+                    </div>
+                  ))}
+                  {s.addItemCatIndex === ci ? (
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                        <input value={s.newItemLabel} onChange={(e) => set({ newItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                        <input value={s.newItemPrice} onChange={(e) => set({ newItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={cancelAddItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
+                        <button onClick={() => saveNewItem(ci)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Uložiť</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => openAddItem(ci)} style={st('all:unset;cursor:pointer;display:block;margin-top:10px;font-family:var(--font-sans);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mocha)')}>+ Pridať službu</button>
+                  )}
+                </div>
+              ))}
+              {s.addCatFormOpen ? (
+                <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold)')}>
+                  <input value={s.newCatName} onChange={(e) => set({ newCatName: e.target.value })} placeholder="Názov kategórie (napr. Pedikúra)" style={st(inputStyle)} />
+                  <input value={s.newCatSub} onChange={(e) => set({ newCatSub: e.target.value })} placeholder="Podnadpis (nepovinné)" style={st(inputStyle)} />
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={cancelAddCategory} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                    <button onClick={saveNewCategory} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Uložiť</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={openAddCategory} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:13px;border-radius:999px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase')}>+ Nová kategória</button>
+              )}
+            </div>
+          )}
+
           <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:sticky;bottom:0;z-index:5')}>
             <button onClick={goOverview} style={st(navBtn(adminTabOverview))}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
@@ -899,6 +1146,10 @@ function App() {
             <button onClick={goClients} style={st(navBtn(adminTabClients))}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19c0-3.4 2.6-5.6 5.5-5.6s5.5 2.2 5.5 5.6" /><circle cx="17" cy="9" r="2.4" /><path d="M15 13.6c2.4.3 4.5 2.1 4.5 5.4" /></svg>
               <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Klientky</span>
+            </button>
+            <button onClick={goPricingAdmin} style={st(navBtn(adminTabPricing))}>
+              <Icon name="list" size={21} />
+              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Cenník</span>
             </button>
           </div>
         </div>
