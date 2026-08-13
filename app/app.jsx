@@ -260,13 +260,15 @@ function App() {
     adminTab: 'overview', selectedClientId: null,
     toast: { visible: false, msg: '' },
     dayBefore: true, hourBefore: true,
-    addFormOpen: false, newClientName: '', newClientPhone: '', newClientDate: '', newClientTime: '',
+    addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
     authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
+    editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
     clientSearch: '',
+    apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
   });
   const s = state;
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
@@ -388,19 +390,19 @@ function App() {
     style: `all:unset;cursor:pointer;text-align:center;padding:10px 4px;border-radius:14px;color:${b.dateIso === d.iso ? 'var(--porcelain)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const svcDuration = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].duration : 1;
-  const timeOptions = buildTimeOptions().map((t) => {
-    const taken = b.dateIso === null ? false : !slotAvailable(b.dateIso, t, svcDuration, appointments);
-    const selected = b.time === t;
-    return {
-      label: t, taken, select: () => !taken && setBooking({ time: t }),
-      style: `cursor:${taken ? 'not-allowed' : 'pointer'};padding:11px 16px;border-radius:999px;font-family:var(--font-sans);font-size:.82rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
-    };
-  });
+  const timeValidReason = (() => {
+    if (!b.time) return null;
+    const startHours = timeToHours(b.time);
+    if (startHours < OPEN_HOUR) return `Štúdio otvára až o ${OPEN_HOUR}:00.`;
+    if (startHours + svcDuration > CLOSE_HOUR) return `Tento čas presahuje otváracie hodiny (do ${CLOSE_HOUR}:00).`;
+    if (b.dateIso && !slotAvailable(b.dateIso, b.time, svcDuration, appointments)) return 'Tento čas je už obsadený, vyberte iný.';
+    return null;
+  })();
   const booking_selectedService = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].name : '—';
   const booking_durationLabel = svcDuration === 0.5 ? '30 min' : svcDuration === 1 ? '1 h' : `${svcDuration} h`;
   const booking_selectedDate = b.dateIso ? isoLabel(b.dateIso) : '—';
   const bookingSummary = `${booking_selectedService} · ${booking_selectedDate} · ${b.time || '—'}`;
-  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && b.dateIso === null) || (step2 && !b.time);
+  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && b.dateIso === null) || (step2 && (!b.time || !!timeValidReason));
   const nextStep = () => !nextDisabled && setBooking({ step: Math.min(3, b.step + 1) });
   const prevStep = () => setBooking({ step: Math.max(0, b.step - 1) });
   const btnBase = 'all:unset;cursor:pointer;padding:12px 26px;border-radius:999px;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase';
@@ -410,7 +412,7 @@ function App() {
     if (!loggedInClient || !authUser) return;
     await db.collection('requests').add({
       name: loggedInClient.name, phone: loggedInClient.phone || '', service: booking_selectedService,
-      date: b.dateIso, time: b.time, clientUid: authUser.uid,
+      date: b.dateIso, time: b.time, clientUid: authUser.uid, duration: svcDuration,
     });
     setBooking({ done: true });
   };
@@ -483,6 +485,13 @@ function App() {
     updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: [...c.items, { label: s.newItemLabel.trim(), price: s.newItemPrice.trim() }] } : c)));
     set({ addItemCatIndex: null, newItemLabel: '', newItemPrice: '' });
   };
+  const openEditItem = (catIdx, itemIdx, item) => set({ editItemCatIndex: catIdx, editItemIndex: itemIdx, editItemLabel: item.label, editItemPrice: item.price });
+  const cancelEditItem = () => set({ editItemCatIndex: null, editItemIndex: null });
+  const saveEditItem = () => {
+    if (!s.editItemLabel.trim() || !s.editItemPrice.trim()) return;
+    updatePricing(pricing.map((c, ci) => (ci === s.editItemCatIndex ? { ...c, items: c.items.map((it, ii) => (ii === s.editItemIndex ? { label: s.editItemLabel.trim(), price: s.editItemPrice.trim() } : it)) } : c)));
+    set({ editItemCatIndex: null, editItemIndex: null });
+  };
   const openAddCategory = () => set({ addCatFormOpen: true, newCatName: '', newCatSub: '' });
   const cancelAddCategory = () => set({ addCatFormOpen: false });
   const saveNewCategory = () => {
@@ -532,7 +541,7 @@ function App() {
   const adminRequestsList = requests.map((r) => ({
     ...r, dateLabel: isoLabel(r.date),
     approve: async () => {
-      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: 1.5, manual: false });
+      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: r.duration || 1.5, manual: false });
       const matched = clients.find((c) => c.name === r.name);
       if (matched) {
         await db.collection('clients').doc(matched.id).update({
@@ -562,9 +571,16 @@ function App() {
     style: `aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${i < selClient.stamps ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${i < selClient.stamps ? 'var(--porcelain)' : 'var(--ink-3)'};border:1px solid ${i < selClient.stamps ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const backToClients = () => set({ selectedClientId: null });
+  const deleteClient = () => {
+    if (!s.selectedClientId) return;
+    if (!window.confirm(`Naozaj zmazať klientku ${selClient.name}? Táto akcia sa nedá vrátiť späť.`)) return;
+    db.collection('clients').doc(s.selectedClientId).delete();
+    set({ selectedClientId: null });
+    showToast('Klientka zmazaná');
+  };
   const updateClientNotes = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ notes: e.target.value }); };
   const updateClientBirthday = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ birthday: e.target.value }); };
-  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDate: '', newClientTime: '', newClientService: '' });
+  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '', newClientService: '' });
   const cancelAddClient = () => set({ addFormOpen: false });
   const durationPresetOptions = DURATION_PRESETS.map((d) => ({
     label: d.label, select: () => set({ newClientDuration: d.val }),
@@ -572,23 +588,53 @@ function App() {
   }));
   const saveDisabled = !s.newClientName.trim();
   const saveBtnStyle = `all:unset;cursor:${saveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${saveDisabled ? 0.5 : 1}`;
+  const adminDayPickerStyle = (selected) => `all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:12px;color:${selected ? 'var(--porcelain)' : 'var(--ink)'};background:${selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line)'}`;
+  const newClientDateOptions = calendarDates.map((d) => ({
+    dow: d.dow, num: d.num, mon: d.mon, select: () => set({ newClientDateIso: d.iso }),
+    style: adminDayPickerStyle(s.newClientDateIso === d.iso),
+  }));
   const saveNewClient = async () => {
     if (saveDisabled) return;
-    const hasAppt = s.newClientDate.trim() && s.newClientTime.trim();
-    const newClientRef = await db.collection('clients').add({
+    const hasAppt = s.newClientDateIso && s.newClientTime.trim();
+    await db.collection('clients').add({
       name: s.newClientName.trim(), phone: s.newClientPhone.trim() || '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
     });
     if (hasAppt) {
-      const iso = parseDateToIso(s.newClientDate.trim());
-      if (iso) {
-        await db.collection('appointments').add({ date: iso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: s.newClientDuration, manual: true });
-      }
+      await db.collection('appointments').add({ date: s.newClientDateIso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: s.newClientDuration, manual: true });
     }
     set({ addFormOpen: false });
     showToast(hasAppt ? 'Klientka a termín pridané' : 'Klientka pridaná');
   };
   const addStampSel = () => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ stamps: Math.min(5, (selClient.stamps || 0) + 1) }); };
   const removeStampSel = () => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ stamps: Math.max(0, (selClient.stamps || 0) - 1) }); };
+
+  // Appointment management for the client currently open in the detail view.
+  const selClientAppts = appointments.filter((a) => a.name === selClient.name && !a.blocked).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date));
+  const openAddAppt = () => set({ apptFormOpen: true, apptEditingId: null, apptDateIso: calendarDates[0].iso, apptTime: '', apptService: '', apptDuration: 1.5 });
+  const openEditAppt = (a) => set({ apptFormOpen: true, apptEditingId: a.id, apptDateIso: a.date, apptTime: a.time, apptService: a.service, apptDuration: a.duration || 1.5 });
+  const cancelApptForm = () => set({ apptFormOpen: false, apptEditingId: null });
+  const apptDateOptions = calendarDates.map((d) => ({
+    dow: d.dow, num: d.num, mon: d.mon, select: () => set({ apptDateIso: d.iso }),
+    style: adminDayPickerStyle(s.apptDateIso === d.iso),
+  }));
+  const apptDurationOptions = DURATION_PRESETS.map((d) => ({
+    label: d.label, select: () => set({ apptDuration: d.val }),
+    style: `all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;font-family:var(--font-sans);font-size:.74rem;color:${s.apptDuration === d.val ? 'var(--porcelain)' : 'var(--ink-2)'};background:${s.apptDuration === d.val ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${s.apptDuration === d.val ? 'var(--espresso)' : 'var(--line-gold)'}`,
+  }));
+  const apptSaveDisabled = !s.apptDateIso || !s.apptTime.trim();
+  const saveAppt = async () => {
+    if (apptSaveDisabled) return;
+    const payload = { date: s.apptDateIso, time: s.apptTime.trim(), name: selClient.name, service: s.apptService.trim() || 'Bez upresnenia', duration: s.apptDuration, manual: true };
+    if (s.apptEditingId) await db.collection('appointments').doc(s.apptEditingId).update(payload);
+    else await db.collection('appointments').add(payload);
+    set({ apptFormOpen: false, apptEditingId: null });
+    showToast(s.apptEditingId ? 'Termín upravený' : 'Termín pridaný');
+  };
+  const cancelAppt = (id) => {
+    if (!window.confirm('Naozaj zrušiť tento termín?')) return;
+    db.collection('appointments').doc(id).delete();
+    showToast('Termín zrušený');
+  };
 
   const inputStyle = 'all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px';
 
@@ -624,7 +670,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 7)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 10)</p>
         </div>
       )}
 
@@ -773,12 +819,10 @@ function App() {
                   {step2 && (
                     <React.Fragment>
                       <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>3 · Vyberte čas</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>{booking_selectedDate} · trvanie {booking_durationLabel}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-                        {timeOptions.map((t, i) => (
-                          <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
-                        ))}
-                      </div>
+                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>{booking_selectedDate} · trvanie {booking_durationLabel} · otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00</p>
+                      <input type="time" value={b.time || ''} onChange={(e) => setBooking({ time: e.target.value })} min={`${String(OPEN_HOUR).padStart(2, '0')}:00`} max={`${String(CLOSE_HOUR).padStart(2, '0')}:00`} style={st(`all:unset;display:block;width:100%;box-sizing:border-box;padding:14px 16px;border-radius:14px;font-family:var(--font-sans);font-size:1rem;color:var(--ink);background:var(--white);border:1px solid ${timeValidReason ? '#b23b3b' : 'var(--line-gold)'}`)} />
+                      {timeValidReason && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.78rem', margin: '10px 0 0' }}>{timeValidReason}</p>}
+                      {b.time && !timeValidReason && <p style={{ color: 'var(--mocha)', fontFamily: 'var(--font-sans)', fontSize: '.78rem', margin: '10px 0 0' }}>Tento čas je voľný.</p>}
                     </React.Fragment>
                   )}
                   {step3 && (
@@ -875,7 +919,7 @@ function App() {
               {s.profileView === 'main' && (
                 <React.Fragment>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
-                    <img src="assets/michaela.jpg" alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--line-gold)' }} />
+                    <span style={st('width:56px;height:56px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.35rem;flex-shrink:0;border:1px solid var(--line-gold)')}>{loggedInClient ? initials(loggedInClient.name) : ''}</span>
                     <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? (loggedInClient.email || loggedInClient.phone) : ''}</div></div>
                   </div>
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
@@ -1056,10 +1100,15 @@ function App() {
                       <input value={s.newClientName} onChange={(e) => set({ newClientName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
                       <input value={s.newClientPhone} onChange={(e) => set({ newClientPhone: e.target.value })} placeholder="Telefónne číslo" style={st(inputStyle)} />
                       <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Termín z kalendára (nepovinné)</div>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                        <input value={s.newClientDate} onChange={(e) => set({ newClientDate: e.target.value })} placeholder="napr. 14. aug" style={st('all:unset;flex:1;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink)')} />
-                        <input value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} placeholder="14:00" style={st('all:unset;width:90px;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink)')} />
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, marginBottom: 10 }}>
+                        {newClientDateOptions.map((d, i) => (
+                          <button key={i} onClick={d.select} style={st(d.style)}>
+                            <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
+                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
+                          </button>
+                        ))}
                       </div>
+                      <input type="time" value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px')} />
                       <input value={s.newClientService} onChange={(e) => set({ newClientService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
                       <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu</div>
                       <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -1114,7 +1163,47 @@ function App() {
                       <button onClick={addStampSel} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>+ Pečiatka</button>
                     </div>
                   </div>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>História návštev</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink)')}>Termíny</div>
+                    {!s.apptFormOpen && <button onClick={openAddAppt} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Pridať termín</button>}
+                  </div>
+                  {selClientAppts.length === 0 && !s.apptFormOpen && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)', margin: '0 0 14px' }}>Žiadne termíny.</p>}
+                  {selClientAppts.map((a, i) => (
+                    <div key={i} style={st('display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)')}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>{a.service}</div>
+                        <div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{isoLabel(a.date)} · {a.time}</div>
+                      </div>
+                      <button onClick={() => openEditAppt(a)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Upraviť</button>
+                      <button onClick={() => cancelAppt(a.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b')}>Zrušiť</button>
+                    </div>
+                  ))}
+                  {s.apptFormOpen && (
+                    <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin:12px 0')}>
+                      <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>{s.apptEditingId ? 'Upraviť termín' : 'Nový termín'}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, marginBottom: 10 }}>
+                        {apptDateOptions.map((d, i) => (
+                          <button key={i} onClick={d.select} style={st(d.style)}>
+                            <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
+                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <input type="time" value={s.apptTime} onChange={(e) => set({ apptTime: e.target.value })} style={st(inputStyle)} />
+                      <input value={s.apptService} onChange={(e) => set({ apptService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
+                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu</div>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+                        {apptDurationOptions.map((d, i) => (
+                          <button key={i} onClick={d.select} style={st(d.style)}>{d.label}</button>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={cancelApptForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                        <button onClick={saveAppt} disabled={apptSaveDisabled} style={st(`all:unset;cursor:${apptSaveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${apptSaveDisabled ? 0.5 : 1}`)}>Uložiť</button>
+                      </div>
+                    </div>
+                  )}
+                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História návštev</div>
                   {selClientHistory.map((h, i) => (
                     <div key={i} style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}>
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink-2)' }}>{h.service}</span>
@@ -1123,6 +1212,7 @@ function App() {
                   ))}
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>Poznámky</div>
                   <textarea value={selClient.notes} onChange={updateClientNotes} placeholder="napr. alergie, preferencie, poznámky k nechtom…" style={st('all:unset;display:block;width:100%;min-height:90px;box-sizing:border-box;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--white);font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink);line-height:1.6;margin-bottom:20px;resize:none')}></textarea>
+                  <button onClick={deleteClient} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid rgba(178,59,59,.4);color:#b23b3b;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase')}>Zmazať klientku</button>
                 </React.Fragment>
               )}
             </div>
@@ -1138,13 +1228,26 @@ function App() {
                     <button onClick={() => deletePricingCategory(ci)} style={st('all:unset;cursor:pointer;color:#b23b3b;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase')}>Zmazať</button>
                   </div>
                   {cat.items.map((it, ii) => (
-                    <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)')}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-2)' }}>{it.label}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)' }}>{it.price}</span>
-                        <button onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1')}>×</button>
-                      </span>
-                    </div>
+                    s.editItemCatIndex === ci && s.editItemIndex === ii ? (
+                      <div key={ii} style={{ padding: '9px 0', borderTop: '1px solid var(--line)' }}>
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                          <input value={s.editItemLabel} onChange={(e) => set({ editItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                          <input value={s.editItemPrice} onChange={(e) => set({ editItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={cancelEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
+                          <button onClick={saveEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Uložiť</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)')}>
+                        <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;text-align:left;font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-2)')}>{it.label}</button>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.84rem;color:var(--mocha)')}>{it.price}</button>
+                          <button onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1')}>×</button>
+                        </span>
+                      </div>
+                    )
                   ))}
                   {s.addItemCatIndex === ci ? (
                     <div style={{ marginTop: 10 }}>
