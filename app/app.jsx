@@ -239,12 +239,13 @@ function App() {
   }, []);
   const [isAdmin, setIsAdmin] = useState(null); // null = unknown/checking
   const [isAdminForUid, setIsAdminForUid] = useState(null); // which uid the isAdmin value above was actually resolved for
+  const [adminCheckDebug, setAdminCheckDebug] = useState('');
   useEffect(() => {
     if (!db || !authUser) { setIsAdmin(authUser === null ? false : null); setIsAdminForUid(authUser === null ? null : null); return; }
     setIsAdmin(null);
     db.collection('admins').doc(authUser.uid).get()
-      .then((doc) => { setIsAdmin(doc.exists); setIsAdminForUid(authUser.uid); })
-      .catch(() => { setIsAdmin(false); setIsAdminForUid(authUser.uid); });
+      .then((doc) => { setIsAdmin(doc.exists); setIsAdminForUid(authUser.uid); setAdminCheckDebug(`ok, exists=${doc.exists}`); })
+      .catch((err) => { setIsAdmin(false); setIsAdminForUid(authUser.uid); setAdminCheckDebug(`error: ${err && err.code} ${err && err.message}`); });
   }, [authUser]);
   // Whether isAdmin above genuinely reflects the CURRENTLY signed-in
   // account — false right after a fresh sign-in, until the check for that
@@ -286,7 +287,7 @@ function App() {
   useEffect(() => {
     if (authUser && isAdminFresh && isAdmin === false && s.screen === 'admin-auth') {
       auth.signOut();
-      set({ authError: `Tento účet nemá administrátorský prístup. (UID: ${authUser.uid})` });
+      set({ authError: `Tento účet nemá administrátorský prístup. (UID: ${authUser.uid}) [${adminCheckDebug}]` });
     }
   }, [authUser, isAdmin, isAdminFresh, s.screen]);
   const setBooking = (patch) => setStateRaw((prev) => ({ ...prev, booking: { ...prev.booking, ...patch } }));
@@ -623,7 +624,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 6)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 7)</p>
         </div>
       )}
 
