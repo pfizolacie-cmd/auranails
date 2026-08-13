@@ -286,7 +286,7 @@ function App() {
   useEffect(() => {
     if (authUser && isAdminFresh && isAdmin === false && s.screen === 'admin-auth') {
       auth.signOut();
-      set({ authError: 'Tento účet nemá administrátorský prístup.' });
+      set({ authError: `Tento účet nemá administrátorský prístup. (UID: ${authUser.uid})` });
     }
   }, [authUser, isAdmin, isAdminFresh, s.screen]);
   const setBooking = (patch) => setStateRaw((prev) => ({ ...prev, booking: { ...prev.booking, ...patch } }));
@@ -623,7 +623,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo.</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 6)</p>
         </div>
       )}
 
