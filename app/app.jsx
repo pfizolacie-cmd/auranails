@@ -73,6 +73,11 @@ function parseDateToIso(text) {
   return found ? found.iso : null;
 }
 function timeToHours(t) { const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60; }
+function formatDuration(h) {
+  if (!h && h !== 0) return '';
+  if (h === 0.5) return '30 min';
+  return Number.isInteger(h) ? `${h} h` : `${String(h).replace('.', ',')} h`;
+}
 function overlaps(aStart, aDur, bStart, bDur) { return aStart < bStart + bDur && bStart < aStart + aDur; }
 function slotAvailable(iso, timeStr, durationHours, appointments) {
   const start = timeToHours(timeStr);
@@ -267,6 +272,7 @@ function App() {
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
     editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
+    requestDurations: {},
     clientSearch: '',
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
   });
@@ -538,10 +544,12 @@ function App() {
   const adminTodayCount = countsByDate[todayIso] || 0;
   const adminPendingCount = requests.length;
   const noRequests = requests.length === 0;
+  const getRequestDuration = (r) => (s.requestDurations[r.id] !== undefined ? s.requestDurations[r.id] : (r.duration || 1.5));
+  const setRequestDuration = (id, val) => set({ requestDurations: { ...s.requestDurations, [id]: val } });
   const adminRequestsList = requests.map((r) => ({
-    ...r, dateLabel: isoLabel(r.date),
+    ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
     approve: async () => {
-      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: r.duration || 1.5, manual: false });
+      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false });
       const matched = clients.find((c) => c.name === r.name);
       if (matched) {
         await db.collection('clients').doc(matched.id).update({
@@ -670,7 +678,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 10)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 11)</p>
         </div>
       )}
 
@@ -1080,7 +1088,11 @@ function App() {
                     <span style={st('font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(140,110,98,.14);color:var(--mocha)')}>Nová</span>
                   </div>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
-                  <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 14 }}>{r.dateLabel} · {r.time}</div>
+                  <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 12 }}>{r.dateLabel} · {r.time}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                    <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
+                    <input type="number" step="0.25" min="0.25" max="8" value={r.durationValue} onChange={(e) => setRequestDuration(r.id, parseFloat(e.target.value) || 0.25)} style={st('all:unset;width:70px;box-sizing:border-box;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                  </div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={r.reject} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
                     <button onClick={r.approve} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Potvrdiť</button>
@@ -1110,12 +1122,8 @@ function App() {
                       </div>
                       <input type="time" value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px')} />
                       <input value={s.newClientService} onChange={(e) => set({ newClientService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu</div>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-                        {durationPresetOptions.map((dp, i) => (
-                          <button key={i} onClick={dp.select} style={st(dp.style)}>{dp.label}</button>
-                        ))}
-                      </div>
+                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
+                      <input type="number" step="0.25" min="0.25" max="8" value={s.newClientDuration} onChange={(e) => set({ newClientDuration: parseFloat(e.target.value) || 0.25 })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
                       <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.74rem;color:var(--ink-3);margin:0 0 14px;line-height:1.5')}>Vyplňte termín, ak si klientka dohodla čas telefonicky alebo osobne — obsadí to daný čas aj v rezervačnom kalendári appky.</p>
                       <div style={{ display: 'flex', gap: 10 }}>
                         <button onClick={cancelAddClient} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
@@ -1191,12 +1199,8 @@ function App() {
                       </div>
                       <input type="time" value={s.apptTime} onChange={(e) => set({ apptTime: e.target.value })} style={st(inputStyle)} />
                       <input value={s.apptService} onChange={(e) => set({ apptService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu</div>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-                        {apptDurationOptions.map((d, i) => (
-                          <button key={i} onClick={d.select} style={st(d.style)}>{d.label}</button>
-                        ))}
-                      </div>
+                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
+                      <input type="number" step="0.25" min="0.25" max="8" value={s.apptDuration} onChange={(e) => set({ apptDuration: parseFloat(e.target.value) || 0.25 })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
                       <div style={{ display: 'flex', gap: 10 }}>
                         <button onClick={cancelApptForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
                         <button onClick={saveAppt} disabled={apptSaveDisabled} style={st(`all:unset;cursor:${apptSaveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${apptSaveDisabled ? 0.5 : 1}`)}>Uložiť</button>
