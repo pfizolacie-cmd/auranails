@@ -183,15 +183,20 @@ async function seedPricingIfMissing() {
   await db.collection('settings').doc('cennik').set({ categories: CENNIK_SEED });
 }
 
-function useCollection(name) {
+function useCollection(name, uid) {
   const [items, setItems] = useState(null);
   useEffect(() => {
     if (!db) return;
+    // Kým nie je jasné, či je používateľ prihlásený (uid === undefined), nespúšťame
+    // poslucháča — inak by dostal "prístup zamietnutý", zomrel by a appka by
+    // čakala donekonečna. Po zmene prihlásenia sa poslucháč nadviaže znova.
+    if (uid === undefined) return;
+    setItems(null);
     const unsub = db.collection(name).onSnapshot((snap) => {
       setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    }, (err) => console.error(name, err));
+    }, (err) => { console.error(name, err); setItems([]); });
     return unsub;
-  }, [name]);
+  }, [name, uid]);
   return items;
 }
 
@@ -234,11 +239,21 @@ function SetupNotice() {
 
 /* ---------- app ---------- */
 function App() {
-  const clientsRaw = useCollection('clients');
-  const requestsRaw = useCollection('requests');
-  const appointmentsRaw = useCollection('appointments');
+  // POZOR na poradie: prihlásenie musí byť známe skôr, než sa nadviažu
+  // databázoví poslucháči, inak by ich Firestore hneď odmietol.
+  const [authUser, setAuthUser] = useState(undefined); // undefined = not yet known, null = signed out
+  useEffect(() => {
+    if (!auth) return;
+    return auth.onAuthStateChanged((u) => setAuthUser(u));
+  }, []);
+  // undefined = ešte nevieme, null = odhlásený, string = uid prihláseného
+  const authKey = authUser === undefined ? undefined : (authUser ? authUser.uid : null);
+
+  const clientsRaw = useCollection('clients', authKey);
+  const requestsRaw = useCollection('requests', authKey);
+  const appointmentsRaw = useCollection('appointments', authKey);
   const pricingRaw = usePricing();
-  const referralsRaw = useCollection('referrals');
+  const referralsRaw = useCollection('referrals', authKey);
   const seededRef = useRef(false);
   useEffect(() => {
     if (db && !seededRef.current) {
@@ -248,11 +263,6 @@ function App() {
     }
   }, []);
 
-  const [authUser, setAuthUser] = useState(undefined); // undefined = not yet known, null = signed out
-  useEffect(() => {
-    if (!auth) return;
-    return auth.onAuthStateChanged((u) => setAuthUser(u));
-  }, []);
   const [isAdmin, setIsAdmin] = useState(null); // null = unknown/checking
   const [isAdminForUid, setIsAdminForUid] = useState(null); // which uid the isAdmin value above was actually resolved for
   const [adminCheckDebug, setAdminCheckDebug] = useState('');
@@ -882,7 +892,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 18)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 19)</p>
         </div>
       )}
 
