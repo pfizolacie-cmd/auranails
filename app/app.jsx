@@ -298,6 +298,7 @@ function App() {
     clientSearch: '',
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
     mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
+    chatOpen: false, chatLog: [], chatView: 'menu', chatSvcIdx: null, chatDateIso: null,
   });
   const s = state;
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
@@ -466,28 +467,87 @@ function App() {
   };
   const resetBooking = () => set({ booking: { step: 0, serviceIdx: null, dateIso: null, time: null, done: false } });
 
+  /* ---------- chatbot (recepčná bez AI: vedená konverzácia klikaním) ---------- */
+  const chatSay = (from, text) => setStateRaw((prev) => ({ ...prev, chatLog: [...prev.chatLog, { from, text }] }));
+  const chatOpen = () => set({ chatOpen: true, chatLog: s.chatLog.length ? s.chatLog : [{ from: 'bot', text: 'Dobrý deň! Som Aura, vaša asistentka. S čím vám môžem pomôcť?' }], chatView: 'menu' });
+  const chatClose = () => set({ chatOpen: false });
+  const chatReset = () => set({ chatView: 'menu', chatSvcIdx: null, chatDateIso: null });
+  // klientka klikne na možnosť → zapíšeme jej "otázku" aj odpoveď, aby to pôsobilo ako rozhovor
+  const chatPick = (label, answer, nextView) => {
+    setStateRaw((prev) => ({
+      ...prev,
+      chatLog: [...prev.chatLog, { from: 'me', text: label }, ...(answer ? [{ from: 'bot', text: answer }] : [])],
+      chatView: nextView !== undefined ? nextView : prev.chatView,
+    }));
+  };
+  const chatPriceText = pricing.length
+    ? pricing.map((c) => `${c.name}: ${c.items.slice(0, 3).map((i) => `${i.label} ${i.price}`).join(', ')}${c.items.length > 3 ? '…' : ''}`).join('\n')
+    : 'Cenník sa práve načítava.';
+  // ponuka hlavného menu
+  const chatMenuOptions = [
+    { label: 'Chcem sa objednať', run: () => chatPick('Chcem sa objednať', 'Rada vám pomôžem. Akú službu si želáte?', 'svc') },
+    { label: 'Aké máte ceny?', run: () => chatPick('Aké máte ceny?', chatPriceText + '\n\nCelý cenník nájdete v záložke Cenník.') },
+    { label: 'Otváracie hodiny', run: () => chatPick('Otváracie hodiny', `Otvorené máme ${OPEN_HOUR}:00 – ${CLOSE_HOUR}:00. Termíny sa dajú rezervovať až 30 dní dopredu.`) },
+    { label: 'Kde vás nájdem?', run: () => chatPick('Kde vás nájdem?', 'Nechtové štúdio Aura Nails, Handlová. Presnú adresu a kontakt nájdete na našej stránke auranails.sk.') },
+    { label: 'Ako funguje Aura Pass?', run: () => chatPick('Ako funguje Aura Pass?', 'Za každú návštevu vám Michaela pridá pečiatku. Po 5 pečiatkach získate odmenu. Aktuálny stav vidíte v záložke Pass.') },
+  ];
+  // krok: výber služby
+  const chatSvcOptions = SERVICE_OPTIONS.map((sv, i) => ({
+    label: sv.name,
+    run: () => {
+      setStateRaw((prev) => ({
+        ...prev, chatSvcIdx: i, chatView: 'date',
+        chatLog: [...prev.chatLog, { from: 'me', text: sv.name }, { from: 'bot', text: `${sv.name} (${formatDuration(sv.duration)}). Na ktorý deň?` }],
+      }));
+    },
+  }));
+  // krok: výber dňa (najbližších 7 dní, plné dni sa neponúkajú)
+  const chatSvcDuration = s.chatSvcIdx !== null ? SERVICE_OPTIONS[s.chatSvcIdx].duration : 1;
+  const chatDateOptions = buildDateOptions(7)
+    .filter((d) => buildTimeOptions().some((t) => slotAvailable(d.iso, t, chatSvcDuration, appointments)))
+    .map((d) => ({
+      label: `${d.dow} ${d.num}. ${d.mon}`,
+      run: () => {
+        setStateRaw((prev) => ({
+          ...prev, chatDateIso: d.iso, chatView: 'time',
+          chatLog: [...prev.chatLog, { from: 'me', text: `${d.dow} ${d.num}. ${d.mon}` }, { from: 'bot', text: 'Tu sú voľné časy:' }],
+        }));
+      },
+    }));
+  // krok: výber času (len skutočne voľné)
+  const chatTimeOptions = (s.chatDateIso ? buildTimeOptions().filter((t) => slotAvailable(s.chatDateIso, t, chatSvcDuration, appointments)) : [])
+    .map((t) => ({
+      label: t,
+      run: async () => {
+        if (!loggedInClient || !authUser) {
+          chatPick(t, 'Aby som mohla rezerváciu odoslať, prihláste sa prosím ako klientka (tlačidlo Späť → Som klientka).', 'menu');
+          return;
+        }
+        await db.collection('requests').add({
+          name: loggedInClient.name, phone: loggedInClient.phone || '', service: SERVICE_OPTIONS[s.chatSvcIdx].name,
+          date: s.chatDateIso, time: t, clientUid: authUser.uid, duration: chatSvcDuration,
+        });
+        setStateRaw((prev) => ({
+          ...prev, chatView: 'menu', chatSvcIdx: null, chatDateIso: null,
+          chatLog: [...prev.chatLog, { from: 'me', text: t }, { from: 'bot', text: `Hotovo! Vaša žiadosť (${isoLabel(s.chatDateIso)} o ${t}) je odoslaná a čaká na potvrdenie od Michaely. Ozveme sa vám čoskoro. Môžem ešte s niečím pomôcť?` }],
+        }));
+      },
+    }));
+  const chatCurrentOptions = s.chatView === 'svc' ? chatSvcOptions
+    : s.chatView === 'date' ? chatDateOptions
+    : s.chatView === 'time' ? chatTimeOptions
+    : chatMenuOptions;
+  const chatShowBack = s.chatView !== 'menu';
+
   const clientStamps = loggedInClient ? loggedInClient.stamps : 0;
   const passStampDots = [0, 1, 2, 3, 4].map((i) => {
     const on = i < clientStamps;
     return {
-      click: () => {
-        if (!loggedInClient) return;
-        if (i === clientStamps) db.collection('clients').doc(loggedInClient.id).update({ stamps: clientStamps + 1 });
-        else if (i === clientStamps - 1) db.collection('clients').doc(loggedInClient.id).update({ stamps: clientStamps - 1 });
-      },
-      style: `aspect-ratio:1;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : i === clientStamps ? '1.5px dashed var(--line-gold)' : '1px solid var(--line)'}`,
+      style: `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : '1px solid var(--line)'}`,
     };
   });
-  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:${clientStamps >= 5 ? 'pointer' : 'not-allowed'};display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--ink-3)'};border:2px solid ${clientStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
-  const claimReward = () => {
-    if (loggedInClient && clientStamps >= 5) {
-      db.collection('clients').doc(loggedInClient.id).update({ stamps: 0 });
-      showToast('Odmena uplatnená! ✨');
-    }
-  };
-  const resetPass = () => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ stamps: 0 }); };
-  const passShowReset = clientStamps > 0;
-  const passHelperText = clientStamps < 5 ? 'Klikajte na kruhy a vyskúšajte si zbieranie pečiatok.' : 'Máte 5 pečiatok — kliknite na darček a uplatnite odmenu!';
+  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--ink-3)'};border:2px solid ${clientStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const passHelperText = clientStamps >= 5 ? 'Máte 5 pečiatok — pri ďalšej návšteve vám Michaela uplatní odmenu!' : `Za každú návštevu vám Michaela pridá pečiatku. Aktuálne máte ${clientStamps}/5.`;
 
   const cennikCategories = pricing.map((cat, i) => ({
     name: cat.name, sub: cat.sub, items: cat.items, open: s.expandedCat === i,
@@ -822,7 +882,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 16)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 18)</p>
         </div>
       )}
 
@@ -1024,15 +1084,14 @@ function App() {
                 <div style={{ height: 1, background: 'var(--line-gold)', marginBottom: 18 }}></div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
                   {passStampDots.map((p, i) => (
-                    <button key={i} onClick={p.click} style={st(p.style)}><Icon name="sparkle" size={20} /></button>
+                    <div key={i} style={st(p.style)}><Icon name="sparkle" size={20} /></div>
                   ))}
-                  <button onClick={claimReward} style={st(rewardStyle)}>
+                  <div style={st(rewardStyle)}>
                     <Icon name="gift" size={22} />
                     <span style={{ fontSize: '.5rem', letterSpacing: '.12em', textTransform: 'uppercase', display: 'block', marginTop: 4 }}>Darček</span>
-                  </button>
+                  </div>
                 </div>
                 <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.8rem;color:var(--ink-3);text-align:center;margin:18px 0 4px;line-height:1.6')}>{passHelperText}</p>
-                {passShowReset && <button onClick={resetPass} style={st('all:unset;cursor:pointer;display:block;margin:8px auto 0;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)')}>Vynulovať kartu</button>}
               </div>
               <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Ako to funguje</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -1586,6 +1645,37 @@ function App() {
 
       {s.toast.visible && (
         <div style={st('position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--espresso);color:var(--porcelain);padding:10px 18px;border-radius:999px;font-family:var(--font-sans);font-size:.76rem;letter-spacing:.04em;white-space:nowrap;box-shadow:var(--shadow-lg);z-index:50')}>{s.toast.msg}</div>
+      )}
+
+      {/* Chatbot — len pre klientky (nie v admin rozhraní) */}
+      {s.screen === 'client' && !s.chatOpen && (
+        <button onClick={chatOpen} aria-label="Otvoriť chat" style={st('all:unset;cursor:pointer;position:absolute;right:18px;bottom:88px;width:52px;height:52px;border-radius:50%;background:var(--espresso);color:var(--porcelain);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg);z-index:60')}>
+          <Icon name="sparkle" size={22} />
+        </button>
+      )}
+      {s.screen === 'client' && s.chatOpen && (
+        <div style={st('position:absolute;left:12px;right:12px;bottom:80px;max-height:70%;display:flex;flex-direction:column;background:var(--porcelain);border:1px solid var(--line-gold);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);z-index:60')}>
+          <div style={st('display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--espresso);color:var(--porcelain)')}>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem' }}>Aura — asistentka</span>
+            <button onClick={chatClose} aria-label="Zavrieť chat" style={st('all:unset;cursor:pointer;font-size:1.1rem;line-height:1;opacity:.85')}>×</button>
+          </div>
+          <div style={st('flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px')}>
+            {s.chatLog.map((m, i) => (
+              <div key={i} style={st(`max-width:85%;padding:9px 13px;border-radius:14px;font-family:var(--font-sans);font-size:.82rem;line-height:1.5;white-space:pre-line;${m.from === 'me' ? 'align-self:flex-end;background:var(--espresso);color:var(--porcelain)' : 'align-self:flex-start;background:var(--white);color:var(--ink);border:1px solid var(--line)'}`)}>{m.text}</div>
+            ))}
+          </div>
+          <div style={st('padding:12px 14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:7px')}>
+            {chatCurrentOptions.length === 0 && (
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink-3)' }}>Na tento deň, žiaľ, nie sú voľné časy.</span>
+            )}
+            {chatCurrentOptions.map((o, i) => (
+              <button key={i} onClick={o.run} style={st('all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;background:var(--white);border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.78rem')}>{o.label}</button>
+            ))}
+            {chatShowBack && (
+              <button onClick={chatReset} style={st('all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;color:var(--ink-3);font-family:var(--font-sans);font-size:.78rem')}>← Späť na začiatok</button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
