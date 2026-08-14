@@ -35,7 +35,8 @@ service cloud.firestore {
     }
     match /appointments/{id} {
       allow read: if request.auth != null;
-      allow write: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.clientUid == request.auth.uid);
     }
     match /settings/{id} {
       allow read: if true;
@@ -48,11 +49,13 @@ service cloud.firestore {
 Tieto pravidlá znamenajú: klientka vidí a upravuje len svoj vlastný záznam;
 ktokoľvek prihlásený môže odoslať rezerváciu; len účet označený ako admin
 (pozri krok 4) vidí a spravuje všetky klientky, žiadosti a termíny; cenník
-vidí každý, ale upravovať ho môže len admin.
+vidí každý, ale upravovať ho môže len admin; klientka si môže sama zrušiť
+alebo presunúť len tie termíny, ktoré si sama vytvorila cez svoj účet.
 
-**Ak si pravidlá publikoval už predtým** (bez časti `match /settings/{id}`),
-treba ich znova otvoriť, prekopírovať celý text vyššie a znova kliknúť
-Publish — inak cenník nepôjde uložiť.
+**Ak si pravidlá publikoval už predtým** (bez riadku `allow create: if isAdmin();`
+pri `appointments`), treba ich znova otvoriť, prekopírovať celý text vyššie
+a znova kliknúť Publish — inak si klientka nebude vedieť zrušiť/presunúť
+vlastný termín.
 
 ## 3. Zapnutie prihlasovania (Email/Password)
 

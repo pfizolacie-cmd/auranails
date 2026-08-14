@@ -84,7 +84,7 @@ function slotAvailable(iso, timeStr, durationHours, appointments) {
   if (start + durationHours > CLOSE_HOUR) return false;
   return !appointments.some((a) => a.date === iso && overlaps(start, durationHours, timeToHours(a.time), a.duration));
 }
-function buildTimeOptions() { return ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']; }
+function buildTimeOptions() { return ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30']; }
 const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 }, { label: '1,5 h', val: 1.5 }, { label: '2 h', val: 2 }];
 const BIRTHDAY_DISCOUNT_CODE = 'NARODENINY10';
 const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
@@ -268,11 +268,12 @@ function App() {
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
-    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '',
+    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
     editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
     requestDurations: {},
+    rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
     clientSearch: '',
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
   });
@@ -360,6 +361,14 @@ function App() {
     try { await auth.signInWithEmailAndPassword(s.authEmail.trim(), s.authPassword); }
     catch (e) { set({ authError: authErrorSk(e.code) }); }
   };
+  const doForgotPassword = async () => {
+    set({ authError: '', authInfo: '' });
+    if (!s.authEmail.trim()) { set({ authError: 'Najprv zadajte email, potom kliknite na odkaz znova.' }); return; }
+    try {
+      await auth.sendPasswordResetEmail(s.authEmail.trim());
+      set({ authInfo: 'Poslali sme vám email s odkazom na obnovu hesla.' });
+    } catch (e) { set({ authError: authErrorSk(e.code) }); }
+  };
 
   const tabHome = s.clientTab === 'home', tabBooking = s.clientTab === 'booking', tabPass = s.clientTab === 'pass',
     tabPricing = s.clientTab === 'pricing', tabProfile = s.clientTab === 'profile';
@@ -383,7 +392,7 @@ function App() {
   };
   const [clientHeaderEyebrow, clientHeaderTitle] = headerMap[s.clientTab];
 
-  const step0 = b.step === 0, step1 = b.step === 1, step2 = b.step === 2, step3 = b.step === 3;
+  const step0 = b.step === 0, step1 = b.step === 1, step2 = b.step === 2;
   const dotStyle = (active, done) => `flex:1;height:4px;border-radius:2px;background:${active || done ? 'var(--espresso)' : 'var(--line)'}`;
 
   const serviceOptions = SERVICE_OPTIONS.map((sv, i) => ({
@@ -391,25 +400,28 @@ function App() {
     style: `all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:left;padding:16px 18px;border-radius:16px;margin-bottom:10px;color:${b.serviceIdx === i ? 'var(--porcelain)' : 'var(--ink)'};background:${b.serviceIdx === i ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.serviceIdx === i ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const dates = buildDateOptions();
-  const dateOptions = dates.map((d) => ({
-    dow: d.dow, num: d.num, mon: d.mon, select: () => setBooking({ dateIso: d.iso }),
-    style: `all:unset;cursor:pointer;text-align:center;padding:10px 4px;border-radius:14px;color:${b.dateIso === d.iso ? 'var(--porcelain)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'}`,
-  }));
   const svcDuration = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].duration : 1;
-  const timeValidReason = (() => {
-    if (!b.time) return null;
-    const startHours = timeToHours(b.time);
-    if (startHours < OPEN_HOUR) return `Štúdio otvára až o ${OPEN_HOUR}:00.`;
-    if (startHours + svcDuration > CLOSE_HOUR) return `Tento čas presahuje otváracie hodiny (do ${CLOSE_HOUR}:00).`;
-    if (b.dateIso && !slotAvailable(b.dateIso, b.time, svcDuration, appointments)) return 'Tento čas je už obsadený, vyberte iný.';
-    return null;
-  })();
+  const dateOptions = dates.map((d) => {
+    const dayFull = buildTimeOptions().every((t) => !slotAvailable(d.iso, t, svcDuration, appointments));
+    return {
+      dow: d.dow, num: d.num, mon: d.mon, full: dayFull, select: () => setBooking({ dateIso: d.iso, time: null }),
+      style: `all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:13px;position:relative;color:${b.dateIso === d.iso ? 'var(--porcelain)' : dayFull ? 'var(--ink-3)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'};opacity:${dayFull && b.dateIso !== d.iso ? 0.55 : 1}`,
+    };
+  });
+  const timeOptions = buildTimeOptions().map((t) => {
+    const taken = b.dateIso === null ? true : !slotAvailable(b.dateIso, t, svcDuration, appointments);
+    const selected = b.time === t;
+    return {
+      label: t, taken, select: () => !taken && setBooking({ time: t }),
+      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
+    };
+  });
   const booking_selectedService = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].name : '—';
-  const booking_durationLabel = svcDuration === 0.5 ? '30 min' : svcDuration === 1 ? '1 h' : `${svcDuration} h`;
+  const booking_durationLabel = formatDuration(svcDuration);
   const booking_selectedDate = b.dateIso ? isoLabel(b.dateIso) : '—';
   const bookingSummary = `${booking_selectedService} · ${booking_selectedDate} · ${b.time || '—'}`;
-  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && b.dateIso === null) || (step2 && (!b.time || !!timeValidReason));
-  const nextStep = () => !nextDisabled && setBooking({ step: Math.min(3, b.step + 1) });
+  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && (b.dateIso === null || !b.time));
+  const nextStep = () => !nextDisabled && setBooking({ step: Math.min(2, b.step + 1) });
   const prevStep = () => setBooking({ step: Math.max(0, b.step - 1) });
   const btnBase = 'all:unset;cursor:pointer;padding:12px 26px;border-radius:999px;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase';
   const prevBtnStyle = `${btnBase};color:${step0 ? 'var(--ink-3)' : 'var(--ink-2)'};border:1px solid var(--line-gold);opacity:${step0 ? 0.4 : 1};visibility:${step0 ? 'hidden' : 'visible'}`;
@@ -456,9 +468,35 @@ function App() {
   const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'rgba(140,110,98,.14)' : tone === 'blocked' ? 'rgba(178,59,59,.12)' : 'rgba(62,39,39,.08)'};color:${tone === 'pending' ? 'var(--mocha)' : tone === 'blocked' ? '#b23b3b' : 'var(--espresso)'}`;
   const myAppointments = loggedInClient ? appointments.filter((a) => a.name === loggedInClient.name) : [];
   const upcomingAppts = myAppointments.filter((a) => a.date >= todayIso).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date))
-    .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined) }));
+    .map((a) => ({
+      id: a.id, service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined),
+      mine: !!(a.clientUid && authUser && a.clientUid === authUser.uid),
+    }));
   const historyAppts = myAppointments.filter((a) => a.date < todayIso).sort((a, bb) => bb.date.localeCompare(a.date))
     .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time }));
+  const cancelMyAppt = (id) => {
+    if (!window.confirm('Naozaj zrušiť tento termín?')) return;
+    db.collection('appointments').doc(id).delete();
+    showToast('Termín zrušený');
+  };
+  const openReschedule = (a) => set({ rescheduleApptId: a.id, rescheduleDateIso: a.date, rescheduleTime: a.time });
+  const cancelReschedule = () => set({ rescheduleApptId: null });
+  const rescheduleTarget = appointments.find((a) => a.id === s.rescheduleApptId) || null;
+  const rescheduleValidReason = (() => {
+    if (!rescheduleTarget || !s.rescheduleDateIso || !s.rescheduleTime) return null;
+    const startHours = timeToHours(s.rescheduleTime);
+    if (startHours < OPEN_HOUR) return `Štúdio otvára až o ${OPEN_HOUR}:00.`;
+    if (startHours + (rescheduleTarget.duration || 1) > CLOSE_HOUR) return `Tento čas presahuje otváracie hodiny (do ${CLOSE_HOUR}:00).`;
+    const others = appointments.filter((x) => x.id !== rescheduleTarget.id);
+    if (!slotAvailable(s.rescheduleDateIso, s.rescheduleTime, rescheduleTarget.duration || 1, others)) return 'Tento čas je už obsadený, vyberte iný.';
+    return null;
+  })();
+  const saveReschedule = async () => {
+    if (!rescheduleTarget || !s.rescheduleDateIso || !s.rescheduleTime || rescheduleValidReason) return;
+    await db.collection('appointments').doc(rescheduleTarget.id).update({ date: s.rescheduleDateIso, time: s.rescheduleTime });
+    set({ rescheduleApptId: null });
+    showToast('Termín zmenený');
+  };
   const notifications = [
     { icon: 'clock', title: 'Pripomienka termínu', text: 'Váš najbližší termín sa blíži.', time: '' },
     { icon: 'sparkle', title: 'Aura Pass', text: `Aktuálne máte ${clientStamps}/5 pečiatok.`, time: '' },
@@ -473,13 +511,26 @@ function App() {
   const toggleDayBefore = () => set({ dayBefore: !s.dayBefore });
   const toggleHourBefore = () => set({ hourBefore: !s.hourBefore });
 
-  const adminTabOverview = s.adminTab === 'overview', adminTabRequests = s.adminTab === 'requests', adminTabClients = s.adminTab === 'clients', adminTabPricing = s.adminTab === 'pricing';
+  const adminTabOverview = s.adminTab === 'overview', adminTabRequests = s.adminTab === 'requests', adminTabClients = s.adminTab === 'clients', adminTabPricing = s.adminTab === 'pricing', adminTabStats = s.adminTab === 'stats';
   const goOverview = () => set({ adminTab: 'overview' });
   const goRequests = () => set({ adminTab: 'requests' });
   const goClients = () => set({ adminTab: 'clients', selectedClientId: null });
   const goPricingAdmin = () => set({ adminTab: 'pricing' });
+  const goStats = () => set({ adminTab: 'stats' });
   const hasPending = requests.length > 0;
-  const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky', pricing: 'Cenník' };
+  const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky', pricing: 'Cenník', stats: 'Štatistiky' };
+
+  const statsWeekStart = isoOffset(-(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1));
+  const statsMonthPrefix = todayIso.slice(0, 7);
+  const nonBlockedAppts = appointments.filter((a) => !a.blocked);
+  const statsThisWeek = nonBlockedAppts.filter((a) => a.date >= statsWeekStart).length;
+  const statsThisMonth = nonBlockedAppts.filter((a) => a.date.slice(0, 7) === statsMonthPrefix).length;
+  const serviceCounts = {};
+  nonBlockedAppts.forEach((a) => { serviceCounts[a.service] = (serviceCounts[a.service] || 0) + 1; });
+  const topServices = Object.entries(serviceCounts).sort((a, bb) => bb[1] - a[1]).slice(0, 5);
+  const totalClientsCount = clients.length;
+  const avgVisits = totalClientsCount ? (clients.reduce((sum, c) => sum + (c.visits || 0), 0) / totalClientsCount) : 0;
+  const totalUpcoming = nonBlockedAppts.filter((a) => a.date >= todayIso).length;
 
   const updatePricing = (newCategories) => db.collection('settings').doc('cennik').set({ categories: newCategories });
   const deletePricingCategory = (catIdx) => updatePricing(pricing.filter((_, i) => i !== catIdx));
@@ -549,7 +600,7 @@ function App() {
   const adminRequestsList = requests.map((r) => ({
     ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
     approve: async () => {
-      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false });
+      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false, clientUid: r.clientUid || null });
       const matched = clients.find((c) => c.name === r.name);
       if (matched) {
         await db.collection('clients').doc(matched.id).update({
@@ -678,7 +729,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 11)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 12)</p>
         </div>
       )}
 
@@ -695,8 +746,10 @@ function App() {
           <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
           <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
           {s.authError && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
+          {s.authInfo && <p style={{ color: 'var(--mocha)', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authInfo}</p>}
           <button onClick={s.authMode === 'login' ? doClientLogin : doClientRegister} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:15px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:6px;margin-bottom:18px;box-shadow:var(--shadow-md)')}>{s.authMode === 'login' ? 'Prihlásiť sa' : 'Zaregistrovať sa'}</button>
-          <button onClick={() => set({ authMode: s.authMode === 'login' ? 'register' : 'login', authError: '' })} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:var(--mocha)')}>{s.authMode === 'login' ? 'Nemáte účet? Zaregistrujte sa' : 'Už máte účet? Prihláste sa'}</button>
+          <button onClick={() => set({ authMode: s.authMode === 'login' ? 'register' : 'login', authError: '', authInfo: '' })} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:var(--mocha);margin-bottom:12px')}>{s.authMode === 'login' ? 'Nemáte účet? Zaregistrujte sa' : 'Už máte účet? Prihláste sa'}</button>
+          {s.authMode === 'login' && <button onClick={doForgotPassword} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.72rem;color:var(--ink-3)')}>Zabudli ste heslo?</button>}
         </div>
       )}
 
@@ -795,7 +848,7 @@ function App() {
                 <React.Fragment>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 22 }}>
                     <div style={st(dotStyle(step0, b.step > 0))}></div><div style={st(dotStyle(step1, b.step > 1))}></div>
-                    <div style={st(dotStyle(step2, b.step > 2))}></div><div style={st(dotStyle(step3, false))}></div>
+                    <div style={st(dotStyle(step2, false))}></div>
                   </div>
                   {step0 && (
                     <React.Fragment>
@@ -811,31 +864,34 @@ function App() {
                   )}
                   {step1 && (
                     <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>2 · Vyberte deň</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>{booking_selectedService}</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 9 }}>
+                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>2 · Deň a čas</div>
+                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 14px')}>{booking_selectedService} · trvanie {booking_durationLabel}</p>
+                      <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, marginBottom: 18 }}>
                         {dateOptions.map((d, i) => (
-                          <button key={i} onClick={d.select} style={st(d.style)}>
-                            <span style={{ display: 'block', fontSize: '.6rem', letterSpacing: '.08em', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
-                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginTop: 2 }}>{d.num}</span>
-                            <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .6 }}>{d.mon}</span>
+                          <button key={i} onClick={d.select} style={st(`${d.style};flex-shrink:0;width:50px`)}>
+                            <span style={{ display: 'block', fontSize: '.55rem', letterSpacing: '.06em', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
+                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1.1rem', marginTop: 2 }}>{d.num}</span>
+                            <span style={{ display: 'block', fontSize: '.5rem', textTransform: 'uppercase', opacity: .6 }}>{d.mon}</span>
                           </button>
                         ))}
                       </div>
+                      {b.dateIso ? (
+                        <React.Fragment>
+                          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>{booking_selectedDate} · voľné a obsadené časy (otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00)</p>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7 }}>
+                            {timeOptions.map((t, i) => (
+                              <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
+                            ))}
+                          </div>
+                        </React.Fragment>
+                      ) : (
+                        <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3)')}>Najprv vyberte deň hore, potom sa zobrazia voľné časy.</p>
+                      )}
                     </React.Fragment>
                   )}
                   {step2 && (
                     <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>3 · Vyberte čas</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>{booking_selectedDate} · trvanie {booking_durationLabel} · otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00</p>
-                      <input type="time" value={b.time || ''} onChange={(e) => setBooking({ time: e.target.value })} min={`${String(OPEN_HOUR).padStart(2, '0')}:00`} max={`${String(CLOSE_HOUR).padStart(2, '0')}:00`} style={st(`all:unset;display:block;width:100%;box-sizing:border-box;padding:14px 16px;border-radius:14px;font-family:var(--font-sans);font-size:1rem;color:var(--ink);background:var(--white);border:1px solid ${timeValidReason ? '#b23b3b' : 'var(--line-gold)'}`)} />
-                      {timeValidReason && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.78rem', margin: '10px 0 0' }}>{timeValidReason}</p>}
-                      {b.time && !timeValidReason && <p style={{ color: 'var(--mocha)', fontFamily: 'var(--font-sans)', fontSize: '.78rem', margin: '10px 0 0' }}>Tento čas je voľný.</p>}
-                    </React.Fragment>
-                  )}
-                  {step3 && (
-                    <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:16px')}>4 · Zhrnutie</div>
+                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:16px')}>3 · Zhrnutie</div>
                       <div style={st('border-radius:20px;padding:20px;background:var(--cream);border:1px solid var(--line);margin-bottom:20px')}>
                         <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Služba</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{booking_selectedService}</span></div>
                         <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Deň</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{booking_selectedDate}</span></div>
@@ -846,7 +902,7 @@ function App() {
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 22 }}>
                     <button onClick={prevStep} disabled={step0} style={st(prevBtnStyle)}>Späť</button>
-                    {!step3 && <button onClick={nextStep} disabled={nextDisabled} style={st(nextBtnStyle)}>Ďalej</button>}
+                    {!step2 && <button onClick={nextStep} disabled={nextDisabled} style={st(nextBtnStyle)}>Ďalej</button>}
                   </div>
                 </React.Fragment>
               )}
@@ -940,10 +996,40 @@ function App() {
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nadchádzajúce</div>
                   {upcomingAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Žiadne nadchádzajúce termíny.</p>}
                   {upcomingAppts.map((a, i) => (
-                    <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
-                      <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{a.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{a.date} · {a.time}</div></div>
-                      <span style={st(a.badgeStyle)}>{a.badgeLabel}</span>
-                    </div>
+                    <React.Fragment key={i}>
+                      <div style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{a.service}</div>
+                          <div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{a.date} · {a.time}</div>
+                          {a.mine && (
+                            <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+                              <button onClick={() => openReschedule(a)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Zmeniť termín</button>
+                              <button onClick={() => cancelMyAppt(a.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b')}>Zrušiť</button>
+                            </div>
+                          )}
+                        </div>
+                        <span style={st(a.badgeStyle)}>{a.badgeLabel}</span>
+                      </div>
+                      {s.rescheduleApptId === a.id && (
+                        <div style={st('border-radius:18px;padding:16px;background:var(--cream);border:1px solid var(--line-gold);margin:10px 0')}>
+                          <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Zmeniť termín</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
+                            {dates.map((d, di) => (
+                              <button key={di} onClick={() => set({ rescheduleDateIso: d.iso })} style={st(`all:unset;cursor:pointer;text-align:center;padding:8px 4px;border-radius:12px;color:${s.rescheduleDateIso === d.iso ? 'var(--porcelain)' : 'var(--ink)'};background:${s.rescheduleDateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${s.rescheduleDateIso === d.iso ? 'var(--espresso)' : 'var(--line)'}`)}>
+                                <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
+                                <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
+                              </button>
+                            ))}
+                          </div>
+                          <input type="time" value={s.rescheduleTime} onChange={(e) => set({ rescheduleTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid var(--line-gold);background:var(--white);font-family:var(--font-sans);font-size:.9rem;color:var(--ink);margin-bottom:8px')} />
+                          {rescheduleValidReason && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.76rem', margin: '0 0 10px' }}>{rescheduleValidReason}</p>}
+                          <div style={{ display: 'flex', gap: 10 }}>
+                            <button onClick={cancelReschedule} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                            <button onClick={saveReschedule} disabled={!!rescheduleValidReason} style={st(`all:unset;cursor:${rescheduleValidReason ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:10px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${rescheduleValidReason ? 0.5 : 1}`)}>Uložiť</button>
+                          </div>
+                        </div>
+                      )}
+                    </React.Fragment>
                   ))}
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História</div>
                   {historyAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadna história.</p>}
@@ -1284,6 +1370,30 @@ function App() {
             </div>
           )}
 
+          {adminTabStats && (
+            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{statsThisWeek}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov tento týždeň</div></div>
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{statsThisMonth}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov tento mesiac</div></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 22 }}>
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{totalClientsCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Klientok celkovo</div></div>
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{avgVisits.toFixed(1)}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Priemer návštev/klientka</div></div>
+              </div>
+              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Najobľúbenejšie služby</div>
+              {topServices.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadne dáta.</p>}
+              {topServices.map(([name, count], i) => (
+                <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)')}>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>{name}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--mocha)' }}>{count}×</span>
+                </div>
+              ))}
+              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin:22px 0 10px')}>Ostatné</div>
+              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Nadchádzajúce termíny spolu</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{totalUpcoming}</span></div>
+              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Čakajúce žiadosti</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{requests.length}</span></div>
+            </div>
+          )}
+
           <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:sticky;bottom:0;z-index:5')}>
             <button onClick={goOverview} style={st(navBtn(adminTabOverview))}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
@@ -1303,6 +1413,10 @@ function App() {
             <button onClick={goPricingAdmin} style={st(navBtn(adminTabPricing))}>
               <Icon name="list" size={21} />
               <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Cenník</span>
+            </button>
+            <button onClick={goStats} style={st(navBtn(adminTabStats))}>
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 19V10M12 19V5M19 19v-7" /></svg>
+              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Štatistiky</span>
             </button>
           </div>
         </div>
