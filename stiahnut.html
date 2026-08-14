@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stiahnite si appku — Aura Nails</title>
+<meta name="description" content="Nainštalujte si Aura Nails appku na iPhone alebo Android — rezervácie, Aura Pass a cenník vždy na ploche telefónu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --porcelain: #F7F2EF; --cream: #EEE6E1; --white: #FFFFFF; --taupe: #DAD1CE;
+    --espresso: #3E2727; --mocha: #8C6E62; --taupe-light: #CBB9B0;
+    --ink: #3E2727; --ink-2: #6E5B55; --ink-3: #9D8B84;
+    --line: rgba(62,39,39,.10); --line-gold: rgba(62,39,39,.30);
+    --shadow-md: 0 10px 34px -16px rgba(56,48,42,.18);
+    --shadow-lg: 0 34px 70px -28px rgba(56,48,42,.24);
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-sans: "Jost", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--porcelain); color: var(--ink); font-family: var(--font-sans); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow { font-size: .68rem; letter-spacing: .28em; text-transform: uppercase; color: var(--mocha); text-align: center; }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.1rem, 5vw, 3rem); text-align: center; margin: 10px 0 14px; }
+  .lead { font-weight: 300; color: var(--ink-2); text-align: center; max-width: 520px; margin: 0 auto 46px; line-height: 1.7; }
+  .cta { display: block; text-align: center; margin: 0 auto 56px; }
+  .cta a { display: inline-block; background: var(--espresso); color: var(--porcelain); text-decoration: none; padding: 16px 34px; border-radius: 999px; font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; box-shadow: var(--shadow-md); }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 680px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--white); border: 1px solid var(--line-gold); border-radius: 22px; padding: 30px 26px; box-shadow: var(--shadow-md); }
+  .card .icon { width: 46px; height: 46px; border-radius: 50%; background: var(--taupe); color: var(--espresso); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+  .card h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.5rem; margin: 0 0 4px; }
+  .card .sub { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 22px; display: block; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li { position: relative; padding-left: 40px; margin-bottom: 18px; font-weight: 300; color: var(--ink-2); line-height: 1.6; }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: -2px; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line-gold); color: var(--espresso); font-family: var(--font-display); font-size: .95rem; display: flex; align-items: center; justify-content: center; }
+  .note { text-align: center; font-size: .8rem; color: var(--ink-3); margin-top: 50px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Aura Nails · Handlová</div>
+  <h1>Appka na vašej ploche</h1>
+  <p class="lead">Rezervácie, Aura Pass a cenník vždy poruke — appku si nainštalujete priamo z prehliadača, bez App Store či Google Play.</p>
+  <div class="cta"><a href="/app/">Otvoriť appku</a></div>
+  <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:56px">
+    <div id="qrcode" style="padding:14px;background:var(--white);border:1px solid var(--line-gold);border-radius:16px;box-shadow:var(--shadow-md)"></div>
+    <p style="font-size:.76rem;color:var(--ink-3);margin-top:12px">Naskenujte mobilom pre priame otvorenie appky</p>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 19h4" stroke-linecap="round"/></svg>
+      </div>
+      <h2>iPhone / iPad</h2>
+      <span class="sub">Cez Safari</span>
+      <ol class="steps">
+        <li>Otvorte <strong>auranails.sk/app</strong> v prehliadači <strong>Safari</strong> (funguje len v Safari, nie v Chrome).</li>
+        <li>Ťuknite na ikonu <strong>Zdieľať</strong> (štvorec so šípkou nahor) v spodnej lište.</li>
+        <li>V zozname posuňte a ťuknite na <strong>„Pridať na plochu“</strong>.</li>
+        <li>Potvrďte ťuknutím na <strong>„Pridať“</strong> vpravo hore.</li>
+        <li>Na ploche sa objaví ikona appky Aura Nails.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 19h4" stroke-linecap="round"/></svg>
+      </div>
+      <h2>Android</h2>
+      <span class="sub">Cez Chrome</span>
+      <ol class="steps">
+        <li>Otvorte <strong>auranails.sk/app</strong> v prehliadači <strong>Chrome</strong>.</li>
+        <li>Objaví sa ponuka <strong>„Inštalovať appku“</strong> — ťuknite na ňu.</li>
+        <li>Ak sa ponuka nezobrazí: ťuknite na tri bodky vpravo hore → <strong>„Pridať na plochu“</strong> alebo <strong>„Inštalovať appku“</strong>.</li>
+        <li>Potvrďte inštaláciu.</li>
+        <li>Ikona appky sa objaví na ploche a v zozname appiek.</li>
+      </ol>
+    </div>
+  </div>
+  <p class="note">Appka nezaberá miesto z App Store ani Google Play a aktualizuje sa automaticky.<br>Rovnaké prihlásenie funguje na telefóne aj počítači.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+  var typeNumber = 0;
+  var qr = qrcode(typeNumber, 'M');
+  qr.addData('https://www.auranails.sk/app/');
+  qr.make();
+  document.getElementById('qrcode').innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2 });
+</script>
+</body>
+</html>
