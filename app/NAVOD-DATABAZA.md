@@ -42,6 +42,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    match /referrals/{id} {
+      allow create: if request.auth != null;
+      allow read, delete: if isAdmin();
+    }
   }
 }
 ```

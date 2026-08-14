@@ -53,9 +53,10 @@ function isoParts(iso) {
   const dateObj = new Date(y, m - 1, d);
   return { dow: SK_DOW[dateObj.getDay()], num: d, mon: SK_MON[m - 1] };
 }
-function buildDateOptions() {
+const BOOKING_WINDOW_DAYS = 30;
+function buildDateOptions(days = BOOKING_WINDOW_DAYS) {
   const out = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < days; i++) {
     const iso = isoOffset(i);
     out.push({ iso, ...isoParts(iso) });
   }
@@ -64,6 +65,14 @@ function buildDateOptions() {
 function isoLabel(iso) {
   const p = isoParts(iso);
   return `${p.dow} ${p.num}. ${p.mon}`;
+}
+function daysUntilBirthday(birthdayIso) {
+  if (!birthdayIso) return null;
+  const mmdd = birthdayIso.slice(5);
+  for (let i = 0; i < 366; i++) {
+    if (isoOffset(i).slice(5) === mmdd) return i;
+  }
+  return null;
 }
 function parseDateToIso(text) {
   const m = text.match(/(\d{1,2})/);
@@ -187,12 +196,13 @@ function useCollection(name) {
 }
 
 function useOwnClientDoc(uid) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(undefined); // undefined = loading, null = confirmed absent, object = found
   useEffect(() => {
-    if (!db || !uid) { setData(null); return; }
+    if (!db || !uid) { setData(uid === null ? null : undefined); return; }
+    setData(undefined);
     const unsub = db.collection('clients').doc(uid).onSnapshot((doc) => {
       setData(doc.exists ? { id: doc.id, ...doc.data() } : null);
-    }, (err) => console.error('own client doc', err));
+    }, (err) => { console.error('own client doc', err); setData(null); });
     return unsub;
   }, [uid]);
   return data;
@@ -228,6 +238,7 @@ function App() {
   const requestsRaw = useCollection('requests');
   const appointmentsRaw = useCollection('appointments');
   const pricingRaw = usePricing();
+  const referralsRaw = useCollection('referrals');
   const seededRef = useRef(false);
   useEffect(() => {
     if (db && !seededRef.current) {
@@ -257,6 +268,16 @@ function App() {
   // specific uid finishes, so a leftover value from before is never reused.
   const isAdminFresh = authUser ? isAdminForUid === authUser.uid : true;
   const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
+  const healedRef = useRef({});
+  useEffect(() => {
+    if (!db || !authUser || !isAdminFresh || isAdmin || myClientDoc !== null) return;
+    if (healedRef.current[authUser.uid]) return;
+    healedRef.current[authUser.uid] = true;
+    db.collection('clients').doc(authUser.uid).set({
+      name: authUser.email ? authUser.email.split('@')[0] : 'Klientka',
+      email: authUser.email || '', phone: '', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+    }).catch((e) => console.error('auto-heal client doc failed', e));
+  }, [authUser, isAdmin, isAdminFresh, myClientDoc]);
 
   const [state, setStateRaw] = useState({
     screen: 'login', clientTab: 'home',
@@ -268,7 +289,7 @@ function App() {
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
-    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
+    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '', authReferrer: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
     editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
@@ -276,6 +297,7 @@ function App() {
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
     clientSearch: '',
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
+    mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
   });
   const s = state;
   const set = (patch) => setStateRaw((prev) => ({ ...prev, ...patch }));
@@ -318,7 +340,7 @@ function App() {
   if (authUser && !isAdminFresh) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
-  if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null)) {
+  if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null || referralsRaw === null)) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && !isAdmin && (appointmentsRaw === null || pricingRaw === null)) {
@@ -326,17 +348,18 @@ function App() {
   }
 
   const loggedInClient = myClientDoc;
-  // For a non-admin client, `clients`/`requests` stay null forever (the
-  // security rules correctly deny listing them) — fall back to empty
-  // arrays so admin-only computations below never crash for that role.
+  // For a non-admin client, `clients`/`requests`/`referrals` stay null
+  // forever (the security rules correctly deny listing them) — fall back
+  // to empty arrays so admin-only computations below never crash for that role.
   const clients = clientsRaw || [];
   const requests = requestsRaw || [];
   const appointments = appointmentsRaw || [];
   const pricing = pricingRaw || [];
+  const referrals = referralsRaw || [];
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
-  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '' });
+  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '', authReferrer: '' });
   const goAdminAuth = () => set({ screen: 'admin-auth', authError: '', authEmail: '', authPassword: '' });
   const backToEntry = () => set({ screen: 'login', authError: '' });
   const backToLogin = () => { if (auth) auth.signOut(); set({ screen: 'login', authMode: 'login', authEmail: '', authPassword: '', authName: '', authError: '' }); };
@@ -349,6 +372,11 @@ function App() {
       await db.collection('clients').doc(cred.user.uid).set({
         name: s.authName.trim(), email: s.authEmail.trim(), phone: '', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
       });
+      if (s.authReferrer.trim()) {
+        await db.collection('referrals').add({
+          referrerName: s.authReferrer.trim(), newClientName: s.authName.trim(), newClientUid: cred.user.uid, status: 'pending',
+        });
+      }
     } catch (e) { set({ authError: authErrorSk(e.code) }); }
   };
   const doClientLogin = async () => {
@@ -404,10 +432,12 @@ function App() {
   const dateOptions = dates.map((d) => {
     const dayFull = buildTimeOptions().every((t) => !slotAvailable(d.iso, t, svcDuration, appointments));
     return {
-      dow: d.dow, num: d.num, mon: d.mon, full: dayFull, select: () => setBooking({ dateIso: d.iso, time: null }),
+      iso: d.iso, dow: d.dow, num: d.num, mon: d.mon, full: dayFull, select: () => setBooking({ dateIso: d.iso, time: null }),
       style: `all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:13px;position:relative;color:${b.dateIso === d.iso ? 'var(--porcelain)' : dayFull ? 'var(--ink-3)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'};opacity:${dayFull && b.dateIso !== d.iso ? 0.55 : 1}`,
     };
   });
+  const selectedDateFull = b.dateIso ? !!dateOptions.find((d) => d.iso === b.dateIso)?.full : false;
+  const nearestAvailableDate = dateOptions.find((d) => !d.full && d.iso !== b.dateIso) || null;
   const timeOptions = buildTimeOptions().map((t) => {
     const taken = b.dateIso === null ? true : !slotAvailable(b.dateIso, t, svcDuration, appointments);
     const selected = b.time === t;
@@ -472,8 +502,17 @@ function App() {
       id: a.id, service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined),
       mine: !!(a.clientUid && authUser && a.clientUid === authUser.uid),
     }));
+  const rebookService = (serviceName) => {
+    const idx = SERVICE_OPTIONS.findIndex((sv) => sv.name === serviceName);
+    setBooking({ step: idx !== -1 ? 1 : 0, serviceIdx: idx !== -1 ? idx : null, dateIso: null, time: null, done: false });
+    set({ clientTab: 'booking' });
+  };
+  const rateAppt = (id, rating) => { db.collection('appointments').doc(id).update({ rating }); };
   const historyAppts = myAppointments.filter((a) => a.date < todayIso).sort((a, bb) => bb.date.localeCompare(a.date))
-    .map((a) => ({ service: a.service, date: isoLabel(a.date), time: a.time }));
+    .map((a) => ({
+      id: a.id, service: a.service, date: isoLabel(a.date), time: a.time, rating: a.rating || 0,
+      mine: !!(a.clientUid && authUser && a.clientUid === authUser.uid), rebook: () => rebookService(a.service),
+    }));
   const cancelMyAppt = (id) => {
     if (!window.confirm('Naozaj zrušiť tento termín?')) return;
     db.collection('appointments').doc(id).delete();
@@ -517,7 +556,7 @@ function App() {
   const goClients = () => set({ adminTab: 'clients', selectedClientId: null });
   const goPricingAdmin = () => set({ adminTab: 'pricing' });
   const goStats = () => set({ adminTab: 'stats' });
-  const hasPending = requests.length > 0;
+  const hasPending = requests.length > 0 || referrals.some((r) => r.status !== 'done');
   const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky', pricing: 'Cenník', stats: 'Štatistiky' };
 
   const statsWeekStart = isoOffset(-(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1));
@@ -531,6 +570,23 @@ function App() {
   const totalClientsCount = clients.length;
   const avgVisits = totalClientsCount ? (clients.reduce((sum, c) => sum + (c.visits || 0), 0) / totalClientsCount) : 0;
   const totalUpcoming = nonBlockedAppts.filter((a) => a.date >= todayIso).length;
+  const upcomingBirthdays = clients
+    .map((c) => ({ ...c, daysUntil: daysUntilBirthday(c.birthday) }))
+    .filter((c) => c.daysUntil !== null && c.daysUntil <= 7)
+    .sort((a, bb) => a.daysUntil - bb.daysUntil);
+  const ratedAppts = nonBlockedAppts.filter((a) => a.rating);
+  const avgRating = ratedAppts.length ? (ratedAppts.reduce((sum, a) => sum + a.rating, 0) / ratedAppts.length) : null;
+  const exportClientsCsv = () => {
+    const header = ['Meno', 'Telefón', 'Email', 'Návštevy', 'Pečiatky', 'Posledná návšteva'];
+    const rows = clients.map((c) => [c.name, c.phone || '', c.email || '', c.visits || 0, c.stamps || 0, c.lastVisit || '']);
+    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `aura-nails-klientky-${todayIso}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const updatePricing = (newCategories) => db.collection('settings').doc('cennik').set({ categories: newCategories });
   const deletePricingCategory = (catIdx) => updatePricing(pricing.filter((_, i) => i !== catIdx));
@@ -592,6 +648,16 @@ function App() {
   };
   const deleteBlock = async (id) => { await db.collection('appointments').doc(id).delete(); showToast('Voľno zrušené'); };
   const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.72rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const pendingReferrals = referrals.filter((r) => r.status !== 'done');
+  const approveReferral = async (r) => {
+    const referrer = clients.find((c) => c.name.toLowerCase() === r.referrerName.toLowerCase());
+    if (referrer) await db.collection('clients').doc(referrer.id).update({ stamps: Math.min(5, (referrer.stamps || 0) + 1) });
+    const newClient = clients.find((c) => c.id === r.newClientUid);
+    if (newClient) await db.collection('clients').doc(newClient.id).update({ stamps: Math.min(5, (newClient.stamps || 0) + 1) });
+    await db.collection('referrals').doc(r.id).delete();
+    showToast(referrer ? 'Odporúčanie schválené, pečiatky pridané' : 'Odporúčanie schválené (odporúčajúca nenájdená v zozname)');
+  };
+  const rejectReferral = async (id) => { await db.collection('referrals').doc(id).delete(); showToast('Odporúčanie zamietnuté'); };
   const adminTodayCount = countsByDate[todayIso] || 0;
   const adminPendingCount = requests.length;
   const noRequests = requests.length === 0;
@@ -636,6 +702,33 @@ function App() {
     db.collection('clients').doc(s.selectedClientId).delete();
     set({ selectedClientId: null });
     showToast('Klientka zmazaná');
+  };
+  const openMergeForm = () => set({ mergeFormOpen: true, mergeSearchQuery: '', mergeSourceId: null });
+  const cancelMergeForm = () => set({ mergeFormOpen: false, mergeSourceId: null });
+  const mergeSearchLower = s.mergeSearchQuery.trim().toLowerCase();
+  const mergeCandidates = clients.filter((c) => c.id !== s.selectedClientId
+    && (!mergeSearchLower || c.name.toLowerCase().includes(mergeSearchLower) || (c.phone || '').toLowerCase().includes(mergeSearchLower)));
+  const mergeSource = clients.find((c) => c.id === s.mergeSourceId) || null;
+  const mergeBlocked = !!(mergeSource && mergeSource.email && !selClient.email);
+  const confirmMerge = async () => {
+    if (!mergeSource || mergeBlocked) return;
+    if (!window.confirm(`Naozaj zlúčiť ${mergeSource.name} do ${selClient.name}? Návštevy, pečiatky a história sa spoja, ${mergeSource.name} bude zmazaná. Táto akcia sa nedá vrátiť späť.`)) return;
+    const mergedHistory = [...(selClient.history || []), ...(mergeSource.history || [])];
+    const mergedNotes = [selClient.notes, mergeSource.notes].filter(Boolean).join(' | ');
+    await db.collection('clients').doc(s.selectedClientId).update({
+      visits: (selClient.visits || 0) + (mergeSource.visits || 0),
+      stamps: Math.min(5, (selClient.stamps || 0) + (mergeSource.stamps || 0)),
+      history: mergedHistory,
+      notes: mergedNotes,
+      phone: (selClient.phone && selClient.phone !== '—') ? selClient.phone : (mergeSource.phone || '—'),
+      birthday: selClient.birthday || mergeSource.birthday || '',
+      email: selClient.email || mergeSource.email || '',
+    });
+    const apptsToMove = appointments.filter((a) => a.name === mergeSource.name);
+    await Promise.all(apptsToMove.map((a) => db.collection('appointments').doc(a.id).update({ name: selClient.name })));
+    await db.collection('clients').doc(mergeSource.id).delete();
+    set({ mergeFormOpen: false, mergeSourceId: null });
+    showToast('Klientky zlúčené');
   };
   const updateClientNotes = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ notes: e.target.value }); };
   const updateClientBirthday = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ birthday: e.target.value }); };
@@ -729,7 +822,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 12)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 16)</p>
         </div>
       )}
 
@@ -741,7 +834,10 @@ function App() {
             <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink)')}>{s.authMode === 'login' ? 'Prihlásenie klientky' : 'Vytvorenie účtu'}</div>
           </div>
           {s.authMode === 'register' && (
-            <input value={s.authName} onChange={(e) => set({ authName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
+            <React.Fragment>
+              <input value={s.authName} onChange={(e) => set({ authName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
+              <input value={s.authReferrer} onChange={(e) => set({ authReferrer: e.target.value })} placeholder="Kto vás odporučil? (nepovinné)" style={st(inputStyle)} />
+            </React.Fragment>
           )}
           <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
           <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
@@ -878,6 +974,9 @@ function App() {
                       {b.dateIso ? (
                         <React.Fragment>
                           <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>{booking_selectedDate} · voľné a obsadené časy (otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00)</p>
+                          {selectedDateFull && nearestAvailableDate && (
+                            <button onClick={nearestAvailableDate.select} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:11px;border-radius:12px;background:var(--cream);border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.78rem;margin-bottom:14px')}>Tento deň je plný — skočiť na najbližší voľný deň ({nearestAvailableDate.dow} {nearestAvailableDate.num}. {nearestAvailableDate.mon})</button>
+                          )}
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7 }}>
                             {timeOptions.map((t, i) => (
                               <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
@@ -1034,9 +1133,20 @@ function App() {
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História</div>
                   {historyAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadna história.</p>}
                   {historyAppts.map((h, i) => (
-                    <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
-                      <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{h.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{h.date} · {h.time}</div></div>
-                      <span style={{ fontSize: '.62rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Dokončené</span>
+                    <div key={i} style={st('padding:13px 0;border-bottom:1px solid var(--line)')}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{h.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{h.date} · {h.time}</div></div>
+                        <button onClick={h.rebook} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Rezervovať znova</button>
+                      </div>
+                      {h.mine && (
+                        <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <button key={n} onClick={() => rateAppt(h.id, n)} style={st('all:unset;cursor:pointer;color:' + (n <= h.rating ? 'var(--mocha)' : 'var(--line-gold)'))} aria-label={`Ohodnotiť ${n} hviezdičkami`}>
+                              <Icon name="sparkle" size={15} />
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </React.Fragment>
@@ -1105,6 +1215,20 @@ function App() {
                 <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{adminTodayCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov dnes</div></div>
                 <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--mocha)' }}>{adminPendingCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Čakajúce žiadosti</div></div>
               </div>
+              {upcomingBirthdays.length > 0 && (
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:20px')}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <Icon name="gift" size={16} style={{ color: 'var(--mocha)' }} />
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>Narodeniny čoskoro</span>
+                  </div>
+                  {upcomingBirthdays.map((c, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '.82rem' }}>
+                      <span style={{ color: 'var(--ink-2)', fontFamily: 'var(--font-sans)' }}>{c.name}</span>
+                      <span style={{ color: 'var(--ink-3)' }}>{c.daysUntil === 0 ? 'dnes' : c.daysUntil === 1 ? 'zajtra' : `o ${c.daysUntil} dní`}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Kalendár obsadenosti</div>
               <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 18 }}>
                 {calendarStrip.map((cd, i) => (
@@ -1185,6 +1309,20 @@ function App() {
                   </div>
                 </div>
               ))}
+              {pendingReferrals.length > 0 && (
+                <React.Fragment>
+                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:24px 0 12px')}>Odporúčania</div>
+                  {pendingReferrals.map((r, i) => (
+                    <div key={i} style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line);margin-bottom:12px')}>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)', margin: '0 0 14px', lineHeight: 1.5 }}><strong style={{ fontWeight: 500 }}>{r.newClientName}</strong> uviedla pri registrácii, že ju odporučila <strong style={{ fontWeight: 500 }}>{r.referrerName}</strong>.</p>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={() => rejectReferral(r.id)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
+                        <button onClick={() => approveReferral(r)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Schváliť (+1 pečiatka obom)</button>
+                      </div>
+                    </div>
+                  ))}
+                </React.Fragment>
+              )}
             </div>
           )}
 
@@ -1302,6 +1440,28 @@ function App() {
                   ))}
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>Poznámky</div>
                   <textarea value={selClient.notes} onChange={updateClientNotes} placeholder="napr. alergie, preferencie, poznámky k nechtom…" style={st('all:unset;display:block;width:100%;min-height:90px;box-sizing:border-box;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--white);font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink);line-height:1.6;margin-bottom:20px;resize:none')}></textarea>
+                  {!s.mergeFormOpen && <button onClick={openMergeForm} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px')}>Zlúčiť s inou klientkou</button>}
+                  {s.mergeFormOpen && (
+                    <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:10px')}>
+                      <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:4px')}>Zlúčiť duplicitný záznam</div>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.76rem', color: 'var(--ink-3)', margin: '0 0 12px', lineHeight: 1.5 }}>Vyber duplicitnú klientku — jej návštevy, pečiatky a história sa presunú sem a jej záznam sa zmaže.</p>
+                      <input value={s.mergeSearchQuery} onChange={(e) => set({ mergeSearchQuery: e.target.value, mergeSourceId: null })} placeholder="Hľadať podľa mena alebo telefónu" style={st(inputStyle)} />
+                      <div style={{ maxHeight: 180, overflowY: 'auto', marginBottom: 12 }}>
+                        {mergeCandidates.map((c, i) => (
+                          <button key={i} onClick={() => set({ mergeSourceId: c.id })} style={st(`all:unset;cursor:pointer;display:flex;justify-content:space-between;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;margin-bottom:4px;background:${s.mergeSourceId === c.id ? 'var(--cream)' : 'transparent'};border:1px solid ${s.mergeSourceId === c.id ? 'var(--line-gold)' : 'transparent'}`)}>
+                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--ink)' }}>{c.name}</span>
+                            <span style={{ fontSize: '.74rem', color: 'var(--ink-3)' }}>{c.phone}</span>
+                          </button>
+                        ))}
+                        {mergeCandidates.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-3)' }}>Žiadne zhody.</p>}
+                      </div>
+                      {mergeBlocked && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.76rem', margin: '0 0 12px', lineHeight: 1.5 }}>{mergeSource.name} má prihlasovací účet (email) — jej zmazaním by stratila prístup do appky. Otvor namiesto toho detail klientky {mergeSource.name} a zlúč do nej tento záznam.</p>}
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={cancelMergeForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                        <button onClick={confirmMerge} disabled={!mergeSource || mergeBlocked} style={st(`all:unset;cursor:${(!mergeSource || mergeBlocked) ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${(!mergeSource || mergeBlocked) ? 0.5 : 1}`)}>Zlúčiť</button>
+                      </div>
+                    </div>
+                  )}
                   <button onClick={deleteClient} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid rgba(178,59,59,.4);color:#b23b3b;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase')}>Zmazať klientku</button>
                 </React.Fragment>
               )}
@@ -1391,6 +1551,8 @@ function App() {
               <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin:22px 0 10px')}>Ostatné</div>
               <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Nadchádzajúce termíny spolu</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{totalUpcoming}</span></div>
               <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Čakajúce žiadosti</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{requests.length}</span></div>
+              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Priemerné hodnotenie návštev</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{avgRating ? `${avgRating.toFixed(1)} / 5 (${ratedAppts.length})` : '—'}</span></div>
+              <button onClick={exportClientsCsv} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-top:22px')}>Stiahnuť zálohu klientok (CSV)</button>
             </div>
           )}
 
