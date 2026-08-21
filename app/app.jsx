@@ -253,7 +253,6 @@ function App() {
   const requestsRaw = useCollection('requests', authKey);
   const appointmentsRaw = useCollection('appointments', authKey);
   const pricingRaw = usePricing();
-  const referralsRaw = useCollection('referrals', authKey);
   const seededRef = useRef(false);
   useEffect(() => {
     if (db && !seededRef.current) {
@@ -296,10 +295,10 @@ function App() {
     adminTab: 'overview', selectedClientId: null,
     toast: { visible: false, msg: '' },
     dayBefore: true, hourBefore: true,
-    addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '',
+    addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
-    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '', authReferrer: '',
+    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
     editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
@@ -351,7 +350,7 @@ function App() {
   if (authUser && !isAdminFresh) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
-  if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null || referralsRaw === null)) {
+  if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null)) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && !isAdmin && (appointmentsRaw === null || pricingRaw === null)) {
@@ -366,11 +365,10 @@ function App() {
   const requests = requestsRaw || [];
   const appointments = appointmentsRaw || [];
   const pricing = pricingRaw || [];
-  const referrals = referralsRaw || [];
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
-  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '', authReferrer: '' });
+  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '' });
   const goAdminAuth = () => set({ screen: 'admin-auth', authError: '', authEmail: '', authPassword: '' });
   const backToEntry = () => set({ screen: 'login', authError: '' });
   const backToLogin = () => { if (auth) auth.signOut(); set({ screen: 'login', authMode: 'login', authEmail: '', authPassword: '', authName: '', authError: '' }); };
@@ -383,11 +381,6 @@ function App() {
       await db.collection('clients').doc(cred.user.uid).set({
         name: s.authName.trim(), email: s.authEmail.trim(), phone: '', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
       });
-      if (s.authReferrer.trim()) {
-        await db.collection('referrals').add({
-          referrerName: s.authReferrer.trim(), newClientName: s.authName.trim(), newClientUid: cred.user.uid, status: 'pending',
-        });
-      }
     } catch (e) { set({ authError: authErrorSk(e.code) }); }
   };
   const doClientLogin = async () => {
@@ -718,16 +711,7 @@ function App() {
   };
   const deleteBlock = async (id) => { await db.collection('appointments').doc(id).delete(); showToast('Voľno zrušené'); };
   const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.72rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
-  const pendingReferrals = referrals.filter((r) => r.status !== 'done');
-  const approveReferral = async (r) => {
-    const referrer = clients.find((c) => c.name.toLowerCase() === r.referrerName.toLowerCase());
-    if (referrer) await db.collection('clients').doc(referrer.id).update({ stamps: Math.min(5, (referrer.stamps || 0) + 1) });
-    const newClient = clients.find((c) => c.id === r.newClientUid);
-    if (newClient) await db.collection('clients').doc(newClient.id).update({ stamps: Math.min(5, (newClient.stamps || 0) + 1) });
-    await db.collection('referrals').doc(r.id).delete();
-    showToast(referrer ? 'Odporúčanie schválené, pečiatky pridané' : 'Odporúčanie schválené (odporúčajúca nenájdená v zozname)');
-  };
-  const rejectReferral = async (id) => { await db.collection('referrals').doc(id).delete(); showToast('Odporúčanie zamietnuté'); };
+  // Referral system removed
   const adminTodayCount = countsByDate[todayIso] || 0;
   const adminPendingCount = requests.length;
   const noRequests = requests.length === 0;
@@ -762,16 +746,24 @@ function App() {
   const selClient = clients.find((c) => c.id === s.selectedClientId) || { name: '', phone: '', visits: 0, lastVisit: '', stamps: 0, history: [] };
   const selClientInitials = initials(selClient.name || '—');
   const selClientHistory = selClient.history || [];
+  // Compute lastVisit automatically from history
+  const computedLastVisit = selClientHistory.length > 0 ? selClientHistory[0].date : (selClient.lastVisit || '—');
   const selClientStamps = [0, 1, 2, 3, 4].map((i) => ({
     style: `aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${i < selClient.stamps ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${i < selClient.stamps ? 'var(--porcelain)' : 'var(--ink-3)'};border:1px solid ${i < selClient.stamps ? 'var(--espresso)' : 'var(--line)'}`,
   }));
   const backToClients = () => set({ selectedClientId: null });
-  const deleteClient = () => {
+  const deleteClient = async () => {
     if (!s.selectedClientId) return;
     if (!window.confirm(`Naozaj zmazať klientku ${selClient.name}? Táto akcia sa nedá vrátiť späť.`)) return;
-    db.collection('clients').doc(s.selectedClientId).delete();
+    // Delete all appointments for this client
+    const clientAppts = appointments.filter((a) => a.name === selClient.name);
+    const batch = db.batch();
+    clientAppts.forEach((a) => batch.delete(db.collection('appointments').doc(a.id)));
+    // Delete the client
+    batch.delete(db.collection('clients').doc(s.selectedClientId));
+    await batch.commit();
     set({ selectedClientId: null });
-    showToast('Klientka zmazaná');
+    showToast('Klientka a jej termíny zmazané');
   };
   const openMergeForm = () => set({ mergeFormOpen: true, mergeSearchQuery: '', mergeSourceId: null });
   const cancelMergeForm = () => set({ mergeFormOpen: false, mergeSourceId: null });
@@ -802,7 +794,7 @@ function App() {
   };
   const updateClientNotes = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ notes: e.target.value }); };
   const updateClientBirthday = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ birthday: e.target.value }); };
-  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '', newClientService: '' });
+  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00', newClientService: '' });
   const cancelAddClient = () => set({ addFormOpen: false });
   const durationPresetOptions = DURATION_PRESETS.map((d) => ({
     label: d.label, select: () => set({ newClientDuration: d.val }),
@@ -831,7 +823,11 @@ function App() {
   const removeStampSel = () => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ stamps: Math.max(0, (selClient.stamps || 0) - 1) }); };
 
   // Appointment management for the client currently open in the detail view.
-  const selClientAppts = appointments.filter((a) => a.name === selClient.name && !a.blocked).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date));
+  // Show only current/future appointment (closest one) and past appointments
+  const allClientAppts = appointments.filter((a) => a.name === selClient.name && !a.blocked).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date));
+  const currentAppt = allClientAppts.find((a) => a.date >= todayIso);
+  const pastAppts = allClientAppts.filter((a) => a.date < todayIso);
+  const selClientAppts = [...(currentAppt ? [currentAppt] : []), ...pastAppts];
   const openAddAppt = () => set({ apptFormOpen: true, apptEditingId: null, apptDateIso: calendarDates[0].iso, apptTime: '', apptService: '', apptDuration: 1.5 });
   const openEditAppt = (a) => set({ apptFormOpen: true, apptEditingId: a.id, apptDateIso: a.date, apptTime: a.time, apptService: a.service, apptDuration: a.duration || 1.5 });
   const cancelApptForm = () => set({ apptFormOpen: false, apptEditingId: null });
@@ -906,7 +902,6 @@ function App() {
           {s.authMode === 'register' && (
             <React.Fragment>
               <input value={s.authName} onChange={(e) => set({ authName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
-              <input value={s.authReferrer} onChange={(e) => set({ authReferrer: e.target.value })} placeholder="Kto vás odporučil? (nepovinné)" style={st(inputStyle)} />
             </React.Fragment>
           )}
           <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
@@ -1304,6 +1299,7 @@ function App() {
                   <button key={i} onClick={cd.select} style={st(cd.style)}>
                     <span style={{ fontSize: '.58rem', letterSpacing: '.06em', textTransform: 'uppercase', opacity: .75 }}>{cd.dow}</span>
                     <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem' }}>{cd.num}</span>
+                    <span style={{ fontSize: '.52rem', opacity: .6 }}>{cd.mon}</span>
                     <span style={st(cd.dotStyle)}></span>
                   </button>
                 ))}
@@ -1343,11 +1339,14 @@ function App() {
               )}
               {noDayAppts && <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-3);padding:8px 0')}>Žiadne termíny na tento deň.</p>}
               {selectedDayAppts.map((ap, i) => (
-                <button key={i} onClick={ap.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;padding:14px 0;border-bottom:1px solid var(--line)')}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)', width: 48, flexShrink: 0, textAlign: 'left' }}>{ap.time}</div>
-                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{ap.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{ap.service}</div></div>
-                  <span style={st(ap.badgeStyle)}>{ap.badgeLabel}</span>
-                </button>
+                <div key={i} style={st('display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:14px 0;border-bottom:1px solid var(--line)')}>
+                  <button onClick={ap.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex:1;text-align:left')}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)', width: 48, flexShrink: 0 }}>{ap.time}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{ap.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{ap.service}</div></div>
+                    <span style={st(ap.badgeStyle)}>{ap.badgeLabel}</span>
+                  </button>
+                  {!ap.blocked && <button onClick={() => cancelAppt(ap.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b;flex-shrink:0')}>Zmazať</button>}
+                </div>
               ))}
             </div>
           )}
@@ -1378,20 +1377,6 @@ function App() {
                   </div>
                 </div>
               ))}
-              {pendingReferrals.length > 0 && (
-                <React.Fragment>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:24px 0 12px')}>Odporúčania</div>
-                  {pendingReferrals.map((r, i) => (
-                    <div key={i} style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line);margin-bottom:12px')}>
-                      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)', margin: '0 0 14px', lineHeight: 1.5 }}><strong style={{ fontWeight: 500 }}>{r.newClientName}</strong> uviedla pri registrácii, že ju odporučila <strong style={{ fontWeight: 500 }}>{r.referrerName}</strong>.</p>
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={() => rejectReferral(r.id)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
-                        <button onClick={() => approveReferral(r)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Schváliť (+1 pečiatka obom)</button>
-                      </div>
-                    </div>
-                  ))}
-                </React.Fragment>
-              )}
             </div>
           )}
 
@@ -1448,7 +1433,7 @@ function App() {
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
                     <div style={st('border-radius:14px;padding:14px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{selClient.visits}</div><div style={{ fontSize: '.66rem', color: 'var(--ink-3)' }}>Návštev spolu</div></div>
-                    <div style={st('border-radius:14px;padding:14px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{selClient.lastVisit}</div><div style={{ fontSize: '.66rem', color: 'var(--ink-3)' }}>Posledná návšteva</div></div>
+                    <div style={st('border-radius:14px;padding:14px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{computedLastVisit}</div><div style={{ fontSize: '.66rem', color: 'var(--ink-3)' }}>Posledná návšteva</div></div>
                   </div>
                   <div style={st('border-radius:14px;padding:14px 16px;background:var(--white);border:1px solid var(--line);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>Dátum narodenia</span>
@@ -1507,7 +1492,7 @@ function App() {
                       <span style={{ fontSize: '.76rem', color: 'var(--ink-3)' }}>{h.date}</span>
                     </div>
                   ))}
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>Poznámky</div>
+                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>Karta klientky</div>
                   <textarea value={selClient.notes} onChange={updateClientNotes} placeholder="napr. alergie, preferencie, poznámky k nechtom…" style={st('all:unset;display:block;width:100%;min-height:90px;box-sizing:border-box;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--white);font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink);line-height:1.6;margin-bottom:20px;resize:none')}></textarea>
                   {!s.mergeFormOpen && <button onClick={openMergeForm} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px')}>Zlúčiť s inou klientkou</button>}
                   {s.mergeFormOpen && (
