@@ -252,6 +252,7 @@ function App() {
   const clientsRaw = useCollection('clients', authKey);
   const requestsRaw = useCollection('requests', authKey);
   const appointmentsRaw = useCollection('appointments', authKey);
+  const referralsRaw = useCollection('referrals', authKey);
   const pricingRaw = usePricing();
   const seededRef = useRef(false);
   useEffect(() => {
@@ -364,6 +365,7 @@ function App() {
   const clients = clientsRaw || [];
   const requests = requestsRaw || [];
   const appointments = appointmentsRaw || [];
+  const referrals = referralsRaw || [];
   const pricing = pricingRaw || [];
 
   const b = s.booking;
