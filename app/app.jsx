@@ -450,7 +450,17 @@ function App() {
   const todayIso = isoOffset(0);
   const clientBirthday = loggedInClient ? (loggedInClient.birthday || '') : '';
   const isBirthdayToday = clientBirthday && clientBirthday.slice(5) === todayIso.slice(5);
+
   const setClientBirthday = (e) => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ birthday: e.target.value }); };
+  const startEditName = () => set({ nameEditOpen: true, nameEditValue: loggedInClient ? loggedInClient.name : '' });
+  const cancelEditName = () => set({ nameEditOpen: false, nameEditValue: '' });
+  const saveEditName = async () => {
+    const val = (s.nameEditValue || '').trim();
+    if (!val || !loggedInClient) return;
+    await db.collection('clients').doc(loggedInClient.id).update({ name: val });
+    set({ nameEditOpen: false, nameEditValue: '' });
+    showToast('Meno uložené');
+  };
 
   const navBtn = (active) => `all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:${active ? 'var(--espresso)' : 'var(--ink-3)'};min-width:44px`;
   const headerMap = {
@@ -1219,7 +1229,23 @@ function App() {
                 <React.Fragment>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
                     <span style={st('width:56px;height:56px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.35rem;flex-shrink:0;border:1px solid var(--line-gold)')}>{loggedInClient ? initials(loggedInClient.name) : ''}</span>
-                    <div><div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? (loggedInClient.email || loggedInClient.phone) : ''}</div></div>
+                    <div style={{ flex: 1 }}>
+                      {s.nameEditOpen ? (
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <input value={s.nameEditValue} onChange={(e) => set({ nameEditValue: e.target.value })} style={{ all: 'unset', fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)', borderBottom: '1px solid var(--line-gold)', flex: 1, minWidth: 0 }} />
+                          <button onClick={saveEditName} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--espresso)')}>Uložiť</button>
+                          <button onClick={cancelEditName} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)')}>Zrušiť</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div>
+                          <button onClick={startEditName} style={st('all:unset;cursor:pointer;color:var(--ink-3)')} aria-label="Upraviť meno">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
+                          </button>
+                        </div>
+                      )}
+                      <div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? (loggedInClient.email || loggedInClient.phone) : ''}</div>
+                    </div>
                   </div>
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Dátum narodenia</span>
