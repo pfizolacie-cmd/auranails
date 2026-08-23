@@ -548,7 +548,7 @@ function App() {
   const passStampDots = [0, 1, 2, 3, 4].map((i) => {
     const on = i < clientStamps;
     return {
-      style: `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : '1px solid var(--line)'}`,
+      style: `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : '1px solid var(--line)'};box-shadow:${on ? 'var(--shadow-md, 0 10px 34px -16px rgba(56,48,42,.35))' : 'none'};transition:transform .2s ease`,
     };
   });
   const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--ink-3)'};border:2px solid ${clientStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
@@ -687,7 +687,7 @@ function App() {
     const selected = s.adminSelectedDate === d.iso;
     return {
       dow: d.dow, num: d.num, select: () => set({ adminSelectedDate: d.iso }),
-      style: `all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px;border-radius:14px;flex-shrink:0;width:42px;background:${selected ? 'var(--espresso)' : 'transparent'};color:${selected ? 'var(--porcelain)' : 'var(--ink)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line)'}`,
+      style: `all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:16px;flex-shrink:0;width:48px;background:${selected ? 'var(--espresso)' : 'var(--white)'};color:${selected ? 'var(--porcelain)' : 'var(--ink)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line)'};box-shadow:${selected ? 'var(--shadow-md, 0 10px 34px -16px rgba(56,48,42,.35))' : 'none'};transition:transform .2s ease,box-shadow .2s ease`,
       dotStyle: `width:6px;height:6px;border-radius:50%;background:${selected ? 'var(--porcelain)' : occupancyColor(count)}`,
     };
   });
@@ -1278,8 +1278,8 @@ function App() {
           {adminTabOverview && (
             <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{adminTodayCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov dnes</div></div>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--mocha)' }}>{adminPendingCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Čakajúce žiadosti</div></div>
+                <div style={st('border-radius:18px;padding:18px;background:var(--white);box-shadow:var(--shadow-sm, 0 1px 2px rgba(56,48,42,.05));transition:transform .2s ease,box-shadow .2s ease')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 600, color: 'var(--ink)' }}>{adminTodayCount}</div><div style={{ fontSize: '.7rem', color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: 4 }}>Termínov dnes</div></div>
+                <div style={st('border-radius:18px;padding:18px;background:var(--white);box-shadow:var(--shadow-sm, 0 1px 2px rgba(56,48,42,.05));transition:transform .2s ease,box-shadow .2s ease')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 600, color: 'var(--mocha)' }}>{adminPendingCount}</div><div style={{ fontSize: '.7rem', color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: 4 }}>Čakajúce žiadosti</div></div>
               </div>
               {upcomingBirthdays.length > 0 && (
                 <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:20px')}>
