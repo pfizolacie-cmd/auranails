@@ -8,6 +8,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap');
 
 :root {
+  /* ---- LEGACY COMPAT (used throughout app.jsx via inline styles) ---- */
+  --porcelain: #F7F2EF;
+  --cream: #EEE6E1;
+  --sand: #E2D7D0;
+  --beige: #D3C3BA;
+  --blush: #DEC8C0;
+  --ink: #3E2727;
+  --ink-2: #6E5B55;
+  --ink-3: #9D8B84;
+  --mocha: #8C6E62;
+  --espresso-deep: #1F1513;
+  --line: rgba(62, 39, 39, 0.10);
+  --line-gold: rgba(62, 39, 39, 0.30);
+  --line-accent: rgba(62, 39, 39, 0.30);
+  --veil: rgba(31, 21, 19, 0.45);
+  --glass: rgba(247, 242, 239, 0.72);
+
   /* ---- AURA PALETTE (updated) ---- */
   --taupe: #9d8b7e;
   --taupe-dark: #7a6b5e;
