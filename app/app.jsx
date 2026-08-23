@@ -1,4 +1,3 @@
-import '../aura-design.css'
   const { useState, useRef, useEffect, useMemo } = React;
 
 /* ---------- helpers ---------- */
