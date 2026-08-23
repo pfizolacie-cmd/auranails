@@ -62,6 +62,35 @@ function buildDateOptions(days = BOOKING_WINDOW_DAYS) {
   }
   return out;
 }
+function buildMonthGrid(monthOffset, selectedIso, todayIsoValue, isDisabledFn, dotFn) {
+  const SK_MONTH_FULL = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+  const now = new Date(todayIsoValue + 'T00:00:00');
+  const viewDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const y = viewDate.getFullYear(), m = viewDate.getMonth();
+  const firstOfMonth = new Date(y, m, 1);
+  const startDow = (firstOfMonth.getDay() + 6) % 7;
+  const gridStart = new Date(y, m, 1 - startDow);
+  const lastOfMonth = new Date(y, m + 1, 0);
+  const endDow = (lastOfMonth.getDay() + 6) % 7;
+  const totalDays = startDow + lastOfMonth.getDate() + (6 - endDow);
+  const cells = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+    const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    cells.push({
+      iso,
+      num: d.getDate(),
+      muted: d.getMonth() !== m,
+      selected: iso === selectedIso,
+      today: iso === todayIsoValue,
+      disabled: isDisabledFn ? isDisabledFn(iso, d.getMonth() !== m) : false,
+      dot: dotFn ? dotFn(iso) : null,
+    });
+  }
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return { label: `${SK_MONTH_FULL[m]} ${y}`, weeks };
+}
 function isoLabel(iso) {
   const p = isoParts(iso);
   return `${p.dow} ${p.num}. ${p.mon}`;
@@ -442,6 +471,12 @@ function App() {
       style: `all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:13px;position:relative;color:${b.dateIso === d.iso ? 'var(--porcelain)' : dayFull ? 'var(--ink-3)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'};opacity:${dayFull && b.dateIso !== d.iso ? 0.55 : 1}`,
     };
   });
+
+  const bookingMaxIso = dates.length ? dates[dates.length - 1].iso : todayIso;
+  const isDayFull = (iso) => buildTimeOptions().every((t) => !slotAvailable(iso, t, svcDuration, appointments));
+  const clientMonthGrid = buildMonthGrid(b.monthOffset || 0, b.dateIso, todayIso,
+    (iso, muted) => muted || iso < todayIso || iso > bookingMaxIso,
+    (iso) => (iso >= todayIso && iso <= bookingMaxIso) ? (isDayFull(iso) ? 'var(--line-gold)' : 'var(--taupe)') : null);
   const selectedDateFull = b.dateIso ? !!dateOptions.find((d) => d.iso === b.dateIso)?.full : false;
   const nearestAvailableDate = dateOptions.find((d) => !d.full && d.iso !== b.dateIso) || null;
   const timeOptions = buildTimeOptions().map((t) => {
@@ -691,6 +726,8 @@ function App() {
       dotStyle: `width:6px;height:6px;border-radius:50%;background:${selected ? 'var(--porcelain)' : occupancyColor(count)}`,
     };
   });
+
+  const adminMonthGrid = buildMonthGrid(s.adminMonthOffset || 0, s.adminSelectedDate, todayIso, null, (iso) => occupancyColor(countsByDate[iso] || 0) !== 'var(--line)' ? occupancyColor(countsByDate[iso] || 0) : null);
   const calendarSelectedLabel = isoLabel(s.adminSelectedDate);
   const selectedDayAppts = appointments.filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
     const matched = clients.find((c) => c.name === a.name);
@@ -1029,15 +1066,22 @@ function App() {
                     <React.Fragment>
                       <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>2 · Deň a čas</div>
                       <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 14px')}>{booking_selectedService} · trvanie {booking_durationLabel}</p>
-                      <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, marginBottom: 18 }}>
-                        {dateOptions.map((d, i) => (
-                          <button key={i} onClick={d.select} style={st(`${d.style};flex-shrink:0;width:50px`)}>
-                            <span style={{ display: 'block', fontSize: '.55rem', letterSpacing: '.06em', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
-                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1.1rem', marginTop: 2 }}>{d.num}</span>
-                            <span style={{ display: 'block', fontSize: '.5rem', textTransform: 'uppercase', opacity: .6 }}>{d.mon}</span>
-                          </button>
-                        ))}
+                      <div className="cal-month-nav">
+                        <button onClick={() => setBooking({ monthOffset: (b.monthOffset || 0) - 1 })}>‹</button>
+                        <span>{clientMonthGrid.label}</span>
+                        <button onClick={() => setBooking({ monthOffset: (b.monthOffset || 0) + 1 })}>›</button>
                       </div>
+                      <div className="cal-dow-row"><span>Po</span><span>Ut</span><span>St</span><span>Št</span><span>Pi</span><span>So</span><span>Ne</span></div>
+                      {clientMonthGrid.weeks.map((week, wi) => (
+                        <div className="cal-grid" key={wi} style={{ marginBottom: 18 }}>
+                          {week.map((cell, ci) => (
+                            <button key={ci} className={`cal-day${cell.muted ? ' muted' : ''}${cell.selected ? ' selected' : ''}${cell.today ? ' today' : ''}${cell.disabled ? ' disabled' : ''}`} disabled={cell.disabled} onClick={() => setBooking({ dateIso: cell.iso, time: null })}>
+                              <span className="cal-day-circle">{cell.num}</span>
+                              {cell.dot && <span className="cal-dot" style={{ background: cell.dot }}></span>}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
                       {b.dateIso ? (
                         <React.Fragment>
                           <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>{booking_selectedDate} · voľné a obsadené časy (otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00)</p>
@@ -1296,16 +1340,22 @@ function App() {
                 </div>
               )}
               <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Kalendár obsadenosti</div>
-              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 18 }}>
-                {calendarStrip.map((cd, i) => (
-                  <button key={i} onClick={cd.select} style={st(cd.style)}>
-                    <span style={{ fontSize: '.58rem', letterSpacing: '.06em', textTransform: 'uppercase', opacity: .75 }}>{cd.dow}</span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem' }}>{cd.num}</span>
-                    <span style={{ fontSize: '.52rem', opacity: .6 }}>{cd.mon}</span>
-                    <span style={st(cd.dotStyle)}></span>
-                  </button>
-                ))}
+              <div className="cal-month-nav">
+                <button onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) - 1 })}>‹</button>
+                <span>{adminMonthGrid.label}</span>
+                <button onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) + 1 })}>›</button>
               </div>
+              <div className="cal-dow-row"><span>Po</span><span>Ut</span><span>St</span><span>Št</span><span>Pi</span><span>So</span><span>Ne</span></div>
+              {adminMonthGrid.weeks.map((week, wi) => (
+                <div className="cal-grid" key={wi}>
+                  {week.map((cell, ci) => (
+                    <button key={ci} className={`cal-day${cell.muted ? ' muted' : ''}${cell.selected ? ' selected' : ''}${cell.today ? ' today' : ''}`} onClick={() => set({ adminSelectedDate: cell.iso })}>
+                      <span className="cal-day-circle">{cell.num}</span>
+                      {cell.dot && <span className="cal-dot" style={{ background: cell.dot }}></span>}
+                    </button>
+                  ))}
+                </div>
+              ))}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>{calendarSelectedLabel}</div>
                 {!s.blockFormOpen && <button onClick={openBlockForm} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Voľno</button>}
