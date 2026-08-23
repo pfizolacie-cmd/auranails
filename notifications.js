@@ -27,13 +27,16 @@ class NotificationManager {
     const unsub = this.db
       .collection('notifications')
       .where('userId', '==', this.userId)
-      .orderBy('createdAt', 'desc')
       .limit(50)
       .onSnapshot((snap) => {
         this.notifications = snap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        })).sort((a, b) => {
+          const at = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+          const bt = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+          return bt - at;
+        });
         this.notifyListeners();
       });
 
