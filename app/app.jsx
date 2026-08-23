@@ -369,6 +369,10 @@ function App() {
     toastTimer.current = setTimeout(() => set({ toast: { visible: false, msg: '' } }), 2400);
   };
   const initials = (name) => name.split(' ').map((w) => w[0]).slice(0, 2).join('');
+  const notifUserId = (authUser && !isAdmin) ? authUser.uid : null;
+  const { notifications: clientNotifs, unreadCount: clientUnreadCount, manager: clientNotifMgr } = typeof useNotifications === 'function'
+    ? useNotifications(db, auth, notifUserId)
+    : { notifications: [], unreadCount: 0, manager: null };
 
   if (!FIREBASE_READY) return <SetupNotice />;
   // Wait only for data the current role is actually allowed to read — an
@@ -759,7 +763,7 @@ function App() {
   const adminRequestsList = requests.map((r) => ({
     ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
     approve: async () => {
-      await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false, clientUid: r.clientUid || null });
+      const apptRef = await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false, clientUid: r.clientUid || null });
       const matched = clients.find((c) => c.name === r.name);
       if (matched) {
         await db.collection('clients').doc(matched.id).update({
@@ -770,6 +774,12 @@ function App() {
         });
       }
       await db.collection('requests').doc(r.id).delete();
+      if (r.clientUid && typeof NotificationManager !== 'undefined') {
+        try {
+          const notifMgr = new NotificationManager(db, auth, r.clientUid);
+          await notifMgr.sendConfirmationNotification({ id: apptRef.id, service: r.service, date: r.date, time: r.time });
+        } catch (e) { console.error('notify approve failed', e); }
+      }
       showToast('Rezervácia potvrdená');
     },
     reject: async () => { await db.collection('requests').doc(r.id).delete(); showToast('Žiadosť zamietnutá'); },
@@ -975,10 +985,26 @@ function App() {
               <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--mocha)')}>{clientHeaderEyebrow}</div>
               <div style={st('font-family:var(--font-display);font-size:1.55rem;color:var(--ink);margin-top:2px')}>{clientHeaderTitle}</div>
             </div>
-            <button onClick={backToLogin} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--ink-2)')}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M15 5H8a2 2 0 00-2 2v10a2 2 0 002 2h7M11 8l-4 4 4 4M7 12h13" /></svg>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button onClick={() => set({ notifOpen: true })} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--ink-2);position:relative')}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 14.5c-.6.8 0 2 1 2h12c1 0 1.6-1.2 1-2l-1.5-2c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" /><path d="M9.5 19a2.5 2.5 0 005 0" /></svg>
+                {clientUnreadCount > 0 && <span style={{ position: 'absolute', top: 3, right: 3, width: 8, height: 8, borderRadius: '50%', background: 'var(--mocha)' }}></span>}
+              </button>
+              <button onClick={backToLogin} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--ink-2)')}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M15 5H8a2 2 0 00-2 2v10a2 2 0 002 2h7M11 8l-4 4 4 4M7 12h13" /></svg>
+              </button>
+            </div>
           </div>
+          {typeof NotificationCenter === 'function' && (
+            <NotificationCenter
+              isOpen={!!s.notifOpen}
+              onClose={() => set({ notifOpen: false })}
+              notifications={clientNotifs}
+              onMarkRead={(id) => clientNotifMgr && clientNotifMgr.markAsRead(id)}
+              onDelete={(id) => clientNotifMgr && clientNotifMgr.deleteNotification(id)}
+              onMarkAllRead={() => clientNotifMgr && clientNotifMgr.markAllAsRead()}
+            />
+          )}
 
           {tabHome && (
             <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
