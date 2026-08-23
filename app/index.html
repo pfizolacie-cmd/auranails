@@ -1,1 +1,37 @@
-<link rel="stylesheet" href="/aura-design.css">
+<!DOCTYPE html>
+<html lang="sk">
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+      <meta name="description" content="Aura Nails — rezervačný systém a lojálnostný program">
+      <title>Aura Nails</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/aura-design.css">
+    <meta name="theme-color" content="#F7F2EF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Aura Nails">
+    <link rel="manifest" href="manifest.json">
+    <style>
+          html, body { margin: 0; height: 100%; background: #F7F2EF; font-family: 'Jost', -apple-system, sans-serif; color: #3E2727; }
+          #root { height: 100%; display: flex; flex-direction: column; }
+        </style>
+  </head>
+  <body>
+      <div id="root"></div>div>
+      <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+      <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+      <script src="app.jsx"></script>
+      <script>
+            if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('sw.js');
+            }
+              </script>
+  </body>
+</html>html>
+      </script>
+  </body>
+    </style></title>
+  </head>
