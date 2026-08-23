@@ -1,4 +1,5 @@
-const { useState, useRef, useEffect, useMemo } = React;
+import '../aura-design.css'
+  const { useState, useRef, useEffect, useMemo } = React;
 
 /* ---------- helpers ---------- */
 function st(cssText) {
