@@ -744,3 +744,22 @@ p {
     padding: var(--sp-md);
   }
 }
+
+
+/* ---- MONTH CALENDAR (Apple-style circular days) ---- */
+.cal-month-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cal-month-nav button { all:unset; cursor:pointer; width:30px; height:30px; border-radius:50%; background:rgba(120,120,128,.12); color:var(--espresso); font-size:15px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.cal-month-nav span { font-size:15px; color:var(--ink); font-weight:600; font-family:var(--font-sans); }
+.cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+.cal-dow-row span { text-align:center; font-size:11px; color:var(--ink-3); font-weight:590; text-transform:uppercase; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.cal-day { all:unset; cursor:pointer; aspect-ratio:1; display:flex; align-items:center; justify-content:center; position:relative; box-sizing:border-box; }
+.cal-day-circle { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--ink); font-weight:500; font-family:var(--font-sans); transition:background .15s; }
+.cal-day.today .cal-day-circle { box-shadow:inset 0 0 0 1.5px var(--espresso); font-weight:700; }
+.cal-day.selected .cal-day-circle { background:var(--espresso); color:var(--porcelain); font-weight:600; }
+.cal-day.muted .cal-day-circle { color:var(--ink-3); opacity:.4; }
+.cal-day.disabled { cursor:not-allowed; }
+.cal-day.disabled .cal-day-circle { color:var(--ink-3); opacity:.35; text-decoration:line-through; }
+.cal-dot { position:absolute; bottom:2px; width:4px; height:4px; border-radius:50%; background:var(--taupe); left:50%; transform:translateX(-50%); }
+.cal-day.selected .cal-dot { background:var(--porcelain); }
+.cal-sheet { margin-top:16px; background:rgba(120,120,128,.08); border-radius:20px; padding:14px; }
