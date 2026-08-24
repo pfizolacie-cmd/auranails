@@ -1,11 +1,9 @@
-const CACHE_NAME = 'aura-nails-v2';
+const CACHE_NAME = 'aura-nails-v3';
 const ASSETS = [
   './',
   './index.html',
-  './app.jsx',
   './firebase-config.js',
   './manifest.json',
-  './colors_and_type.css',
   './icon-192.png',
   './icon-512.png',
   './assets/aura-mark.svg',
