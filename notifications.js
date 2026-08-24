@@ -15,7 +15,8 @@ class NotificationManager {
     this.auth = auth;
     this.userId = userId;
     this.notifications = [];
-    this.listeners = [];
+    this.unsubscribers = []; // Firestore onSnapshot unsubscribe functions (no args)
+    this.callbacks = []; // React subscribe() callbacks (called with notifications array)
   }
 
   /**
@@ -40,16 +41,16 @@ class NotificationManager {
         this.notifyListeners();
       });
 
-    this.listeners.push(unsub);
+    this.unsubscribers.push(unsub);
   }
 
   /**
    * Subscribe to notification changes
    */
   subscribe(callback) {
-    this.listeners.push(callback);
+    this.callbacks.push(callback);
     return () => {
-      this.listeners = this.listeners.filter((l) => l !== callback);
+      this.callbacks = this.callbacks.filter((l) => l !== callback);
     };
   }
 
@@ -57,7 +58,7 @@ class NotificationManager {
    * Notify all subscribers
    */
   notifyListeners() {
-    this.listeners.forEach((callback) => {
+    this.callbacks.forEach((callback) => {
       if (typeof callback === 'function') callback(this.notifications);
     });
   }
@@ -301,10 +302,11 @@ class NotificationManager {
    * Cleanup: Remove all listeners
    */
   cleanup() {
-    this.listeners.forEach((unsub) => {
+    this.unsubscribers.forEach((unsub) => {
       if (typeof unsub === 'function') unsub();
     });
-    this.listeners = [];
+    this.unsubscribers = [];
+    this.callbacks = [];
   }
 }
 
