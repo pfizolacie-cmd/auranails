@@ -917,7 +917,8 @@ function App() {
   const apptSaveDisabled = !s.apptDateIso || !s.apptTime.trim();
   const saveAppt = async () => {
     if (apptSaveDisabled) return;
-    const payload = { date: s.apptDateIso, time: s.apptTime.trim(), name: selClient.name, service: s.apptService.trim() || 'Bez upresnenia', duration: s.apptDuration, manual: true };
+    const parsedApptDuration = parseFloat(s.apptDuration);
+    const payload = { date: s.apptDateIso, time: s.apptTime.trim(), name: selClient.name, service: s.apptService.trim() || 'Bez upresnenia', duration: isNaN(parsedApptDuration) ? 1.5 : parsedApptDuration, manual: true };
     if (s.apptEditingId) await db.collection('appointments').doc(s.apptEditingId).update(payload);
     else await db.collection('appointments').add(payload);
     set({ apptFormOpen: false, apptEditingId: null });
@@ -1598,7 +1599,7 @@ function App() {
                       <input type="time" value={s.apptTime} onChange={(e) => set({ apptTime: e.target.value })} style={st(inputStyle)} />
                       <input value={s.apptService} onChange={(e) => set({ apptService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
                       <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
-                      <input type="number" step="0.25" min="0.25" max="8" value={s.apptDuration} onChange={(e) => set({ apptDuration: parseFloat(e.target.value) || 0.25 })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
+                      <input type="number" step="0.25" min="0.25" max="8" value={s.apptDuration} onChange={(e) => set({ apptDuration: e.target.value })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
                       <div style={{ display: 'flex', gap: 10 }}>
                         <button onClick={cancelApptForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
                         <button onClick={saveAppt} disabled={apptSaveDisabled} style={st(`all:unset;cursor:${apptSaveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${apptSaveDisabled ? 0.5 : 1}`)}>Uložiť</button>
