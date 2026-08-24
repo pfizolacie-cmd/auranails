@@ -46,8 +46,30 @@
   </span>
 </div></div>
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-<script type="text/babel" src="/notifications.js?v=1"></script>
-<script type="text/babel" src="app.jsx?v=3"></script>
+<script>
+  // KRITICKÁ OPRAVA: Babel Standalone z CDN (bez pripnutej verzie) môže defaultne
+  // prepnúť na "automatic" JSX runtime, ktorý vkladá require("react/jsx-runtime") —
+  // to v prehliadači neexistuje a appka nepredvídateľne spadne. Vynucujeme "classic"
+  // runtime explicitne, nech CDN servíruje akúkoľvek verziu Babelu.
+  async function loadBabelScript(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    const src = await res.text();
+    const { code } = Babel.transform(src, {
+      presets: [['react', { runtime: 'classic' }]],
+      filename: url,
+    });
+    (0, eval)(code);
+  }
+  (async () => {
+    try {
+      await loadBabelScript('/notifications.js');
+      await loadBabelScript('app.jsx');
+    } catch (e) {
+      console.error('App load error:', e);
+      document.getElementById('root').innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;color:#3E2727;background:#F7F2EF;">Niečo sa pokazilo pri načítaní. Skúste obnoviť stránku.</div>';
+    }
+  })();
+</script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
