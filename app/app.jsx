@@ -778,7 +778,12 @@ function App() {
   const adminTodayCount = countsByDate[todayIso] || 0;
   const adminPendingCount = requests.length;
   const noRequests = requests.length === 0;
-  const getRequestDuration = (r) => (s.requestDurations[r.id] !== undefined ? s.requestDurations[r.id] : (r.duration || 1.5));
+  const getRequestDuration = (r) => {
+    const stored = s.requestDurations[r.id];
+    if (stored === undefined) return r.duration || 1.5;
+    const n = parseFloat(stored);
+    return isNaN(n) ? (r.duration || 1.5) : n;
+  };
   const setRequestDuration = (id, val) => set({ requestDurations: { ...s.requestDurations, [id]: val } });
   const adminRequestsList = requests.map((r) => ({
     ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
@@ -883,7 +888,8 @@ function App() {
       name: s.newClientName.trim(), phone: s.newClientPhone.trim() || '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
     });
     if (hasAppt) {
-      await db.collection('appointments').add({ date: s.newClientDateIso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: s.newClientDuration, manual: true });
+      const parsedDuration = parseFloat(s.newClientDuration);
+      await db.collection('appointments').add({ date: s.newClientDateIso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: isNaN(parsedDuration) ? 1.5 : parsedDuration, manual: true });
     }
     set({ addFormOpen: false });
     showToast(hasAppt ? 'Klientka a termín pridané' : 'Klientka pridaná');
@@ -1350,7 +1356,7 @@ function App() {
             </div>
           )}
 
-          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:sticky;bottom:0;z-index:5')}>
+          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;box-sizing:border-box;z-index:20')}>
             <button onClick={goHome} style={st(navBtn(tabHome))}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 11.5L12 4l8 7.5" /><path d="M6 10v9h5v-5h2v5h5v-9" /></svg>
               <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Domov</span>
@@ -1483,7 +1489,7 @@ function App() {
                   <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 12 }}>{r.dateLabel} · {r.time}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
-                    <input type="number" step="0.25" min="0.25" max="8" value={r.durationValue} onChange={(e) => setRequestDuration(r.id, parseFloat(e.target.value) || 0.25)} style={st('all:unset;width:70px;box-sizing:border-box;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                    <input type="number" step="0.25" min="0.25" max="8" value={r.durationValue} onChange={(e) => setRequestDuration(r.id, e.target.value)} style={st('all:unset;width:70px;box-sizing:border-box;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
                   </div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={r.reject} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
@@ -1515,7 +1521,7 @@ function App() {
                       <input type="time" value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px')} />
                       <input value={s.newClientService} onChange={(e) => set({ newClientService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
                       <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
-                      <input type="number" step="0.25" min="0.25" max="8" value={s.newClientDuration} onChange={(e) => set({ newClientDuration: parseFloat(e.target.value) || 0.25 })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
+                      <input type="number" step="0.25" min="0.25" max="8" value={s.newClientDuration} onChange={(e) => set({ newClientDuration: e.target.value })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
                       <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.74rem;color:var(--ink-3);margin:0 0 14px;line-height:1.5')}>Vyplňte termín, ak si klientka dohodla čas telefonicky alebo osobne — obsadí to daný čas aj v rezervačnom kalendári appky.</p>
                       <div style={{ display: 'flex', gap: 10 }}>
                         <button onClick={cancelAddClient} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
@@ -1724,7 +1730,7 @@ function App() {
             </div>
           )}
 
-          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:sticky;bottom:0;z-index:5')}>
+          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;box-sizing:border-box;z-index:20')}>
             <button onClick={goOverview} style={st(navBtn(adminTabOverview))}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
               <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Prehľad</span>
