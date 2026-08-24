@@ -1266,7 +1266,7 @@ function App() {
                   </div>
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={clientBirthday} onChange={setClientBirthday} style={{ all: 'unset', fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)', textAlign: 'right' }} />
+                    <input type="date" value={clientBirthday} onChange={setClientBirthday} style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)', textAlign: 'right', border: '1px solid var(--line-gold)', borderRadius: 8, padding: '6px 10px', background: 'var(--cream)', cursor: 'pointer' }} />
                   </div>
                   <div style={st('display:flex;flex-direction:column;border-radius:18px;border:1px solid var(--line);background:var(--white);margin-bottom:22px;overflow:hidden')}>
                     <button onClick={goReminders} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:15px 16px')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>Pripomienky a upozornenia</span><Icon name="arrow" size={14} /></button>
@@ -1558,7 +1558,7 @@ function App() {
                   </div>
                   <div style={st('border-radius:14px;padding:14px 16px;background:var(--white);border:1px solid var(--line);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={{ all: 'unset', fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--mocha)', textAlign: 'right' }} />
+                    <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--ink)', textAlign: 'right', border: '1px solid var(--line-gold)', borderRadius: 8, padding: '6px 10px', background: 'var(--cream)', cursor: 'pointer' }} />
                   </div>
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Aura Pass pečiatky</div>
                   <div style={st('border-radius:18px;padding:18px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:22px')}>
