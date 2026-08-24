@@ -487,7 +487,17 @@ function App() {
   });
 
   const bookingMaxIso = dates.length ? dates[dates.length - 1].iso : todayIso;
-  const isDayFull = (iso) => buildTimeOptions().every((t) => !slotAvailable(iso, t, svcDuration, appointments));
+  const apptsByDateForFull = {};
+  appointments.forEach((a) => { (apptsByDateForFull[a.date] = apptsByDateForFull[a.date] || []).push(a); });
+  const timeOptionsForFull = buildTimeOptions();
+  const isDayFull = (iso) => {
+    const dayAppts = apptsByDateForFull[iso] || [];
+    return timeOptionsForFull.every((t) => {
+      const start = timeToHours(t);
+      if (start + svcDuration > CLOSE_HOUR) return true;
+      return dayAppts.some((a) => overlaps(start, svcDuration, timeToHours(a.time), a.duration));
+    });
+  };
   const clientMonthGrid = buildMonthGrid(b.monthOffset || 0, b.dateIso, todayIso,
     (iso, muted) => muted || iso < todayIso || iso > bookingMaxIso,
     (iso) => (iso >= todayIso && iso <= bookingMaxIso) ? (isDayFull(iso) ? 'var(--line-gold)' : 'var(--taupe)') : null);
@@ -1780,5 +1790,23 @@ function App() {
   );
 }
 
+class AppErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) { console.error('App crashed:', error, info); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: '#F7F2EF', color: '#3E2727', fontFamily: 'sans-serif', padding: 24, textAlign: 'center' }}>
+          <div style={{ fontSize: '1.1rem' }}>Niečo sa pokazilo.</div>
+          <div style={{ fontSize: '.8rem', color: '#9D8B84', maxWidth: 320 }}>Skúste appku znova načítať. Ak problém pretrváva, dajte nám vedieť.</div>
+          <button onClick={() => window.location.reload()} style={{ all: 'unset', cursor: 'pointer', padding: '12px 28px', borderRadius: 999, background: '#3E2727', color: '#F7F2EF', fontSize: '.8rem', letterSpacing: '.08em', textTransform: 'uppercase' }}>Načítať znova</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(<AppErrorBoundary><App /></AppErrorBoundary>);
