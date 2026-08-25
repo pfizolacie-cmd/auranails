@@ -32,6 +32,9 @@
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 
+<!-- Recharts (data visualization) -->
+<script src="https://unpkg.com/recharts@2.10.3/dist/recharts.js"></script>
+
 <!-- Firebase (real database, so data persists between visits) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -63,6 +66,7 @@
   (async () => {
     try {
       await loadBabelScript('/notifications.js');
+      await loadBabelScript('Statistics.jsx');
       await loadBabelScript('app.jsx');
     } catch (e) {
       console.error('App load error:', e);
