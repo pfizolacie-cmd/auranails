@@ -1,0 +1,5 @@
+/* Halo Home type. SUBSTITUTION: no font binaries were supplied with the source
+   screenshot. Poppins (Google Fonts) is the nearest match to the geometric,
+   single-storey-a sans in the reference. Swap the @font-face src values if the
+   real family is provided. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap");

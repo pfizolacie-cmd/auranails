@@ -1,0 +1,177 @@
+/* ============================================================
+   AURA NAILS MF — Foundations: Color & Type
+   "Aura" — radiance, calm, a beauty ritual. Taupe & Espresso.
+   Palette derived directly from the brand logo (taupe block +
+   espresso-brown frame & wordmark). Quiet luxury — no gold.
+   Import this file + the font links below into any artifact.
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+   ============================================================ */
+
+/* Webfont @font-face closure — exact brand families (Cormorant Garamond + Jost).
+   Replace these CDN src's with locally-hosted files once uploaded. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap');
+
+:root {
+  /* ---- WARM NEUTRALS (the canvas) ---- */
+  --porcelain: #F7F2EF;   /* page background — soft mauve-warm white */
+  --cream:     #EEE6E1;   /* raised surfaces, alternating sections */
+  --sand:      #E2D7D0;   /* subtle fills, dividers-on-cream */
+  --beige:     #D3C3BA;   /* deeper fill, hairlines */
+  --blush:     #DEC8C0;   /* mauve-nude — soft skin-tone accent */
+  --taupe:     #DAD1CE;   /* the logo's block tone — soft fills, glass */
+  --white:     #FFFFFF;
+
+  /* ---- ESPRESSO & MOCHA (the signature — from the logo) ---- */
+  --espresso:      #3E2727;   /* primary — frames, buttons, accents, dark text */
+  --espresso-deep: #1F1513;   /* pressed / footer / deepest brown */
+  --mocha:         #8C6E62;   /* labels, eyebrows, italic accents, fine text */
+  --taupe-light:   #CBB9B0;   /* light accent on dark sections, gradients */
+  /* backward-compatible aliases (legacy token names) */
+  --gold:      var(--espresso);
+  --gold-deep: var(--mocha);
+  --champagne: var(--taupe-light);
+
+  /* ---- INK (warm espresso-brown, never pure black) ---- */
+  --ink:   #3E2727;       /* primary text — espresso (matches logo) */
+  --ink-2: #6E5B55;       /* secondary text — taupe-brown */
+  --ink-3: #9D8B84;       /* tertiary / muted — soft greige */
+
+  /* ---- HAIRLINES & TRANSPARENCY ---- */
+  --line:        rgba(62, 39, 39, 0.10);  /* default warm hairline */
+  --line-gold:   rgba(62, 39, 39, 0.30);  /* espresso hairline (accent) */
+  --line-accent: rgba(62, 39, 39, 0.30);
+  --veil:        rgba(31, 21, 19, 0.45);  /* image overlay scrim */
+  --glass:       rgba(247, 242, 239, 0.72);/* blurred nav / glass */
+
+  /* ---- SEMANTIC ROLES ---- */
+  --bg:            var(--porcelain);
+  --bg-raised:     var(--cream);
+  --fg:            var(--ink);
+  --fg-soft:       var(--ink-2);
+  --fg-muted:      var(--ink-3);
+  --accent:        var(--espresso);
+  --accent-strong: var(--mocha);
+  --on-accent:     var(--porcelain);
+
+  /* ============================================================
+     TYPE
+     Display: Cormorant Garamond (elegant high-contrast serif)
+     UI/Body: Jost (clean geometric sans, wide-tracked labels)
+     ============================================================ */
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans:    "Jost", "Century Gothic", system-ui, sans-serif;
+
+  /* Fluid type scale — generous, airy */
+  --t-hero:    clamp(3.5rem, 8vw, 7rem); /* @kind font */
+  --t-h1:      clamp(2.75rem, 5vw, 4.5rem); /* @kind font */
+  --t-h2:      clamp(2rem, 3.5vw, 3rem); /* @kind font */
+  --t-h3:      1.75rem;
+  --t-lead:    1.25rem;                       /* intro paragraph */
+  --t-body:    1.0625rem;
+  --t-small:   0.9375rem;
+  --t-label:   0.75rem;                       /* wide-tracked eyebrow */
+
+  /* Tracking — the brand breathes through spacing */
+  --track-label:  0.34em;   /* eyebrows / nav / buttons */
+  --track-caps:   0.22em;
+  --track-tight: -0.01em;   /* large display serif */
+
+  --leading-tight: 1.08;
+  --leading-snug:  1.3;
+  --leading-body:  1.7;
+
+  /* ---- SPACING (4px base) ---- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --sp-9: 96px; --sp-10: 128px;
+
+  /* ---- RADII (restrained, elegant) ---- */
+  --r-xs: 2px;
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+
+  /* ---- SHADOWS (soft, warm-tinted, diffuse) ---- */
+  --shadow-sm: 0 1px 2px rgba(56, 48, 42, 0.05);
+  --shadow-md: 0 10px 34px -16px rgba(56, 48, 42, 0.18);
+  --shadow-lg: 0 34px 70px -28px rgba(56, 48, 42, 0.24);
+  --shadow-gold: 0 12px 30px -12px rgba(181, 142, 80, 0.30);
+
+  /* ---- MOTION (slow, gentle, no bounce) ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --dur:  0.5s; /* @kind other */
+}
+
+/* ============================================================
+   SEMANTIC TEXT STYLES — apply directly or copy the rules
+   ============================================================ */
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--t-hero);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--t-h1);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--t-h2);
+  line-height: var(--leading-tight);
+  color: var(--ink);
+}
+
+h3, .h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--t-h3);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+.lead {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: var(--t-lead);
+  line-height: var(--leading-body);
+  color: var(--ink-2);
+}
+
+p, .body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: var(--t-body);
+  line-height: var(--leading-body);
+  color: var(--ink-2);
+}
+
+.small {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--t-small);
+  line-height: var(--leading-snug);
+  color: var(--ink-3);
+}

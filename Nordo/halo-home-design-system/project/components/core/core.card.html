@@ -1,0 +1,22 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Core" subtitle="Glass cards, buttons, chips, segmented control, avatar" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:18px;background:url('../../assets/backdrop-room-warm.jpg') center/cover fixed,var(--espresso-800);font:var(--text-body);color:var(--text-primary)}.lbl{font:var(--text-micro);color:var(--text-tertiary);font-family:var(--font-mono);margin-bottom:8px}</style></head>
+<body><div id="root"></div><script type="text/babel">
+const {GlassCard,Button,IconButton,Chip,SegmentedControl,Avatar,SectionLabel,Icon}=window.HaloHomeDesignSystem_abaa2b;
+function Demo(){const[seg,setSeg]=React.useState('Living room');const[chip,setChip]=React.useState('Kitchen');
+return <div style={{display:'flex',flexDirection:'column',gap:16}}>
+<div><div className="lbl">Button — primary / glass / solid / ghost / disabled</div>
+<div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}><Button variant="primary" icon="plus">Add device</Button><Button variant="glass">Schedule</Button><Button variant="solid" size="sm">Done</Button><Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm" disabled>Offline</Button></div></div>
+<div><div className="lbl">IconButton — glass / ember / solid / active</div>
+<div style={{display:'flex',gap:10,alignItems:'center'}}><IconButton icon="arrow-left" label="Back"/><IconButton icon="bell" label="Alerts"/><IconButton icon="plus" tone="ember" label="Add"/><IconButton icon="menu" tone="solid" label="Menu"/><IconButton icon="lightbulb" label="Light" active/><Avatar name="Robbie Hale" style={{marginLeft:8}}/></div></div>
+<div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
+<div><div className="lbl">SegmentedControl</div><SegmentedControl options={['Living room','Bedroom']} value={seg} onChange={setSeg}/></div>
+<div><div className="lbl">Chip</div><div style={{display:'flex',gap:8}}><Chip icon="plus" onClick={()=>{}}/>{['Living Room','Kitchen','Bedroom'].map(c=><Chip key={c} selected={c===chip} onClick={()=>setChip(c)}>{c}</Chip>)}</div></div></div>
+<div><div className="lbl">GlassCard — light / dim / solid</div>
+<div style={{display:'flex',gap:10}}>{['light','dim','solid'].map(t=><GlassCard key={t} tone={t} style={{flex:1}}><SectionLabel style={{margin:0,color:t==='solid'?'var(--text-inverse)':undefined}}>{t}</SectionLabel></GlassCard>)}</div></div>
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);</script></body></html>

@@ -1,0 +1,26 @@
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radii.css";
+@import "./tokens/effects.css";
+@import "./tokens/motion.css";
+@import "./tokens/base.css";
+
+/* Appka beží na celej ploche okna, telefón je vycentrovaný na tmavom pozadí. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--espresso-900);
+}
+
+/* Vstupné polia dedia typografiu systému aj vo Firefoxe. */
+input,
+button,
+textarea {
+  font-family: inherit;
+}

@@ -1,0 +1,13 @@
+:root{
+--space-0:0px;--space-1:4px;--space-2:6px;--space-3:8px;--space-4:12px;--space-5:16px;
+--space-6:20px;--space-7:24px;--space-8:32px;--space-9:40px;--space-10:48px;--space-12:64px;
+
+--gutter-screen:20px;      /* left/right screen padding */
+--gap-card:12px;           /* grid gap between glass cards */
+--pad-card:16px;           /* inner padding, standard glass card */
+--pad-card-tight:12px;
+--pad-pill:6px 14px;
+--inset-tabbar:14px;
+--screen-width:375px;
+--tabbar-height:60px;
+}

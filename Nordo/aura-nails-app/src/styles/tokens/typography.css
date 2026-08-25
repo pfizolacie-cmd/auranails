@@ -1,0 +1,31 @@
+:root{
+--font-core:"Poppins","Segoe UI",system-ui,-apple-system,sans-serif;
+--font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+--weight-light:300;--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+
+/* Screen scale — the app is drawn at 375pt logical width */
+--size-metric:44px;   /* 64% / 24°c readouts */
+--size-display:28px;  /* "Smart Light", "Hi Robbie" */
+--size-title:20px;
+--size-heading:16px;
+--size-body:14px;
+--size-label:12px;
+--size-caption:11px;
+--size-micro:10px;
+
+--leading-tight:1.1;--leading-snug:1.25;--leading-normal:1.45;--leading-loose:1.6;
+--tracking-metric:-.02em;--tracking-display:-.01em;--tracking-normal:0;--tracking-wide:.04em;--tracking-caps:.10em;
+
+--text-display:var(--weight-medium) var(--size-display)/var(--leading-snug) var(--font-core);
+--text-metric:var(--weight-semibold) var(--size-metric)/var(--leading-tight) var(--font-core);
+--text-title:var(--weight-medium) var(--size-title)/var(--leading-snug) var(--font-core);
+--text-heading:var(--weight-medium) var(--size-heading)/var(--leading-normal) var(--font-core);
+--text-body:var(--weight-regular) var(--size-body)/var(--leading-normal) var(--font-core);
+--text-label:var(--weight-medium) var(--size-label)/var(--leading-normal) var(--font-core);
+--text-caption:var(--weight-regular) var(--size-caption)/var(--leading-normal) var(--font-core);
+/* Chýbalo v pôvodnom dizajn systéme, hoci ho komponenty (StatTile, OwnerScreen)
+   používajú — bez definície `font: var(--text-micro)` neplatí a text spadne na
+   dedenú veľkosť. Dopĺňam podľa --size-micro. */
+--text-micro:var(--weight-regular) var(--size-micro)/var(--leading-normal) var(--font-core);
+}

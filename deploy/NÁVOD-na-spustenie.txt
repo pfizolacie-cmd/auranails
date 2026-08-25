@@ -1,0 +1,44 @@
+AURA NAILS MF — webová stránka
+================================
+
+V tomto priečinku je kompletný web pripravený na spustenie.
+
+────────────────────────────────────────
+SPUSTIŤ NAŽIVO (zadarmo, ~1 min) — NETLIFY
+────────────────────────────────────────
+1. Choď na:  https://app.netlify.com/drop
+2. Tento CELÝ priečinok (rozbalený zo ZIP) pretiahni myšou do okna.
+3. Hotovo — dostaneš adresu typu  https://nazov.netlify.app
+
+────────────────────────────────────────
+ALEBO GITHUB + GITHUB PAGES
+────────────────────────────────────────
+1. github.com → New repository (napr. "aura-nails") → Create
+2. "Add file" → "Upload files" → pretiahni OBSAH priečinka
+   (index.html, app.bundle.js, image-slot.js, priečinok assets)
+   — index.html musí byť v koreni.
+3. Commit changes.
+4. Settings → Pages → Branch: main, /(root) → Save.
+
+────────────────────────────────────────
+DÔLEŽITÉ — REZERVÁCIE NA E-MAIL (jednorazová aktivácia)
+────────────────────────────────────────
+Formulár posiela rezervácie na:  michaelafoltanova3@gmail.com
+Keď PRVÁ zákazníčka odošle rezerváciu na živom webe, príde ti e-mail
+od "FormSubmit" s odkazom "Activate Form" — KLIKNI NAŇ RAZ.
+Potom ti rezervácie chodia automaticky. TIP: sprav si testovaciu rezerváciu sama.
+
+────────────────────────────────────────
+RÝCHLY NÁHĽAD U SEBA
+────────────────────────────────────────
+Dvojklik na "index.html" (potrebné pripojenie na internet pre písma a videá).
+
+ČO JE V PRIEČINKU
+• index.html ............ hlavný súbor
+• app.bundle.js ......... kód celého webu
+• image-slot.js ......... pomocný komponent
+• assets/photos|video ... fotky a videá
+• assets/aura-mark.svg .. logo
+Nepremenúvaj ani nemaž priečinok "assets".
+
+S láskou k detailu — Aura Nails MF · Handlová

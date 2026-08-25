@@ -1,0 +1,51 @@
+:root{
+/* ---- Base ramp: warm neutrals sampled from the reference room ---- */
+--espresso-900:#0B0705;--espresso-800:#150D08;--espresso-700:#1F140D;--espresso-600:#2C1D13;
+--umber-500:#3E2919;--umber-400:#583B2B;--umber-300:#7A5942;--umber-200:#9E7A5E;
+--sand-300:#BFA185;--sand-200:#D6BFA8;--sand-100:#E8DACB;--sand-050:#F5EFE8;
+--porcelain:#FFFDFA;
+
+/* ---- Ember: the light itself ---- */
+--ember-700:#792303;--ember-600:#B84A0E;--ember-500:#F2701C;--ember-400:#FF8A3D;
+--ember-300:#FFAA6B;--ember-200:#FFD6AF;
+
+/* ---- Glow: emitted light, halos, active bulb ---- */
+--glow-500:#F6E142;--glow-400:#FCF47E;--glow-300:#FFD57B;--glow-200:#FFE9B8;
+
+/* ---- Bulb swatches (the colour picker row) ---- */
+--bulb-white:#EDEAE6;--bulb-mint:#9CC9C0;--bulb-cyan:#8FC5DE;--bulb-yellow:#FCF47E;
+--bulb-blush:#F0A79E;--bulb-violet:#A79BE8;
+
+/* ---- Cool counterweight (window / night side) ---- */
+--dusk-600:#1B2733;--dusk-400:#3C566B;--dusk-200:#7A99AE;
+
+/* ---- Semantic: text ---- */
+--text-primary:var(--sand-050);--text-secondary:rgba(245,239,232,.72);
+--text-tertiary:rgba(245,239,232,.48);--text-inverse:var(--espresso-800);
+--text-inverse-soft:rgba(21,13,8,.6);--text-accent:var(--ember-300);
+
+/* ---- Semantic: surface ---- */
+--surface-app:var(--espresso-800);
+--surface-glass:rgba(255,244,232,.14);
+--surface-glass-strong:rgba(255,244,232,.22);
+--surface-glass-dim:rgba(20,12,7,.28);
+--surface-solid:var(--porcelain);
+--surface-raised:rgba(255,244,232,.20);
+--surface-scrim:rgba(11,7,5,.55);
+
+/* ---- Semantic: line ---- */
+--line-glass:rgba(255,246,236,.28);
+--line-glass-soft:rgba(255,246,236,.14);
+--line-solid:rgba(21,13,8,.10);
+
+/* ---- Semantic: interactive ---- */
+--accent:var(--ember-500);--accent-hover:var(--ember-400);--accent-press:var(--ember-600);
+--accent-on:var(--porcelain);
+--control-track-off:rgba(255,244,232,.22);--control-track-on:var(--ember-500);
+--control-knob:var(--porcelain);
+--focus-ring:var(--glow-300);
+
+/* ---- Semantic: status ---- */
+--status-on:var(--glow-500);--status-off:rgba(245,239,232,.35);
+--status-warm:var(--ember-500);--status-cool:var(--dusk-200);
+}

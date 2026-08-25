@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "aura-nails-app",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "C:\\Users\\pfizo\\Desktop\\Nordo\\aura-nails-app\\node_modules\\vite\\bin\\vite.js",
+        "C:\\Users\\pfizo\\Desktop\\Nordo\\aura-nails-app",
+        "--port",
+        "5173"
+      ],
+      "port": 5173
+    }
+  ]
+}

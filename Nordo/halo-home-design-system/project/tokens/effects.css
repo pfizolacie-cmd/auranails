@@ -1,0 +1,29 @@
+:root{
+/* Frosted glass — the single most important motif */
+--blur-glass:18px; /* @kind other */
+--blur-glass-heavy:32px; /* @kind other */
+--blur-scrim:8px; /* @kind other */
+--glass:blur(var(--blur-glass)) saturate(140%); /* @kind other */
+--glass-heavy:blur(var(--blur-glass-heavy)) saturate(150%); /* @kind other */
+
+/* Outer shadows: soft, warm-black, never neutral grey */
+--shadow-sm:0 2px 8px rgba(11,7,5,.28);
+--shadow-md:0 8px 24px rgba(11,7,5,.34);
+--shadow-lg:0 18px 48px rgba(11,7,5,.42);
+
+/* Inner highlight — the 1px light catch along a glass edge */
+--inner-top:inset 0 1px 0 rgba(255,246,236,.35); /* @kind other */
+--inner-glass:inset 0 1px 0 rgba(255,246,236,.30),inset 0 -1px 0 rgba(11,7,5,.14); /* @kind other */
+
+/* Emitted light */
+--glow-soft:0 0 24px rgba(255,213,123,.35);
+--glow-strong:0 0 44px rgba(255,213,123,.55),0 0 12px rgba(246,225,66,.6);
+--glow-ember:0 0 32px rgba(242,112,28,.45);
+
+/* Gradients */
+--grad-glass:linear-gradient(145deg,rgba(255,244,232,.22),rgba(255,244,232,.08)); /* @kind other */
+--grad-glass-dim:linear-gradient(145deg,rgba(255,244,232,.14),rgba(20,12,7,.18)); /* @kind other */
+--grad-ember:linear-gradient(135deg,var(--ember-400),var(--ember-600)); /* @kind other */
+--grad-dial:conic-gradient(from 180deg,var(--dusk-200),var(--glow-300),var(--ember-500)); /* @kind other */
+--grad-scrim-bottom:linear-gradient(to top,rgba(11,7,5,.75),transparent); /* @kind other */
+}
