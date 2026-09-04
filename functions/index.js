@@ -1,292 +1,315 @@
 /**
- * AURA NAILS — Email Reminders Cloud Function
- * Firebase Cloud Function for sending 24h reminder emails
- * 
- * Deploy: firebase deploy --only functions
+ * Aura Nails — e-mailové notifikácie.
+ *
+ * V tomto súbore sú VŠETKY cloud funkcie projektu aura-nails-kalendar.
+ * Predtým boli rozhádzané v dvoch priečinkoch (Desktop/functions a
+ * Desktop/auranails/functions) a nasadenie z jedného vždy zmazalo funkcie
+ * toho druhého. Teraz je všetko tu.
+ *
+ * Heslo ku Gmailu NIE JE v kóde. Je to Firebase secret, nastavíš ho raz:
+ *   firebase functions:secrets:set GMAIL_APP_PASSWORD
+ *
+ * Nasadenie:
+ *   cd functions && npm install
+ *   firebase deploy --only functions
  */
+const functions = require('firebase-functions/v1');
+const { defineSecret } = require('firebase-functions/params');
+const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const nodemailer = require("nodemailer");
-
-// Initialize Firebase
 admin.initializeApp();
 const db = admin.firestore();
 
-// Get config from Firebase
-const config = functions.config();
-const EMAIL_USER = config.gmail?.user || process.env.EMAIL_USER;
-const EMAIL_PASSWORD = config.gmail?.password || process.env.EMAIL_PASSWORD;
+const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
-// Configure email transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD,
-  },
-});
+// Odosielacia schránka štúdia (k nej patrí app password v tajomstve vyššie).
+const SENDER = 'auranailsmf@gmail.com';
+// Kam chodia upozornenia Michaele.
+const STUDIO_INBOX = 'michaelafoltanova3@gmail.com';
+const STUDIO_NAME = 'Aura Nails';
+const REGION_EU = 'europe-west1';
 
-/**
- * Send 24h reminder emails via Cloud Scheduler (Pub/Sub)
- * Runs daily at 8:00 AM Central Europe Time
- */
-exports.sendEmailReminder = functions
-  .region("europe-west1")
-  .pubsub.schedule("0 8 * * *")
-  .timeZone("Europe/Bratislava")
-  .onRun(async (context) => {
-    console.log("[Reminders] Starting email reminder check...");
-    
-    try {
-      const tomorrow = getTomorrowDate();
-      console.log(`[Reminders] Looking for appointments on ${tomorrow}`);
+/* ---------------- pomocníci ---------------- */
 
-      // Find all appointments for tomorrow
-      const snap = await db
-        .collection("appointments")
-        .where("date", "==", tomorrow)
-        .get();
-
-      if (snap.empty) {
-        console.log("[Reminders] No appointments found for tomorrow.");
-        return;
-      }
-
-      console.log(`[Reminders] Found ${snap.size} appointment(s).`);
-
-      // Send email for each appointment
-      let sent = 0;
-      for (const doc of snap.docs) {
-        const appt = { id: doc.id, ...doc.data() };
-        try {
-          await sendReminderEmail(appt);
-          sent++;
-        } catch (err) {
-          console.error(`[Reminders] Error sending to ${appt.name}:`, err);
-        }
-      }
-
-      console.log(`[Reminders] Sent ${sent}/${snap.size} emails successfully.`);
-      return { success: true, sent, total: snap.size };
-    } catch (error) {
-      console.error("[Reminders] Critical error:", error);
-      throw error;
-    }
+function transporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: SENDER, pass: GMAIL_APP_PASSWORD.value() },
   });
+}
 
-/**
- * HTTP endpoint to manually trigger reminders (for testing)
- * Usage: curl -H "Authorization: Bearer YOUR_SECRET" https://...
- */
-exports.sendEmailReminderManual = functions
-  .region("europe-west1")
-  .https.onRequest(async (req, res) => {
-    // Security check
-    const apiKey = req.headers["authorization"];
-    const secretKey = config.manual?.trigger?.key || "default-secret-key";
-    
-    if (apiKey !== `Bearer ${secretKey}`) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+// Bezpečné vloženie textu od klientky do HTML e-mailu.
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
-    try {
-      const tomorrow = getTomorrowDate();
-      const snap = await db
-        .collection("appointments")
-        .where("date", "==", tomorrow)
-        .get();
+const SK_DOW = ['nedeľa', 'pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota'];
+const SK_MON = ['januára', 'februára', 'marca', 'apríla', 'mája', 'júna', 'júla', 'augusta', 'septembra', 'októbra', 'novembra', 'decembra'];
 
-      const sent = [];
-      for (const doc of snap.docs) {
-        const appt = { id: doc.id, ...doc.data() };
-        try {
-          await sendReminderEmail(appt);
-          sent.push(appt.name);
-        } catch (err) {
-          console.error(`[Manual] Error for ${appt.name}:`, err);
-        }
-      }
+// '2026-09-22' → 'utorok 22. septembra 2026'
+function dateLabel(iso) {
+  if (!iso || typeof iso !== 'string') return String(iso || '—');
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return `${SK_DOW[new Date(y, m - 1, d).getDay()]} ${d}. ${SK_MON[m - 1]} ${y}`;
+}
 
-      res.json({
-        success: true,
-        count: sent.length,
-        sent,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("[Manual] Error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+// Aktuálny čas v Bratislave ako { iso: '2026-09-22', hours: 14.5 }.
+// Cloud funkcie bežia v UTC, takže sa naň nedá spoľahnúť priamo.
+function nowInBratislava() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Bratislava', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date()).reduce((acc, p) => { acc[p.type] = p.value; return acc; }, {});
+  return {
+    iso: `${parts.year}-${parts.month}-${parts.day}`,
+    hours: Number(parts.hour) + Number(parts.minute) / 60,
+  };
+}
 
-/**
- * Send individual reminder email
- */
-async function sendReminderEmail(appointment) {
+function addDaysIso(iso, days) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return dt.toISOString().slice(0, 10);
+}
+
+function timeToHours(t) {
+  const [h, m] = String(t || '0:00').split(':').map(Number);
+  return (h || 0) + (m || 0) / 60;
+}
+
+// Rozpis položiek (hlavná služba + doplnky) ako riadky tabuľky.
+function itemsHtml(items, priceLabel, fallbackService) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return `<p style="margin:0 0 12px;">${esc(fallbackService)}</p>`;
+  }
+  const rows = items.map((it, i) => `
+    <tr>
+      <td style="padding:6px 0;color:${i === 0 ? '#3E2727' : '#6B5A55'};">${i === 0 ? '' : '+ '}${esc(it.label)}</td>
+      <td style="padding:6px 0;text-align:right;color:#8C6E62;">${esc(it.price)}</td>
+    </tr>`).join('');
+  const total = priceLabel ? `
+    <tr>
+      <td style="padding:10px 0 0;border-top:1px solid #E7DED9;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A7A74;">Spolu</td>
+      <td style="padding:10px 0 0;border-top:1px solid #E7DED9;text-align:right;font-size:18px;color:#3E2727;">${esc(priceLabel)}</td>
+    </tr>` : '';
+  return `<table style="width:100%;border-collapse:collapse;font-size:14px;margin:12px 0;">${rows}${total}</table>`;
+}
+
+function layout(title, bodyHtml) {
+  return `
+  <div style="font-family:Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#F7F2EF;color:#3E2727;">
+    <div style="font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#8C6E62;">${STUDIO_NAME} · Handlová</div>
+    <h2 style="font-weight:400;margin:6px 0 18px;">${title}</h2>
+    <div style="background:#fff;border:1px solid #E7DED9;border-radius:16px;padding:18px;">${bodyHtml}</div>
+    <p style="font-size:12px;color:#8A7A74;margin-top:18px;">Táto správa bola odoslaná automaticky z aplikácie Aura Nails.</p>
+  </div>`;
+}
+
+// Odoslanie + záznam do email_logs, nech je vidieť, čo naozaj odišlo.
+async function send(type, mail, meta) {
   try {
-    // Get client email
-    const clientSnap = await db
-      .collection("clients")
-      .where("name", "==", appointment.name)
-      .limit(1)
-      .get();
-
-    const client = clientSnap.docs[0]?.data() || {};
-    const email = client.email || "";
-
-    if (!email) {
-      console.log(`[Email] No email found for ${appointment.name} — skipping`);
-      return;
-    }
-
-    const html = buildReminderEmailHTML(appointment);
-    const result = await transporter.sendMail({
-      from: "Aura Nails <" + EMAIL_USER + ">",
-      to: email,
-      subject: `Reminder: Termín zajtra o ${appointment.time}`,
-      html,
-      replyTo: EMAIL_USER,
+    const res = await transporter().sendMail({
+      from: `${STUDIO_NAME} <${SENDER}>`, replyTo: SENDER, ...mail,
     });
-
-    // Log success
-    await db.collection("email_logs").add({
-      type: "reminder",
-      recipient: email,
-      clientName: appointment.name,
-      appointmentId: appointment.id,
-      service: appointment.service,
-      sentAt: admin.firestore.FieldValue.serverTimestamp(),
-      status: "sent",
-      messageId: result.messageId,
+    await db.collection('email_logs').add({
+      type, recipient: mail.to, subject: mail.subject, status: 'sent',
+      messageId: res.messageId, sentAt: admin.firestore.FieldValue.serverTimestamp(), ...(meta || {}),
     });
-
-    console.log(`[Email] ✓ Sent to ${email}`);
-  } catch (error) {
-    console.error(`[Email] Failed for ${appointment.name}:`, error);
-    
-    await db.collection("email_logs").add({
-      type: "reminder",
-      clientName: appointment.name,
-      error: error.message,
-      sentAt: admin.firestore.FieldValue.serverTimestamp(),
-      status: "failed",
-    });
-
-    throw error;
+    console.log(`[email] ✓ ${type} → ${mail.to}`);
+    return true;
+  } catch (err) {
+    // E-mail nesmie zhodiť zápis do databázy — rezervácia platí aj bez neho.
+    await db.collection('email_logs').add({
+      type, recipient: mail.to, subject: mail.subject, status: 'failed',
+      error: String(err && err.message), sentAt: admin.firestore.FieldValue.serverTimestamp(), ...(meta || {}),
+    }).catch(() => {});
+    console.error(`[email] ✗ ${type} → ${mail.to}:`, err && err.message);
+    return false;
   }
 }
 
-/**
- * Build HTML email template
- */
-function buildReminderEmailHTML(appointment) {
-  const appointmentDate = formatDate(appointment.date);
-  const appointmentTime = appointment.time || "—";
-
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body { font-family: 'Jost', -apple-system, sans-serif; background: #faf8f6; color: #2c2c2a; }
-          .wrapper { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(61,61,61,0.12); }
-          .header { background: linear-gradient(135deg, #7a6b5e 0%, #9d8b7e 100%); color: white; padding: 40px 30px; text-align: center; }
-          .logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px; }
-          .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
-          .content { padding: 40px 30px; }
-          .appointment-card { background: #faf8f6; border: 1px solid #e8e6e1; border-radius: 12px; padding: 20px; text-align: center; margin: 30px 0; }
-          .appointment-service { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #3d3d3d; font-weight: 500; margin: 12px 0; }
-          .detail-label { font-size: 10px; text-transform: uppercase; color: #9d8b7e; letter-spacing: 0.5px; }
-          .detail-value { font-size: 16px; color: #3d3d3d; font-weight: 600; }
-          .cta-button { display: inline-block; background: #3d3d3d; color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin: 20px 0; }
-          .footer { background: #f9f7f4; padding: 30px; border-top: 1px solid #e8e6e1; font-size: 12px; color: #999; text-align: center; }
-          .footer a { color: #9d8b7e; text-decoration: none; margin: 0 10px; }
-        </style>
-      </head>
-      <body>
-        <div class="wrapper">
-          <div class="header">
-            <div class="logo">AURA NAILS</div>
-            <div class="eyebrow">Reminder</div>
-          </div>
-
-          <div class="content">
-            <div style="font-size: 18px; color: #3d3d3d; margin-bottom: 20px; font-weight: 500;">
-              Ahoj ${appointment.name.split(" ")[0]}! 💅
-            </div>
-
-            <p style="font-size: 14px; color: #6e5b55; margin-bottom: 30px; line-height: 1.7;">
-              Pripomíname ti, že máš zajtra objednaný termín v našom salóne.
-            </p>
-
-            <div class="appointment-card">
-              <div class="detail-label">Tvoj termín</div>
-              <div class="appointment-service">${appointment.service}</div>
-              
-              <div style="margin-top: 16px;">
-                <div class="detail-label">Dátum & Čas</div>
-                <div class="detail-value">${appointmentTime}</div>
-                <div style="font-size: 12px; color: #9d8b7e; margin-top: 4px;">${appointmentDate}</div>
-              </div>
-              
-              ${appointment.duration ? `
-              <div style="margin-top: 16px;">
-                <div class="detail-label">Trvanie</div>
-                <div class="detail-value">${appointment.duration}h</div>
-                <div style="font-size: 12px; color: #9d8b7e; margin-top: 4px;">Približne</div>
-              </div>
-              ` : ''}
-            </div>
-
-            <div style="text-align: center;">
-              <a href="https://www.auranails.sk/app/" class="cta-button">Otvoriť aplikáciu</a>
-              <div style="font-size: 12px; color: #9d8b7e; margin-top: 20px;">
-                Nemôžeš prísť? <a href="https://www.auranails.sk/app/" style="color: #7a6b5e; text-decoration: none; border-bottom: 1px solid;">Změň čas alebo zruš</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="footer">
-            <div style="margin-bottom: 16px;">
-              © 2026 Aura Nails · Všetky práva vyhradené
-            </div>
-            <div>
-              <a href="https://www.auranails.sk">Web</a> •
-              <a href="https://www.auranails.sk/app/">App</a>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
+// E-mail klientky: najprv z termínu, potom z jej karty (podľa uid, inak podľa mena).
+async function findClientEmail(d) {
+  if (d.email) return { email: d.email, client: null };
+  if (d.clientUid) {
+    const doc = await db.collection('clients').doc(d.clientUid).get();
+    if (doc.exists && doc.data().email) return { email: doc.data().email, client: doc.data() };
+  }
+  if (d.name) {
+    const snap = await db.collection('clients').where('name', '==', d.name).limit(1).get();
+    if (!snap.empty && snap.docs[0].data().email) return { email: snap.docs[0].data().email, client: snap.docs[0].data() };
+  }
+  return { email: '', client: null };
 }
 
-/**
- * Helper: Get tomorrow's date in ISO format (YYYY-MM-DD)
- */
-function getTomorrowDate() {
-  const today = new Date();
-  today.setDate(today.getDate() + 1);
-  today.setHours(0, 0, 0, 0);
-  return today.toISOString().split("T")[0];
+/* ---------------- nová žiadosť o termín ---------------- */
+
+exports.onNewRequest = functions
+  .runWith({ secrets: [GMAIL_APP_PASSWORD] })
+  .firestore.document('requests/{docId}')
+  .onCreate(async (snap) => {
+    const d = snap.data() || {};
+    const when = `${dateLabel(d.date)} o ${esc(d.time)}`;
+
+    // 1) Michaele — čo si klientka objednala
+    await send('request-studio', {
+      to: STUDIO_INBOX,
+      subject: `Nová žiadosť — ${d.name || 'klientka'} · ${d.date || ''} ${d.time || ''}`,
+      html: layout('Nová žiadosť o termín', `
+        <p style="margin:0 0 4px;font-size:17px;">${esc(d.name)}</p>
+        <p style="margin:0 0 12px;font-size:13px;color:#8A7A74;">${esc(d.phone) || 'bez telefónu'}${d.email ? ' · ' + esc(d.email) : ''}</p>
+        ${itemsHtml(d.items, d.priceLabel, d.service)}
+        <p style="margin:12px 0 0;"><strong>${when}</strong></p>
+        <p style="margin:4px 0 0;font-size:13px;color:#8A7A74;">Predpokladané trvanie: ${esc(d.duration)} h</p>
+        <p style="margin:16px 0 0;font-size:13px;color:#8A7A74;">Potvrď alebo zamietni v appke → záložka Žiadosti.</p>
+      `),
+    }, { clientName: d.name || '' });
+
+    // 2) Klientke — potvrdenie, že žiadosť dorazila
+    if (d.email) {
+      await send('request-client', {
+        to: d.email,
+        subject: `Vaša žiadosť o termín — ${STUDIO_NAME}`,
+        html: layout('Ďakujeme za vašu žiadosť', `
+          <p style="margin:0 0 12px;">Dobrý deň, ${esc(d.name)},</p>
+          <p style="margin:0 0 12px;">vašu žiadosť sme prijali. Michaela ju čoskoro potvrdí a dáme vám vedieť.</p>
+          ${itemsHtml(d.items, d.priceLabel, d.service)}
+          <p style="margin:12px 0 0;"><strong>${when}</strong></p>
+          <p style="margin:16px 0 0;font-size:13px;color:#8A7A74;">Termín zatiaľ nie je záväzne potvrdený.</p>
+        `),
+      }, { clientName: d.name || '' });
+    }
+  });
+
+/* ---------------- potvrdený termín v kalendári ---------------- */
+
+exports.onNewAppointment = functions
+  .runWith({ secrets: [GMAIL_APP_PASSWORD] })
+  .firestore.document('appointments/{docId}')
+  .onCreate(async (snap) => {
+    const d = snap.data() || {};
+    if (d.blocked) return; // voľno/zatvorené — nikomu sa nepíše
+
+    const { email } = await findClientEmail(d);
+    if (!email) return; // telefonická klientka bez e-mailu — niet kam písať
+
+    await send('appointment-confirmed', {
+      to: email,
+      subject: `Termín potvrdený — ${dateLabel(d.date)} o ${d.time}`,
+      html: layout('Váš termín je potvrdený', `
+        <p style="margin:0 0 12px;">Dobrý deň, ${esc(d.name)},</p>
+        <p style="margin:0 0 12px;">tešíme sa na vás.</p>
+        ${itemsHtml(d.items, d.priceLabel, d.service)}
+        <p style="margin:12px 0 0;"><strong>${dateLabel(d.date)} o ${esc(d.time)}</strong></p>
+        <p style="margin:4px 0 0;font-size:13px;color:#8A7A74;">Vyhraďte si prosím ${esc(d.duration)} h.</p>
+        <p style="margin:16px 0 0;font-size:13px;color:#8A7A74;">Ak sa vám termín nehodí, ozvite sa nám čo najskôr — zrušenie menej ako 24 hodín vopred je spoplatnené 15 €.</p>
+      `),
+    }, { clientName: d.name || '', appointmentId: snap.id });
+  });
+
+/* ---------------- pripomienky ---------------- */
+
+// Jedna pripomienka. `field` je značka na termíne, aby sa neposlala dvakrát.
+async function sendReminder(doc, kind) {
+  const d = doc.data() || {};
+  if (d.blocked) return false;
+  const field = kind === 'day' ? 'reminderDaySentAt' : 'reminderSoonSentAt';
+  if (d[field]) return false; // už odoslané
+
+  const { email, client } = await findClientEmail(d);
+  if (!email) return false;
+
+  // klientka si pripomienky vie vypnúť v profile appky
+  const pref = kind === 'day' ? 'remindDayBefore' : 'remindHoursBefore';
+  if (client && client[pref] === false) return false;
+
+  const ok = await send(kind === 'day' ? 'reminder-day' : 'reminder-soon', {
+    to: email,
+    subject: kind === 'day' ? `Pripomienka — zajtra o ${d.time}` : `Pripomienka — dnes o ${d.time}`,
+    html: layout(kind === 'day' ? 'Zajtra sa vidíme' : 'Dnes sa vidíme', `
+      <p style="margin:0 0 12px;">Dobrý deň, ${esc(d.name)},</p>
+      <p style="margin:0 0 12px;">pripomíname váš ${kind === 'day' ? 'zajtrajší' : 'dnešný'} termín.</p>
+      ${itemsHtml(d.items, d.priceLabel, d.service)}
+      <p style="margin:12px 0 0;"><strong>${dateLabel(d.date)} o ${esc(d.time)}</strong></p>
+    `),
+  }, { clientName: d.name || '', appointmentId: doc.id });
+
+  if (ok) await doc.ref.update({ [field]: admin.firestore.FieldValue.serverTimestamp() });
+  return ok;
 }
 
-/**
- * Helper: Format date in Slovak (e.g., "Po 24. aug")
- */
-function formatDate(iso) {
-  const SK_DOW = ["Ne", "Po", "Ut", "St", "Št", "Pi", "So"];
-  const SK_MON = [
-    "jan", "feb", "mar", "apr", "máj", "jún",
-    "júl", "aug", "sep", "okt", "nov", "dec"
-  ];
+// Deň vopred, každý deň o 18:00 bratislavského času.
+exports.sendEmailReminder = functions
+  .region(REGION_EU)
+  .runWith({ secrets: [GMAIL_APP_PASSWORD] })
+  .pubsub.schedule('0 18 * * *')
+  .timeZone('Europe/Bratislava')
+  .onRun(async () => {
+    const tomorrow = addDaysIso(nowInBratislava().iso, 1);
+    const snap = await db.collection('appointments').where('date', '==', tomorrow).get();
+    let sent = 0;
+    for (const doc of snap.docs) { if (await sendReminder(doc, 'day')) sent++; }
+    console.log(`[pripomienky ${tomorrow}] odoslaných ${sent} z ${snap.size}`);
+    return null;
+  });
 
-  const [y, m, d] = iso.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  const dow = SK_DOW[date.getDay()];
-  const mon = SK_MON[m - 1];
+// Dve hodiny pred termínom. Beží každých 30 minút a berie termíny,
+// ktoré začínajú o 1,5 až 2,5 hodiny — každý sa tak trafí práve raz.
+exports.sendSoonReminder = functions
+  .region(REGION_EU)
+  .runWith({ secrets: [GMAIL_APP_PASSWORD] })
+  .pubsub.schedule('every 30 minutes')
+  .timeZone('Europe/Bratislava')
+  .onRun(async () => {
+    const now = nowInBratislava();
+    const snap = await db.collection('appointments').where('date', '==', now.iso).get();
+    let sent = 0;
+    for (const doc of snap.docs) {
+      const lead = timeToHours(doc.data().time) - now.hours;
+      if (lead >= 1.5 && lead <= 2.5) { if (await sendReminder(doc, 'soon')) sent++; }
+    }
+    console.log(`[pripomienky 2h ${now.iso}] odoslaných ${sent}`);
+    return null;
+  });
 
-  return `${dow} ${d}. ${mon}`;
+// Kľúč, ktorým sú chránené ručné endpointy nižšie.
+// Nastavíš ho cez: firebase functions:secrets:set MANUAL_TRIGGER_KEY
+const MANUAL_TRIGGER_KEY = defineSecret('MANUAL_TRIGGER_KEY');
+
+function authorized(req) {
+  return req.headers.authorization === `Bearer ${MANUAL_TRIGGER_KEY.value()}`;
 }
+
+exports.sendEmailReminderManual = functions
+  .region(REGION_EU)
+  .runWith({ secrets: [GMAIL_APP_PASSWORD, MANUAL_TRIGGER_KEY] })
+  .https.onRequest(async (req, res) => {
+    if (!authorized(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+    // ?test=1 → len skúšobný e-mail do schránky štúdia, databázy sa to netýka.
+    if (req.query.test) {
+      const ok = await send('test', {
+        to: STUDIO_INBOX,
+        subject: 'Test — e-maily z Aura Nails fungujú',
+        html: layout('Skúšobná správa', `
+          <p style="margin:0 0 12px;">Ak čítate tento e-mail, odosielanie z appky Aura Nails funguje.</p>
+          <p style="margin:0;font-size:13px;color:#8A7A74;">Odoslané ${new Date().toISOString()}</p>
+        `),
+      });
+      res.status(ok ? 200 : 500).json({ test: true, sent: ok, to: STUDIO_INBOX });
+      return;
+    }
+
+    const target = typeof req.query.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date)
+      ? req.query.date
+      : addDaysIso(nowInBratislava().iso, 1);
+    const snap = await db.collection('appointments').where('date', '==', target).get();
+    let sent = 0;
+    for (const doc of snap.docs) { if (await sendReminder(doc, 'day')) sent++; }
+    res.json({ success: true, date: target, found: snap.size, sent });
+  });

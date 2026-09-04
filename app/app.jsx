@@ -127,12 +127,42 @@ const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 
 const BIRTHDAY_DISCOUNT_CODE = 'NARODENINY10';
 const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
 
-const SERVICE_OPTIONS = [
-  { name: 'Gélové nechty', sub: 'Modeláž, doplnenie, gél lak', duration: 2 },
-  { name: 'Manikúra', sub: 'Prístrojová, SPA, hydratácia', duration: 1 },
-  { name: 'Odborná starostlivosť', sub: 'IBX kúra, regenerácia', duration: 1.5 },
-  { name: 'Dizajn a doplnky', sub: 'Francúzska, babyboomer', duration: 0.5 },
-];
+// Predvolené trvanie služieb v hodinách. Slúži len ako záloha pre položky
+// cenníka, ktoré ešte nemajú vlastné trvanie — Michaela ho vie prepísať
+// v admin cenníku a od tej chvíle platí to jej.
+const DEFAULT_DURATIONS = {
+  'Nová modelácia — Krátke': 2, 'Nová modelácia — Stredné': 2.5, 'Nová modelácia — Dlhé': 3,
+  'Doplnenie — Krátke': 1.5, 'Doplnenie — Stredné': 2, 'Doplnenie — Dlhé': 2.5,
+  'Jednorázové': 2.5, 'Gél lak': 1.5,
+  'Prístrojová manikúra': 1, 'SPA manikúra s peelingom': 1.5, 'Hydratačný zábal a masáž rúk': 0.5,
+  'Odstránenie nechtov': 0.5, 'Odstránenie + prístrojová manikúra': 1,
+  'IBX regeneračná kúra': 0.5, 'IBX kúra + prístrojová manikúra': 1,
+  'Francúzska manikúra': 0.5, 'Francúzska manikúra (vstavaná)': 0.5,
+  'Babyboomer (vstavaný)': 0.5, 'Oprava nechtu mimo termín': 0.5,
+};
+// Položky, ktoré sa štandardne ponúkajú ako doplnok k hlavnej službe,
+// nie ako samostatná návšteva.
+const DEFAULT_ADDONS = ['Francúzska manikúra', 'Francúzska manikúra (vstavaná)', 'Babyboomer (vstavaný)', 'Hydratačný zábal a masáž rúk'];
+const FALLBACK_DURATION = 1.5;
+function itemDuration(item) {
+  const d = Number(item && item.duration);
+  if (d > 0) return d;
+  return DEFAULT_DURATIONS[item && item.label] || FALLBACK_DURATION;
+}
+function isAddonItem(item) {
+  if (!item) return false;
+  if (typeof item.addon === 'boolean') return item.addon;
+  return DEFAULT_ADDONS.indexOf(item.label) !== -1;
+}
+// "35 €" → 35 ; zvládne aj desatinnú čiarku ("12,50 €")
+function priceToNumber(p) {
+  const m = String(p == null ? '' : p).replace(',', '.').match(/[0-9.]+/);
+  return m ? parseFloat(m[0]) : 0;
+}
+function formatPrice(n) {
+  if (!n) return '0 €';
+  return (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ',')) + ' €';
+}
 
 /* ---------- Firebase setup ---------- */
 const FIREBASE_READY = typeof window.firebaseConfig === 'object'
@@ -192,19 +222,19 @@ async function seedIfEmpty() {
 
 const CENNIK_SEED = [
   { name: 'Gélové nechty', sub: 'Predĺženie & spevnenie', items: [
-    { label: 'Nová modelácia — Krátke', price: '33 €' }, { label: 'Nová modelácia — Stredné', price: '35 €' },
-    { label: 'Nová modelácia — Dlhé', price: '38 €' }, { label: 'Doplnenie — Krátke', price: '30 €' },
-    { label: 'Doplnenie — Stredné', price: '32 €' }, { label: 'Doplnenie — Dlhé', price: '35 €' },
-    { label: 'Jednorázové', price: '40 €' }, { label: 'Gél lak', price: '28 €' } ] },
+    { label: 'Nová modelácia — Krátke', price: '33 €', duration: 2 }, { label: 'Nová modelácia — Stredné', price: '35 €', duration: 2.5 },
+    { label: 'Nová modelácia — Dlhé', price: '38 €', duration: 3 }, { label: 'Doplnenie — Krátke', price: '30 €', duration: 1.5 },
+    { label: 'Doplnenie — Stredné', price: '32 €', duration: 2 }, { label: 'Doplnenie — Dlhé', price: '35 €', duration: 2.5 },
+    { label: 'Jednorázové', price: '40 €', duration: 2.5 }, { label: 'Gél lak', price: '28 €', duration: 1.5 } ] },
   { name: 'Manikúra', sub: 'Starostlivosť', items: [
-    { label: 'Prístrojová manikúra', price: '20 €' }, { label: 'SPA manikúra s peelingom', price: '25 €' },
-    { label: 'Hydratačný zábal a masáž rúk', price: '10 €' } ] },
+    { label: 'Prístrojová manikúra', price: '20 €', duration: 1 }, { label: 'SPA manikúra s peelingom', price: '25 €', duration: 1.5 },
+    { label: 'Hydratačný zábal a masáž rúk', price: '10 €', duration: 0.5, addon: true } ] },
   { name: 'Odborná starostlivosť', sub: 'Zdravie nechtov', items: [
-    { label: 'Odstránenie nechtov', price: '15 €' }, { label: 'Odstránenie + prístrojová manikúra', price: '25 €' },
-    { label: 'IBX regeneračná kúra', price: '15 €' }, { label: 'IBX kúra + prístrojová manikúra', price: '25 €' } ] },
+    { label: 'Odstránenie nechtov', price: '15 €', duration: 0.5 }, { label: 'Odstránenie + prístrojová manikúra', price: '25 €', duration: 1 },
+    { label: 'IBX regeneračná kúra', price: '15 €', duration: 0.5 }, { label: 'IBX kúra + prístrojová manikúra', price: '25 €', duration: 1 } ] },
   { name: 'Dizajn a doplnky', sub: 'Doplnky', items: [
-    { label: 'Francúzska manikúra', price: '3 €' }, { label: 'Francúzska manikúra (vstavaná)', price: '5 €' },
-    { label: 'Babyboomer (vstavaný)', price: '3 €' }, { label: 'Oprava nechtu mimo termín', price: '3 €' } ] },
+    { label: 'Francúzska manikúra', price: '3 €', duration: 0.5, addon: true }, { label: 'Francúzska manikúra (vstavaná)', price: '5 €', duration: 0.5, addon: true },
+    { label: 'Babyboomer (vstavaný)', price: '3 €', duration: 0.5, addon: true }, { label: 'Oprava nechtu mimo termín', price: '3 €', duration: 0.5 } ] },
 ];
 async function seedPricingIfMissing() {
   const doc = await db.collection('settings').doc('cennik').get();
@@ -320,18 +350,20 @@ function App() {
 
   const [state, setStateRaw] = useState({
     screen: 'login', clientTab: 'home',
-    booking: { step: 0, serviceIdx: null, dateIso: null, time: null, done: false },
+    booking: { step: 0, catIdx: null, itemIdx: null, addons: [], dateIso: null, time: null, done: false },
     profileView: 'main', expandedCat: 0,
     adminTab: 'overview', selectedClientId: null,
     toast: { visible: false, msg: '' },
-    dayBefore: true, hourBefore: true,
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00',
     newClientService: '', newClientDuration: 1.5,
     adminSelectedDate: isoOffset(0),
     authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
-    addItemCatIndex: null, newItemLabel: '', newItemPrice: '', addCatFormOpen: false, newCatName: '', newCatSub: '',
-    editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '',
+    addItemCatIndex: null, newItemLabel: '', newItemPrice: '', newItemDuration: '1.5', newItemAddon: false,
+    addCatFormOpen: false, newCatName: '', newCatSub: '',
+    editItemCatIndex: null, editItemIndex: null, editItemLabel: '', editItemPrice: '', editItemDuration: '1.5', editItemAddon: false,
+    dayAddOpen: false, dayAddQuery: '', dayAddClientId: null, dayAddNewName: '', dayAddNewPhone: '',
+    dayAddCatIdx: null, dayAddItemIdx: null, dayAddAddons: [], dayAddDuration: null, dayAddTime: '',
     requestDurations: {},
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
     clientSearch: '',
@@ -472,12 +504,33 @@ function App() {
   const step0 = b.step === 0, step1 = b.step === 1, step2 = b.step === 2;
   const dotStyle = (active, done) => `flex:1;height:4px;border-radius:2px;background:${active || done ? 'var(--espresso)' : 'var(--line)'}`;
 
-  const serviceOptions = SERVICE_OPTIONS.map((sv, i) => ({
-    name: sv.name, sub: sv.sub, select: () => setBooking({ serviceIdx: i }),
-    style: `all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:left;padding:16px 18px;border-radius:16px;margin-bottom:10px;color:${b.serviceIdx === i ? 'var(--porcelain)' : 'var(--ink)'};background:${b.serviceIdx === i ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.serviceIdx === i ? 'var(--espresso)' : 'var(--line)'}`,
+  // Celý cenník rozdelený na hlavné služby a doplnky. Klientka si vyberie
+  // jednu hlavnú službu a k nej ľubovoľné doplnky; cena aj trvanie sa sčítajú.
+  const cennikMain = [];
+  const cennikAddons = [];
+  pricing.forEach((cat, ci) => (cat.items || []).forEach((item, ii) => {
+    const entry = {
+      key: ci + ':' + ii, ci, ii, catName: cat.name, label: item.label,
+      price: item.price, priceNum: priceToNumber(item.price), duration: itemDuration(item),
+    };
+    (isAddonItem(item) ? cennikAddons : cennikMain).push(entry);
   }));
+  const cennikMainByCat = pricing.map((cat, ci) => ({
+    name: cat.name, sub: cat.sub, ci, items: cennikMain.filter((m) => m.ci === ci),
+  })).filter((c) => c.items.length > 0);
+
+  const bookingMain = cennikMain.find((m) => m.ci === b.catIdx && m.ii === b.itemIdx) || null;
+  const bookingAddons = cennikAddons.filter((a) => (b.addons || []).indexOf(a.key) !== -1);
+  const toggleBookingAddon = (key) => {
+    const cur = b.addons || [];
+    setBooking({ addons: cur.indexOf(key) !== -1 ? cur.filter((k) => k !== key) : [...cur, key], time: null });
+  };
+  const pickBookingService = (m) => setBooking({ catIdx: m.ci, itemIdx: m.ii, time: null });
+  const serviceItemStyle = (selected) => `all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;text-align:left;padding:13px 15px;border-radius:14px;margin-bottom:8px;color:${selected ? 'var(--porcelain)' : 'var(--ink)'};background:${selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line)'}`;
+
   const dates = buildDateOptions();
-  const svcDuration = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].duration : 1;
+  const bookingPriceNum = bookingMain ? bookingMain.priceNum + bookingAddons.reduce((sum, a) => sum + a.priceNum, 0) : 0;
+  const svcDuration = bookingMain ? bookingMain.duration + bookingAddons.reduce((sum, a) => sum + a.duration, 0) : 1;
   const dateOptions = dates.map((d) => {
     const dayFull = buildTimeOptions().every((t) => !slotAvailable(d.iso, t, svcDuration, appointments));
     return {
@@ -511,25 +564,34 @@ function App() {
       style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
     };
   });
-  const booking_selectedService = b.serviceIdx !== null ? SERVICE_OPTIONS[b.serviceIdx].name : '—';
+  const booking_selectedService = bookingMain
+    ? [bookingMain.label, ...bookingAddons.map((a) => a.label)].join(' + ')
+    : '—';
+  const booking_priceLabel = bookingMain ? formatPrice(bookingPriceNum) : '—';
   const booking_durationLabel = formatDuration(svcDuration);
   const booking_selectedDate = b.dateIso ? isoLabel(b.dateIso) : '—';
   const bookingSummary = `${booking_selectedService} · ${booking_selectedDate} · ${b.time || '—'}`;
-  const nextDisabled = (step0 && b.serviceIdx === null) || (step1 && (b.dateIso === null || !b.time));
+  const nextDisabled = (step0 && !bookingMain) || (step1 && (b.dateIso === null || !b.time));
   const nextStep = () => !nextDisabled && setBooking({ step: Math.min(2, b.step + 1) });
   const prevStep = () => setBooking({ step: Math.max(0, b.step - 1) });
   const btnBase = 'all:unset;cursor:pointer;padding:12px 26px;border-radius:999px;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase';
   const prevBtnStyle = `${btnBase};color:${step0 ? 'var(--ink-3)' : 'var(--ink-2)'};border:1px solid var(--line-gold);opacity:${step0 ? 0.4 : 1};visibility:${step0 ? 'hidden' : 'visible'}`;
   const nextBtnStyle = `${btnBase};color:var(--porcelain);background:var(--espresso);opacity:${nextDisabled ? 0.4 : 1}`;
   const submitBooking = async () => {
-    if (!loggedInClient || !authUser) return;
+    if (!loggedInClient || !authUser || !bookingMain) return;
+    // Ukladáme aj rozpis položiek a cenu, aby Michaela videla presne to,
+    // čo si klientka naklikala — nielen jeden textový názov.
     await db.collection('requests').add({
-      name: loggedInClient.name, phone: loggedInClient.phone || '', service: booking_selectedService,
+      name: loggedInClient.name, phone: loggedInClient.phone || '', email: loggedInClient.email || '',
+      service: booking_selectedService,
+      items: [bookingMain, ...bookingAddons].map((it) => ({ label: it.label, price: it.price, duration: it.duration })),
+      price: bookingPriceNum, priceLabel: formatPrice(bookingPriceNum),
       date: b.dateIso, time: b.time, clientUid: authUser.uid, duration: svcDuration,
+      createdAt: new Date().toISOString(),
     });
     setBooking({ done: true });
   };
-  const resetBooking = () => set({ booking: { step: 0, serviceIdx: null, dateIso: null, time: null, done: false } });
+  const resetBooking = () => set({ booking: { step: 0, catIdx: null, itemIdx: null, addons: [], dateIso: null, time: null, done: false } });
 
   /* ---------- chatbot (recepčná bez AI: vedená konverzácia klikaním) ---------- */
   const chatSay = (from, text) => setStateRaw((prev) => ({ ...prev, chatLog: [...prev.chatLog, { from, text }] }));
@@ -556,17 +618,18 @@ function App() {
     { label: 'Ako funguje Aura Pass?', run: () => chatPick('Ako funguje Aura Pass?', 'Za každú návštevu vám Michaela pridá pečiatku. Po 5 pečiatkach získate odmenu. Aktuálny stav vidíte v záložke Pass.') },
   ];
   // krok: výber služby
-  const chatSvcOptions = SERVICE_OPTIONS.map((sv, i) => ({
-    label: sv.name,
+  const chatSvcOptions = cennikMain.map((sv) => ({
+    label: `${sv.label} · ${sv.price}`,
     run: () => {
       setStateRaw((prev) => ({
-        ...prev, chatSvcIdx: i, chatView: 'date',
-        chatLog: [...prev.chatLog, { from: 'me', text: sv.name }, { from: 'bot', text: `${sv.name} (${formatDuration(sv.duration)}). Na ktorý deň?` }],
+        ...prev, chatSvcIdx: sv.key, chatView: 'date',
+        chatLog: [...prev.chatLog, { from: 'me', text: sv.label }, { from: 'bot', text: `${sv.label} — ${sv.price}, trvanie ${formatDuration(sv.duration)}. Na ktorý deň?` }],
       }));
     },
   }));
+  const chatSvc = cennikMain.find((m) => m.key === s.chatSvcIdx) || null;
   // krok: výber dňa (najbližších 7 dní, plné dni sa neponúkajú)
-  const chatSvcDuration = s.chatSvcIdx !== null ? SERVICE_OPTIONS[s.chatSvcIdx].duration : 1;
+  const chatSvcDuration = chatSvc ? chatSvc.duration : 1;
   const chatDateOptions = buildDateOptions(7)
     .filter((d) => buildTimeOptions().some((t) => slotAvailable(d.iso, t, chatSvcDuration, appointments)))
     .map((d) => ({
@@ -588,8 +651,12 @@ function App() {
           return;
         }
         await db.collection('requests').add({
-          name: loggedInClient.name, phone: loggedInClient.phone || '', service: SERVICE_OPTIONS[s.chatSvcIdx].name,
+          name: loggedInClient.name, phone: loggedInClient.phone || '', email: loggedInClient.email || '',
+          service: chatSvc ? chatSvc.label : 'Bez upresnenia',
+          items: chatSvc ? [{ label: chatSvc.label, price: chatSvc.price, duration: chatSvc.duration }] : [],
+          price: chatSvc ? chatSvc.priceNum : 0, priceLabel: chatSvc ? formatPrice(chatSvc.priceNum) : '',
           date: s.chatDateIso, time: t, clientUid: authUser.uid, duration: chatSvcDuration,
+          createdAt: new Date().toISOString(),
         });
         setStateRaw((prev) => ({
           ...prev, chatView: 'menu', chatSvcIdx: null, chatDateIso: null,
@@ -627,8 +694,13 @@ function App() {
       mine: !!(a.clientUid && authUser && a.clientUid === authUser.uid),
     }));
   const rebookService = (serviceName) => {
-    const idx = SERVICE_OPTIONS.findIndex((sv) => sv.name === serviceName);
-    setBooking({ step: idx !== -1 ? 1 : 0, serviceIdx: idx !== -1 ? idx : null, dateIso: null, time: null, done: false });
+    // z minulého termínu vieme len text — skúsime nájsť hlavnú službu podľa názvu
+    const mainLabel = String(serviceName || '').split(' + ')[0].trim();
+    const found = cennikMain.find((m) => m.label === mainLabel) || null;
+    setBooking({
+      step: found ? 1 : 0, catIdx: found ? found.ci : null, itemIdx: found ? found.ii : null,
+      addons: [], dateIso: null, time: null, done: false,
+    });
     set({ clientTab: 'booking' });
   };
   const rateAppt = (id, rating) => { db.collection('appointments').doc(id).update({ rating }); };
@@ -671,8 +743,13 @@ function App() {
 
   const toggleTrack = (on) => `all:unset;cursor:pointer;width:44px;height:26px;border-radius:999px;background:${on ? 'var(--espresso)' : 'var(--line-gold)'};display:flex;align-items:center;padding:2px;box-sizing:border-box`;
   const toggleKnob = (on) => `display:block;width:22px;height:22px;border-radius:50%;background:var(--porcelain);transform:translateX(${on ? '18px' : '0'});transition:transform .25s`;
-  const toggleDayBefore = () => set({ dayBefore: !s.dayBefore });
-  const toggleHourBefore = () => set({ hourBefore: !s.hourBefore });
+  // Prepínače pripomienok sa ukladajú do karty klientky — až podľa nich sa
+  // cloud funkcia rozhoduje, či jej pripomienkový e-mail poslať. Ak pole
+  // chýba (staršie klientky), pripomienky sú zapnuté.
+  const remindDayBefore = loggedInClient ? loggedInClient.remindDayBefore !== false : true;
+  const remindHoursBefore = loggedInClient ? loggedInClient.remindHoursBefore !== false : true;
+  const toggleDayBefore = () => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ remindDayBefore: !remindDayBefore }); };
+  const toggleHourBefore = () => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ remindHoursBefore: !remindHoursBefore }); };
 
   const adminTabOverview = s.adminTab === 'overview', adminTabRequests = s.adminTab === 'requests', adminTabClients = s.adminTab === 'clients', adminTabPricing = s.adminTab === 'pricing', adminTabStats = s.adminTab === 'stats';
   const goOverview = () => set({ adminTab: 'overview' });
@@ -715,18 +792,29 @@ function App() {
   const updatePricing = (newCategories) => db.collection('settings').doc('cennik').set({ categories: newCategories });
   const deletePricingCategory = (catIdx) => updatePricing(pricing.filter((_, i) => i !== catIdx));
   const deletePricingItem = (catIdx, itemIdx) => updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: c.items.filter((_, j) => j !== itemIdx) } : c)));
-  const openAddItem = (catIdx) => set({ addItemCatIndex: catIdx, newItemLabel: '', newItemPrice: '' });
+  // trvanie sa zadáva v hodinách (0.25 = 15 min); zaokrúhľujeme na štvrťhodiny
+  const parseDurationInput = (txt) => {
+    const v = parseFloat(String(txt).replace(',', '.'));
+    if (!v || v <= 0) return FALLBACK_DURATION;
+    return Math.min(8, Math.max(0.25, Math.round(v * 4) / 4));
+  };
+  const openAddItem = (catIdx) => set({ addItemCatIndex: catIdx, newItemLabel: '', newItemPrice: '', newItemDuration: '1.5', newItemAddon: false });
   const cancelAddItem = () => set({ addItemCatIndex: null });
   const saveNewItem = (catIdx) => {
     if (!s.newItemLabel.trim() || !s.newItemPrice.trim()) return;
-    updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: [...c.items, { label: s.newItemLabel.trim(), price: s.newItemPrice.trim() }] } : c)));
-    set({ addItemCatIndex: null, newItemLabel: '', newItemPrice: '' });
+    const item = { label: s.newItemLabel.trim(), price: s.newItemPrice.trim(), duration: parseDurationInput(s.newItemDuration), addon: !!s.newItemAddon };
+    updatePricing(pricing.map((c, i) => (i === catIdx ? { ...c, items: [...c.items, item] } : c)));
+    set({ addItemCatIndex: null, newItemLabel: '', newItemPrice: '', newItemDuration: '1.5', newItemAddon: false });
   };
-  const openEditItem = (catIdx, itemIdx, item) => set({ editItemCatIndex: catIdx, editItemIndex: itemIdx, editItemLabel: item.label, editItemPrice: item.price });
+  const openEditItem = (catIdx, itemIdx, item) => set({
+    editItemCatIndex: catIdx, editItemIndex: itemIdx, editItemLabel: item.label, editItemPrice: item.price,
+    editItemDuration: String(itemDuration(item)), editItemAddon: isAddonItem(item),
+  });
   const cancelEditItem = () => set({ editItemCatIndex: null, editItemIndex: null });
   const saveEditItem = () => {
     if (!s.editItemLabel.trim() || !s.editItemPrice.trim()) return;
-    updatePricing(pricing.map((c, ci) => (ci === s.editItemCatIndex ? { ...c, items: c.items.map((it, ii) => (ii === s.editItemIndex ? { label: s.editItemLabel.trim(), price: s.editItemPrice.trim() } : it)) } : c)));
+    const item = { label: s.editItemLabel.trim(), price: s.editItemPrice.trim(), duration: parseDurationInput(s.editItemDuration), addon: !!s.editItemAddon };
+    updatePricing(pricing.map((c, ci) => (ci === s.editItemCatIndex ? { ...c, items: c.items.map((it, ii) => (ii === s.editItemIndex ? item : it)) } : c)));
     set({ editItemCatIndex: null, editItemIndex: null });
   };
   const openAddCategory = () => set({ addCatFormOpen: true, newCatName: '', newCatSub: '' });
@@ -773,6 +861,68 @@ function App() {
     showToast('Voľno nastavené');
   };
   const deleteBlock = async (id) => { await db.collection('appointments').doc(id).delete(); showToast('Voľno zrušené'); };
+
+  /* ---------- pridanie klientky priamo z kalendára ---------- */
+  const openDayAdd = () => set({
+    dayAddOpen: true, dayAddQuery: '', dayAddClientId: null, dayAddNewName: '', dayAddNewPhone: '',
+    dayAddCatIdx: null, dayAddItemIdx: null, dayAddAddons: [], dayAddDuration: null, dayAddTime: '',
+  });
+  const cancelDayAdd = () => set({ dayAddOpen: false });
+  // najčastejšie klientky — tie sa Michaele ponúknu hneď, bez písania
+  const frequentClients = [...clients].sort((a, bb) => (bb.visits || 0) - (a.visits || 0)).slice(0, 6);
+  const dayAddQ = s.dayAddQuery.trim().toLowerCase();
+  const dayAddMatches = dayAddQ.length >= 2
+    ? clients.filter((c) => (c.name || '').toLowerCase().includes(dayAddQ) || (c.phone || '').toLowerCase().includes(dayAddQ)).slice(0, 8)
+    : [];
+  const dayAddPicked = clients.find((c) => c.id === s.dayAddClientId) || null;
+  // klientka, ktorá v zozname nie je — založíme ju spolu s termínom
+  const dayAddIsNew = !dayAddPicked && !!s.dayAddNewName.trim();
+  const dayAddName = dayAddPicked ? dayAddPicked.name : s.dayAddNewName.trim();
+  const pickDayAddClient = (c) => set({ dayAddClientId: c.id, dayAddNewName: '', dayAddQuery: '' });
+  const pickDayAddNew = () => set({ dayAddClientId: null, dayAddNewName: s.dayAddQuery.trim(), dayAddQuery: '' });
+  const clearDayAddClient = () => set({ dayAddClientId: null, dayAddNewName: '', dayAddNewPhone: '', dayAddQuery: '' });
+
+  const dayAddMain = cennikMain.find((m) => m.ci === s.dayAddCatIdx && m.ii === s.dayAddItemIdx) || null;
+  const dayAddAddonItems = cennikAddons.filter((a) => (s.dayAddAddons || []).indexOf(a.key) !== -1);
+  const toggleDayAddAddon = (key) => {
+    const cur = s.dayAddAddons || [];
+    set({ dayAddAddons: cur.indexOf(key) !== -1 ? cur.filter((k) => k !== key) : [...cur, key], dayAddDuration: null, dayAddTime: '' });
+  };
+  const pickDayAddService = (m) => set({ dayAddCatIdx: m.ci, dayAddItemIdx: m.ii, dayAddDuration: null, dayAddTime: '' });
+  const dayAddAutoDuration = dayAddMain ? dayAddMain.duration + dayAddAddonItems.reduce((sum, a) => sum + a.duration, 0) : 1.5;
+  // Michaela môže auto-trvanie prepísať, inak platí to z cenníka
+  const dayAddDuration = (s.dayAddDuration === null || s.dayAddDuration === undefined) ? dayAddAutoDuration : s.dayAddDuration;
+  const dayAddPriceNum = dayAddMain ? dayAddMain.priceNum + dayAddAddonItems.reduce((sum, a) => sum + a.priceNum, 0) : 0;
+  const dayAddServiceLabel = dayAddMain ? [dayAddMain.label, ...dayAddAddonItems.map((a) => a.label)].join(' + ') : '';
+  const dayAddTimeOptions = buildTimeOptions().map((t) => {
+    const taken = !slotAvailable(s.adminSelectedDate, t, dayAddDuration, appointments);
+    const selected = s.dayAddTime === t;
+    return {
+      label: t, taken, select: () => !taken && set({ dayAddTime: t }),
+      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
+    };
+  });
+  const dayAddDisabled = !dayAddName || !s.dayAddTime;
+  const saveDayAdd = async () => {
+    if (dayAddDisabled) return;
+    if (dayAddIsNew) {
+      await db.collection('clients').add({
+        name: dayAddName, phone: s.dayAddNewPhone.trim() || '—', email: '',
+        stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+      });
+    }
+    await db.collection('appointments').add({
+      date: s.adminSelectedDate, time: s.dayAddTime, name: dayAddName,
+      service: dayAddServiceLabel || 'Bez upresnenia',
+      items: dayAddMain ? [dayAddMain, ...dayAddAddonItems].map((it) => ({ label: it.label, price: it.price, duration: it.duration })) : [],
+      price: dayAddPriceNum, priceLabel: dayAddPriceNum ? formatPrice(dayAddPriceNum) : '',
+      phone: dayAddPicked ? (dayAddPicked.phone || '') : s.dayAddNewPhone.trim(),
+      duration: dayAddDuration, manual: true,
+    });
+    set({ dayAddOpen: false });
+    showToast(dayAddIsNew ? 'Klientka a termín pridané' : 'Termín pridaný');
+  };
+  const chipStyle = (selected) => `all:unset;cursor:pointer;padding:8px 13px;border-radius:999px;font-family:var(--font-sans);font-size:.76rem;color:${selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line-gold)'}`;
   const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.72rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
   // Referral system removed
   const adminTodayCount = countsByDate[todayIso] || 0;
@@ -788,7 +938,12 @@ function App() {
   const adminRequestsList = requests.map((r) => ({
     ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
     approve: async () => {
-      const apptRef = await db.collection('appointments').add({ date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r), manual: false, clientUid: r.clientUid || null });
+      const apptRef = await db.collection('appointments').add({
+        date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r),
+        items: r.items || [], price: r.price || 0, priceLabel: r.priceLabel || '',
+        phone: r.phone || '', email: r.email || '',
+        manual: false, clientUid: r.clientUid || null,
+      });
       const matched = clients.find((c) => c.name === r.name);
       if (matched) {
         await db.collection('clients').doc(matched.id).update({
@@ -964,7 +1119,7 @@ function App() {
             </span>
             <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 19)</p>
+          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 22)</p>
         </div>
       )}
 
@@ -1106,19 +1261,55 @@ function App() {
                   {step0 && (
                     <React.Fragment>
                       <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>1 · Vyberte službu</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>Presný typ doladíme spolu priamo v štúdiu.</p>
-                      {serviceOptions.map((svc, i) => (
-                        <button key={i} onClick={svc.select} style={st(svc.style)}>
-                          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem' }}>{svc.name}</span>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.76rem', display: 'block', marginTop: 3, opacity: .7 }}>{svc.sub}</span>
-                        </button>
+                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>Vyberte si presne z cenníka — cenu aj trvanie spočítame za vás.</p>
+                      {cennikMainByCat.length === 0 && <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-3)')}>Cenník sa načítava…</p>}
+                      {cennikMainByCat.map((cat) => (
+                        <div key={cat.ci} style={{ marginBottom: 18 }}>
+                          <div style={st('font-family:var(--font-sans);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mocha);margin-bottom:8px')}>{cat.name}</div>
+                          {cat.items.map((m) => (
+                            <button key={m.key} onClick={() => pickBookingService(m)} style={st(serviceItemStyle(bookingMain && bookingMain.key === m.key))}>
+                              <span style={{ flex: 1, minWidth: 0 }}>
+                                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', display: 'block' }}>{m.label}</span>
+                                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.72rem', display: 'block', marginTop: 2, opacity: .7 }}>{formatDuration(m.duration)}</span>
+                              </span>
+                              <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', flexShrink: 0 }}>{m.price}</span>
+                            </button>
+                          ))}
+                        </div>
                       ))}
+                      {bookingMain && cennikAddons.length > 0 && (
+                        <React.Fragment>
+                          <div style={st('font-family:var(--font-sans);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mocha);margin-bottom:4px')}>Doplnky</div>
+                          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>Nepovinné — pridajte, čo si k službe želáte.</p>
+                          {cennikAddons.map((a) => {
+                            const on = (b.addons || []).indexOf(a.key) !== -1;
+                            return (
+                              <button key={a.key} onClick={() => toggleBookingAddon(a.key)} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:13px;margin-bottom:8px;background:var(--white);border:1px solid ' + (on ? 'var(--espresso)' : 'var(--line)'))}>
+                                <span style={st('width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--porcelain);background:' + (on ? 'var(--espresso)' : 'transparent') + ';border:1px solid ' + (on ? 'var(--espresso)' : 'var(--line-gold)'))}>
+                                  {on && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
+                                </span>
+                                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)', display: 'block' }}>{a.label}</span>
+                                  <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.72rem', color: 'var(--ink-3)' }}>+{formatDuration(a.duration)}</span>
+                                </span>
+                                <span style={{ fontFamily: 'var(--font-display)', fontSize: '.98rem', color: 'var(--mocha)', flexShrink: 0 }}>{a.price}</span>
+                              </button>
+                            );
+                          })}
+                        </React.Fragment>
+                      )}
+                      {bookingMain && (
+                        <div style={st('display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--cream);border:1px solid var(--line-gold)')}>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)' }}>Spolu · {booking_durationLabel}</span>
+                          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{booking_priceLabel}</span>
+                        </div>
+                      )}
                     </React.Fragment>
                   )}
                   {step1 && (
                     <React.Fragment>
                       <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>2 · Deň a čas</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 14px')}>{booking_selectedService} · trvanie {booking_durationLabel}</p>
+                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 14px')}>{booking_selectedService} · {booking_priceLabel} · trvanie {booking_durationLabel}</p>
                       <div className="cal-month-nav">
                         <button onClick={() => setBooking({ monthOffset: (b.monthOffset || 0) - 1 })}>‹</button>
                         <span>{clientMonthGrid.label}</span>
@@ -1156,9 +1347,15 @@ function App() {
                     <React.Fragment>
                       <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:16px')}>3 · Zhrnutie</div>
                       <div style={st('border-radius:20px;padding:20px;background:var(--cream);border:1px solid var(--line);margin-bottom:20px')}>
-                        <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Služba</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{booking_selectedService}</span></div>
+                        {bookingMain && [bookingMain, ...bookingAddons].map((it, i) => (
+                          <div key={it.key} style={st('display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)')}>
+                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: i === 0 ? 'var(--ink)' : 'var(--ink-2)' }}>{i === 0 ? it.label : '+ ' + it.label}</span>
+                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--mocha)', flexShrink: 0 }}>{it.price}</span>
+                          </div>
+                        ))}
                         <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Deň</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{booking_selectedDate}</span></div>
-                        <div style={st('display:flex;justify-content:space-between;padding:9px 0')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Čas</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{b.time}</span></div>
+                        <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Čas</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{b.time} — {booking_durationLabel}</span></div>
+                        <div style={st('display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 2px')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Cena spolu</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', color: 'var(--ink)' }}>{booking_priceLabel}</span></div>
                       </div>
                       <button onClick={submitBooking} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:16px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;box-shadow:var(--shadow-md)')}>Odoslať rezerváciu</button>
                     </React.Fragment>
@@ -1337,11 +1534,11 @@ function App() {
                   <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);margin-bottom:22px')}>
                     <div style={st('display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)')}>
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Deň vopred</span>
-                      <button onClick={toggleDayBefore} style={st(toggleTrack(s.dayBefore))}><span style={st(toggleKnob(s.dayBefore))}></span></button>
+                      <button onClick={toggleDayBefore} style={st(toggleTrack(remindDayBefore))}><span style={st(toggleKnob(remindDayBefore))}></span></button>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>2 hodiny vopred</span>
-                      <button onClick={toggleHourBefore} style={st(toggleTrack(s.hourBefore))}><span style={st(toggleKnob(s.hourBefore))}></span></button>
+                      <button onClick={toggleHourBefore} style={st(toggleTrack(remindHoursBefore))}><span style={st(toggleKnob(remindHoursBefore))}></span></button>
                     </div>
                   </div>
                   <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nedávne</div>
@@ -1427,8 +1624,101 @@ function App() {
               ))}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>{calendarSelectedLabel}</div>
-                {!s.blockFormOpen && <button onClick={openBlockForm} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Voľno</button>}
+                {!s.blockFormOpen && !s.dayAddOpen && (
+                  <span style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+                    <button onClick={openDayAdd} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--espresso)')}>+ Klientka</button>
+                    <button onClick={openBlockForm} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Voľno</button>
+                  </span>
+                )}
               </div>
+              {s.dayAddOpen && (
+                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--espresso);margin-bottom:16px')}>
+                  <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Nový termín — {calendarSelectedLabel}</div>
+                  {!dayAddName ? (
+                    <React.Fragment>
+                      <input value={s.dayAddQuery} onChange={(e) => set({ dayAddQuery: e.target.value })} placeholder="Meno klientky (stačia 3 písmená)" autoFocus style={st(inputStyle)} />
+                      {dayAddQ.length < 2 && frequentClients.length > 0 && (
+                        <React.Fragment>
+                          <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', margin: '4px 0 8px' }}>Chodia najčastejšie</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+                            {frequentClients.map((c) => (
+                              <button key={c.id} onClick={() => pickDayAddClient(c)} style={st(chipStyle(false))}>{c.name}{c.visits ? ` · ${c.visits}×` : ''}</button>
+                            ))}
+                          </div>
+                        </React.Fragment>
+                      )}
+                      {dayAddQ.length >= 2 && (
+                        <React.Fragment>
+                          {dayAddMatches.map((c) => (
+                            <button key={c.id} onClick={() => pickDayAddClient(c)} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:10px 13px;border-radius:12px;margin-bottom:7px;background:var(--cream);border:1px solid var(--line)')}>
+                              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{c.name}</span>
+                              <span style={{ fontSize: '.74rem', color: 'var(--ink-3)' }}>{c.phone || '—'}</span>
+                            </button>
+                          ))}
+                          <button onClick={pickDayAddNew} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:11px;border-radius:12px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.78rem')}>
+                            {dayAddMatches.length ? 'Nie je medzi nimi — ' : ''}Založiť novú klientku „{s.dayAddQuery.trim()}“
+                          </button>
+                        </React.Fragment>
+                      )}
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <div style={st('display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--line-gold);margin-bottom:10px')}>
+                        <span style={{ minWidth: 0 }}>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)', display: 'block' }}>{dayAddName}</span>
+                          <span style={{ fontSize: '.7rem', color: 'var(--ink-3)' }}>{dayAddIsNew ? 'nová klientka' : `${dayAddPicked.visits || 0}× u nás`}</span>
+                        </span>
+                        <button onClick={clearDayAddClient} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mocha);flex-shrink:0')}>Zmeniť</button>
+                      </div>
+                      {dayAddIsNew && (
+                        <input value={s.dayAddNewPhone} onChange={(e) => set({ dayAddNewPhone: e.target.value })} placeholder="Telefón (nepovinné)" style={st(inputStyle)} />
+                      )}
+                      <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', margin: '10px 0 8px' }}>Služba z cenníka</div>
+                      {cennikMainByCat.map((cat) => (
+                        <div key={cat.ci} style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', marginBottom: 6 }}>{cat.name}</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                            {cat.items.map((m) => (
+                              <button key={m.key} onClick={() => pickDayAddService(m)} style={st(chipStyle(dayAddMain && dayAddMain.key === m.key))}>{m.label} · {m.price}</button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {dayAddMain && cennikAddons.length > 0 && (
+                        <React.Fragment>
+                          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', margin: '10px 0 6px' }}>Doplnky</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 10 }}>
+                            {cennikAddons.map((a) => (
+                              <button key={a.key} onClick={() => toggleDayAddAddon(a.key)} style={st(chipStyle((s.dayAddAddons || []).indexOf(a.key) !== -1))}>+ {a.label} · {a.price}</button>
+                            ))}
+                          </div>
+                        </React.Fragment>
+                      )}
+                      {dayAddMain && (
+                        <div style={st('display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--line);margin:8px 0 12px')}>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)' }}>Spolu · {formatDuration(dayAddDuration)}</span>
+                          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', color: 'var(--ink)' }}>{formatPrice(dayAddPriceNum)}</span>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
+                        <input type="number" step="0.25" min="0.25" max="8" value={dayAddDuration} onChange={(e) => set({ dayAddDuration: parseFloat(e.target.value) || 0.25, dayAddTime: '' })} style={st('all:unset;width:70px;box-sizing:border-box;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                        <span style={{ fontSize: '.7rem', color: 'var(--ink-3)' }}>z cenníka {formatDuration(dayAddAutoDuration)}</span>
+                      </div>
+                      <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 8 }}>Čas — voľné a obsadené</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7, marginBottom: 14 }}>
+                        {dayAddTimeOptions.map((t, i) => (
+                          <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
+                        ))}
+                      </div>
+                    </React.Fragment>
+                  )}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={cancelDayAdd} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
+                    <button onClick={saveDayAdd} disabled={dayAddDisabled} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:' + (dayAddDisabled ? 0.45 : 1))}>Uložiť termín</button>
+                  </div>
+                </div>
+              )}
               {s.blockFormOpen && (
                 <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:16px')}>
                   <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Nastaviť voľno — {calendarSelectedLabel}</div>
@@ -1462,8 +1752,11 @@ function App() {
               {selectedDayAppts.map((ap, i) => (
                 <div key={i} style={st('display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:14px 0;border-bottom:1px solid var(--line)')}>
                   <button onClick={ap.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex:1;text-align:left')}>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)', width: 48, flexShrink: 0 }}>{ap.time}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{ap.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{ap.service}</div></div>
+                    <div style={{ width: 48, flexShrink: 0 }}>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)' }}>{ap.time}</div>
+                      <div style={{ fontSize: '.64rem', color: 'var(--ink-3)' }}>{formatDuration(ap.duration)}</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{ap.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{ap.service}{ap.priceLabel ? ` · ${ap.priceLabel}` : ''}</div></div>
                     <span style={st(ap.badgeStyle)}>{ap.badgeLabel}</span>
                   </button>
                   {!ap.blocked && <button onClick={() => cancelAppt(ap.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b;flex-shrink:0')}>Zmazať</button>}
@@ -1486,7 +1779,22 @@ function App() {
                     <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: 'var(--ink)' }}>{r.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{r.phone}</div></div>
                     <span style={st('font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(140,110,98,.14);color:var(--mocha)')}>Nová</span>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
+                  {(r.items && r.items.length > 0) ? (
+                    <div style={st('border-radius:12px;background:var(--cream);border:1px solid var(--line);padding:10px 12px;margin-bottom:10px')}>
+                      {r.items.map((it, ii) => (
+                        <div key={ii} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, padding: '3px 0' }}>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: ii === 0 ? 'var(--ink)' : 'var(--ink-2)' }}>{ii === 0 ? it.label : '+ ' + it.label}</span>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--mocha)', flexShrink: 0 }}>{it.price}</span>
+                        </div>
+                      ))}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--line)' }}>
+                        <span style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Spolu</span>
+                        <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)' }}>{r.priceLabel || '—'}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
+                  )}
                   <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 12 }}>{r.dateLabel} · {r.time}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
@@ -1659,6 +1967,11 @@ function App() {
                           <input value={s.editItemLabel} onChange={(e) => set({ editItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
                           <input value={s.editItemPrice} onChange={(e) => set({ editItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
                         </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                          <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
+                          <input type="number" step="0.25" min="0.25" max="8" value={s.editItemDuration} onChange={(e) => set({ editItemDuration: e.target.value })} style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                          <button onClick={() => set({ editItemAddon: !s.editItemAddon })} style={st('all:unset;cursor:pointer;margin-left:auto;padding:7px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.7rem;color:' + (s.editItemAddon ? 'var(--porcelain)' : 'var(--ink-2)') + ';background:' + (s.editItemAddon ? 'var(--espresso)' : 'var(--white)') + ';border:1px solid ' + (s.editItemAddon ? 'var(--espresso)' : 'var(--line-gold)'))}>Doplnok</button>
+                        </div>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <button onClick={cancelEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
                           <button onClick={saveEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Uložiť</button>
@@ -1666,7 +1979,10 @@ function App() {
                       </div>
                     ) : (
                       <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)')}>
-                        <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;text-align:left;font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-2)')}>{it.label}</button>
+                        <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;text-align:left;flex:1;min-width:0')}>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-2)', display: 'block' }}>{it.label}</span>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.7rem', color: 'var(--ink-3)' }}>{formatDuration(itemDuration(it))}{isAddonItem(it) ? ' · doplnok' : ''}</span>
+                        </button>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.84rem;color:var(--mocha)')}>{it.price}</button>
                           <button onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1')}>×</button>
@@ -1679,6 +1995,11 @@ function App() {
                       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                         <input value={s.newItemLabel} onChange={(e) => set({ newItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
                         <input value={s.newItemPrice} onChange={(e) => set({ newItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
+                        <input type="number" step="0.25" min="0.25" max="8" value={s.newItemDuration} onChange={(e) => set({ newItemDuration: e.target.value })} style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                        <button onClick={() => set({ newItemAddon: !s.newItemAddon })} style={st('all:unset;cursor:pointer;margin-left:auto;padding:7px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.7rem;color:' + (s.newItemAddon ? 'var(--porcelain)' : 'var(--ink-2)') + ';background:' + (s.newItemAddon ? 'var(--espresso)' : 'var(--white)') + ';border:1px solid ' + (s.newItemAddon ? 'var(--espresso)' : 'var(--line-gold)'))}>Doplnok</button>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button onClick={cancelAddItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
