@@ -2,3 +2,5 @@ _lokal/
 .claude/
 functions/node_modules/
 node_modules/
+firebase-debug.log
+firebase-debug.*.log
