@@ -614,6 +614,8 @@ function App() {
           if (req) await db.collection('requests').doc(req.id).delete();
         })().catch((e) => { proposalWorkRef.current[h.id] = false; console.error('finalize proposal failed', e); });
       } else if (!req || !req.proposal || req.proposal.holdId !== h.id) {
+        // čerstvo vytvorené podržanie nechaj – žiadosť sa ešte len aktualizuje
+        if (h.createdAt && now - h.createdAt < 2 * 60 * 1000) return;
         proposalWorkRef.current[h.id] = true;
         db.collection('appointments').doc(h.id).delete().catch(() => { proposalWorkRef.current[h.id] = false; });
       } else if (h.expiresAt && h.expiresAt < now) {
@@ -1120,8 +1122,37 @@ function App() {
   const saveEditItem = () => {
     if (!s.editItemLabel.trim() || !s.editItemPrice.trim()) return;
     const item = { label: s.editItemLabel.trim(), price: s.editItemPrice.trim(), duration: parseDurationInput(s.editItemDuration), addon: !!s.editItemAddon };
+    const oldItem = ((pricing[s.editItemCatIndex] || {}).items || [])[s.editItemIndex];
     updatePricing(pricing.map((c, ci) => (ci === s.editItemCatIndex ? { ...c, items: c.items.map((it, ii) => (ii === s.editItemIndex ? item : it)) } : c)));
     set({ editItemCatIndex: null, editItemIndex: null });
+    if (oldItem && normText(oldItem.label) !== normText(item.label)) renameServiceInAppointments(oldItem.label, item.label);
+  };
+  // premenovaná služba v cenníku → prepíš názov aj v uložených termínoch,
+  // inak by štatistiky a história ďalej ukazovali starý názov
+  const renameServiceInAppointments = async (oldLabel, newLabel) => {
+    const oldN = normText(oldLabel);
+    const swap = (l) => (normText(l) === oldN ? newLabel : l);
+    const changes = [];
+    allAppointments.forEach((a) => {
+      if (a.blocked) return;
+      const parts = String(a.service || '').split(' + ');
+      const hitService = parts.some((l) => normText(l) === oldN);
+      const hitItems = (a.items || []).some((it) => normText(it.label) === oldN);
+      if (!hitService && !hitItems) return;
+      const upd = {};
+      if (hitService) upd.service = parts.map((l) => swap(l.trim())).join(' + ');
+      if (hitItems) upd.items = a.items.map((it) => ({ ...it, label: swap(it.label) }));
+      changes.push([a.id, upd]);
+    });
+    if (!changes.length) return;
+    try {
+      for (let i = 0; i < changes.length; i += 400) {
+        const batch = db.batch();
+        changes.slice(i, i + 400).forEach(([id, upd]) => batch.update(db.collection('appointments').doc(id), upd));
+        await batch.commit();
+      }
+      showToast(`Názov zmenený aj v ${changes.length} ${changes.length === 1 ? 'termíne' : 'termínoch'}`);
+    } catch (e) { console.error('rename service failed', e); }
   };
   const openAddCategory = () => set({ addCatFormOpen: true, newCatName: '', newCatSub: '' });
   const cancelAddCategory = () => set({ addCatFormOpen: false });
@@ -1366,7 +1397,7 @@ function App() {
   periodAppts.forEach((a) => {
     const c = canonicalService(a);
     if (c.status === 'none') { unspecifiedCount += 1; return; }
-    const r = svcAgg[c.label] || (svcAgg[c.label] = { label: c.label, count: 0, revenue: 0 });
+    const r = svcAgg[c.label] || (svcAgg[c.label] = { label: c.label, count: 0, revenue: 0, unknown: c.status === 'unknown' });
     r.count += 1; r.revenue += apptPrice(a);
   });
   const topServices = Object.values(svcAgg).sort((a, bb) => bb.count - a.count || bb.revenue - a.revenue).slice(0, 6);
@@ -1538,17 +1569,22 @@ function App() {
         try {
           const now = Date.now();
           const exp = now + PROPOSAL_HOURS * 3600 * 1000;
-          const holdRef = await db.collection('appointments').add({
+          // podržaný čas a návrh v žiadosti sa zapíšu naraz – inak upratovanie nižšie
+          // stihlo nový podržaný čas zmazať ako „osirelý" skôr, než sa návrh uložil
+          const holdRef = db.collection('appointments').doc();
+          const prevHold = r.proposal && r.proposal.holdId;
+          const batch = db.batch();
+          batch.set(holdRef, {
             date: s.proposeDateIso, time: s.proposeTime, duration: dur, name: r.name, service: r.service,
             items: r.items || [], price: r.price || 0, priceLabel: r.priceLabel || '',
             phone: r.phone || '', email: r.email || '', clientUid: r.clientUid || null,
-            manual: false, hold: true, accepted: false, requestId: r.id, expiresAt: exp,
+            manual: false, hold: true, accepted: false, requestId: r.id, expiresAt: exp, createdAt: now,
           });
-          const prevHold = r.proposal && r.proposal.holdId;
-          await db.collection('requests').doc(r.id).update({
+          batch.update(db.collection('requests').doc(r.id), {
             duration: dur,
             proposal: { date: s.proposeDateIso, time: s.proposeTime, message: (s.proposeMsg || '').trim(), sentAt: now, expiresAt: exp, holdId: holdRef.id, status: 'pending' },
           });
+          await batch.commit();
           if (prevHold) await db.collection('appointments').doc(prevHold).delete().catch(() => {});
           await notifyClient(r.clientUid, 'Návrh nového termínu',
             `Michaela navrhuje ${isoLabel(s.proposeDateIso)} o ${s.proposeTime}. Potvrďte ho prosím v appke do ${PROPOSAL_HOURS} hodín.`, 'reschedule');
@@ -2917,10 +2953,18 @@ function App() {
               <Lbl style={{ marginTop: 18 }}>Najobľúbenejšie služby</Lbl>
               {topServices.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>V tomto období zatiaľ žiadne dáta.</div>}
               {topServices.map((t, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontFamily: 'var(--font-sans)', fontSize: '.72rem' }}>
-                  <span style={{ width: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--ink)' }}>{t.label}</span>
-                  <span style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((t.count / topServiceMax) * 100)}%`, background: 'var(--espresso)' }}></i></span>
-                  <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', width: 62, textAlign: 'right' }}>{t.count}× · {money(t.revenue)}</em>
+                <div key={i} style={{ marginTop: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-sans)', fontSize: '.72rem' }}>
+                    <span style={{ flex: '0 0 38%', minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: t.unknown ? 'var(--wait)' : 'var(--ink)' }}>{t.label}</span>
+                    <span style={{ flex: 1, minWidth: 0, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((t.count / topServiceMax) * 100)}%`, background: 'var(--espresso)' }}></i></span>
+                    <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{t.count}× · {money(t.revenue)}</em>
+                  </div>
+                  {t.unknown && cennikMain.length > 0 && (
+                    <select value="" onChange={(e) => { const m = cennikMain.find((x) => x.key === e.target.value); if (m && window.confirm(`Premenovať „${t.label}" na „${m.label}" vo všetkých termínoch?`)) renameServiceInAppointments(t.label, m.label); }} style={st(T.inp + ';margin-top:5px;padding:6px 9px;font-size:.68rem;color:var(--ink-2)')}>
+                      <option value="">Starý názov – priradiť k službe z cenníka…</option>
+                      {cennikMain.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                    </select>
+                  )}
                 </div>
               ))}
               {unspecifiedCount > 0 && <div style={st(T.mut + ';font-size:.62rem;margin-top:6px')}>Ďalších {unspecifiedCount} termínov je bez uvedenej služby.</div>}
@@ -2938,9 +2982,9 @@ function App() {
               {topClients.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>Zatiaľ žiadne dáta.</div>}
               {topClients.map((x) => (
                 <button type="button" key={x.c.id} onClick={() => set({ adminTab: 'clients', selectedClientId: x.c.id })} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;font-family:var(--font-sans);font-size:.72rem')}>
-                  <span style={{ width: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--ink)' }}>{x.c.name}</span>
-                  <span style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((x.r.visits / Math.max(1, topClients[0].r.visits)) * 100)}%`, background: 'var(--espresso)' }}></i></span>
-                  <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', width: 62, textAlign: 'right' }}>{x.r.visits}× · {money(x.r.spend)}</em>
+                  <span style={{ flex: '0 0 38%', minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--ink)' }}>{x.c.name}</span>
+                  <span style={{ flex: 1, minWidth: 0, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((x.r.visits / Math.max(1, topClients[0].r.visits)) * 100)}%`, background: 'var(--espresso)' }}></i></span>
+                  <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{x.r.visits}× · {money(x.r.spend)}</em>
                 </button>
               ))}
 
