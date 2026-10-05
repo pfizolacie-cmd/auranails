@@ -31,10 +31,7 @@ service cloud.firestore {
     }
     match /requests/{id} {
       allow create: if request.auth != null;
-      allow read: if isAdmin() || (request.auth != null && resource.data.clientUid == request.auth.uid);
-      allow update: if isAdmin() || (request.auth != null && resource.data.clientUid == request.auth.uid
-                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['proposal']));
-      allow delete: if isAdmin();
+      allow read, update, delete: if isAdmin();
     }
     match /appointments/{id} {
       allow read: if request.auth != null;
@@ -63,12 +60,6 @@ alebo presunúť len tie termíny, ktoré si sama vytvorila cez svoj účet.
 pri `appointments`), treba ich znova otvoriť, prekopírovať celý text vyššie
 a znova kliknúť Publish — inak si klientka nebude vedieť zrušiť/presunúť
 vlastný termín.
-
-**Build 24 (október 2026) – zmena termínu s odsúhlasením klientkou:** pri
-`requests` pribudli dva riadky (`allow read` a `allow update` pre klientku).
-Klientka tak vidí svoje vlastné žiadosti a môže odpovedať na návrh nového
-termínu (Súhlasím / Odmietnuť) – meniť smie len pole `proposal`, nič iné.
-Bez tohto kroku appka funguje ďalej, len klientky návrhy neuvidia.
 
 ## 3. Zapnutie prihlasovania (Email/Password)
 

@@ -8,22 +8,20 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#17100F">
+<meta name="theme-color" content="#F7F2EF">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Aura Nails">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/aura-design.css">
-<link rel="stylesheet" href="espresso-night.css?v=26">
 
 <style>
   html, body { margin: 0; height: 100%; background: var(--porcelain); overscroll-behavior: none; }
-  #root { min-height: 100vh; max-width: 282px; margin: 0 auto; box-shadow: 0 0 80px rgba(0,0,0,.5); position: relative; }
-  html, body { overflow-x: hidden; }
+  #root { min-height: 100vh; min-height: 100dvh; max-width: 480px; margin: 0 auto; box-shadow: 0 0 60px rgba(0,0,0,.06); position: relative; }
   a { color: var(--espresso); }
   ::-webkit-scrollbar { display: none; }
   * { -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
@@ -44,30 +42,13 @@
 <script src="firebase-config.js"></script>
 </head>
 <body>
-<div id="root"><div style="min-height:calc(100vh / var(--z, 1));max-width:282px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:var(--porcelain, #17100F);font-family:var(--font-sans, 'Inter', sans-serif);color:var(--ink-3, #9C8981);font-size:.85rem;letter-spacing:.02em;">
+<div id="root"><div style="min-height:100vh;max-width:480px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:var(--porcelain, #F7F2EF);font-family:var(--font-sans, 'Jost', sans-serif);color:var(--ink-3, #9D8B84);font-size:.85rem;letter-spacing:.02em;">
   <span style="display:inline-flex;align-items:center;gap:8px;">
-    <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--line-gold, rgba(217,185,155,.26));border-top-color:var(--espresso, #D9B99B);animation:spin .8s linear infinite;"></span>
+    <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--line-gold, rgba(62,39,39,.3));border-top-color:var(--mocha, #8C6E62);animation:spin .8s linear infinite;"></span>
     Načítavam…
   </span>
 </div></div>
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-<script>
-  // Appka je navrhnutá na šírku 282 px (presne ako schválený náhľad) a na telefóne
-  // sa celá proporcionálne zväčší na šírku displeja – vyzerá tak 1:1 ako návrh.
-  (function () {
-    function fit() {
-      var r = document.getElementById('root'); if (!r) return;
-      var w = Math.min(window.innerWidth || 390, 480);
-      var z = w / 282;
-      r.style.zoom = z;
-      r.style.minHeight = (window.innerHeight / z) + 'px';
-      document.documentElement.style.setProperty('--z', z);
-    }
-    fit();
-    window.addEventListener('resize', fit);
-    window.addEventListener('orientationchange', function () { setTimeout(fit, 200); });
-  })();
-</script>
 <script>
   // KRITICKÁ OPRAVA: Babel Standalone z CDN (bez pripnutej verzie) môže defaultne
   // prepnúť na "automatic" JSX runtime, ktorý vkladá require("react/jsx-runtime") —
@@ -89,7 +70,7 @@
       await loadBabelScript('app.jsx');
     } catch (e) {
       console.error('App load error:', e);
-      document.getElementById('root').innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;color:#F1E6DF;background:#17100F;">Niečo sa pokazilo pri načítaní. Skúste obnoviť stránku.</div>';
+      document.getElementById('root').innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;color:#3E2727;background:#F7F2EF;">Niečo sa pokazilo pri načítaní. Skúste obnoviť stránku.</div>';
     }
   })();
 </script>

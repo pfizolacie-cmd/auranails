@@ -25,6 +25,36 @@ const ICON_PATHS = {
   gift: <g><rect x="4" y="9" width="16" height="11.5" rx="1.5" /><path d="M3 9h18M12 9v11.5" /><path d="M12 9S11 4.5 8.4 4.5A2 2 0 0 0 8.4 8.5C10.5 8.6 12 9 12 9zM12 9s1-4.5 3.6-4.5A2 2 0 0 1 15.6 8.5C13.5 8.6 12 9 12 9z" /></g>,
   list: <path d="M4 7h16M4 12h16M4 17h16" />,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  home: <path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />,
+  cal: <g><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M9 3v4M15 3v4" /></g>,
+  star: <path d="M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z" />,
+  starf: <path fill="currentColor" stroke="none" d="M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z" />,
+  user: <g><circle cx="12" cy="8.5" r="3.8" /><path d="M5 20c1-3.5 4-5 7-5s6 1.5 7 5" /></g>,
+  users: <g><circle cx="9" cy="9" r="3.3" /><path d="M3 19c.8-3 3.3-4.5 6-4.5s5.2 1.5 6 4.5M16 6a3 3 0 0 1 0 6M18 14.5c1.6.6 2.6 2 3 4.5" /></g>,
+  tag: <g><path d="M4 12V5a1 1 0 0 1 1-1h7l8 8-8 8z" /><circle cx="8.5" cy="8.5" r="1.3" /></g>,
+  chart: <path d="M5 19V11M10 19V6M15 19v-5M20 19V9" />,
+  inbox: <path d="M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13h5l1 2h4l1-2h5" />,
+  back: <path d="M15 6l-6 6 6 6" />,
+  fwd: <path d="M9 6l6 6-6 6" />,
+  x: <path d="M6 6l12 12M18 6L6 18" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
+  edit: <path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" />,
+  phone: <path d="M6 4h3l1.5 4-2 1.3a10 10 0 0 0 6.2 6.2l1.3-2 4 1.5v3a1.5 1.5 0 0 1-1.6 1.5A15.5 15.5 0 0 1 4.5 5.6 1.5 1.5 0 0 1 6 4z" />,
+  trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" />,
+  merge: <path d="M6 4v5c0 3 6 4 6 8v3M18 4v5c0 3-6 4-6 8" />,
+  dl: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
+  search: <g><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></g>,
+  cake: <path d="M5 20v-7h14v7zM5 16c2 1 3-1 4.7 0s2.6 1 4.6 0 3-1 4.7 0M12 13v-3M12 7.5c-1-1 0-2.5 0-3 0 .5 1 2 0 3z" />,
+  refresh: <path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5" />,
+  hand: <path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12m0-6.5a1.5 1.5 0 0 1 3 0V12m0-5a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6 7-2.6 0-4-1.2-5.5-3.5L4 13.8a1.5 1.5 0 0 1 2.4-1.7L8 14" />,
+  chat: <path d="M5 18l-1 3 4-1.5A8.5 8.5 0 1 0 5 18z" />,
+  info: <g><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5M12 8v.01" /></g>,
+  moon: <path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" />,
+  bell: <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20h4" />,
+  logout: <path d="M15 5H8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7M11 8l-4 4 4 4M7 12h13" />,
+  send: <path d="M4 12l16-7-6 16-3-6z" />,
+  swap: <path d="M7 4L4 7l3 3M4 7h12M17 20l3-3-3-3M20 17H8" />,
 };
 function Icon({ name, size = 22, style = {}, strokeWidth = 1.4 }) {
   return (
@@ -34,6 +64,130 @@ function Icon({ name, size = 22, style = {}, strokeWidth = 1.4 }) {
       {ICON_PATHS[name] || null}
     </svg>
   );
+}
+
+
+/* ============================================================
+   Espresso Night — UI stavebnice (redesign build 25)
+   Malé komponenty, aby všetky obrazovky vyzerali ako schválený náhľad.
+   ============================================================ */
+const T = {
+  lbl: 'font-family:var(--font-sans);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)',
+  mut: 'font-family:var(--font-sans);font-size:.72rem;color:var(--ink-3);line-height:1.45',
+  serif: 'font-family:var(--font-display);font-weight:300;color:var(--ink)',
+  card: 'background:var(--white);border:1px solid var(--line);border-radius:18px;padding:14px',
+  inp: 'all:unset;display:block;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:12px;background:#1B1311;border:1px solid #3A2A25;font-family:var(--font-sans);font-size:.76rem;color:var(--ink)',
+  page: 'flex:1;padding:6px 18px 96px;overflow:auto',
+};
+function Lbl({ children, gold, style }) {
+  return <div style={{ ...st(T.lbl), ...(gold ? { color: 'var(--espresso)' } : {}), ...(style || {}) }}>{children}</div>;
+}
+function Btn({ children, onClick, kind = 'gold', disabled, full, small, style, icon, label }) {
+  const base = `all:unset;box-sizing:border-box;cursor:${disabled ? 'not-allowed' : 'pointer'};display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center;border-radius:14px;font-family:var(--font-sans);white-space:nowrap;opacity:${disabled ? 0.4 : 1};`
+    + (small ? 'padding:6px 10px;font-size:.64rem;' : 'padding:10px 14px;font-size:.75rem;')
+    + (full ? 'width:100%;display:flex;' : '');
+  const kinds = {
+    gold: 'background:var(--espresso);color:var(--porcelain);font-weight:600;',
+    ghost: 'background:transparent;color:var(--ink);border:1px solid #4A322B;font-weight:500;',
+    red: 'background:transparent;color:var(--danger);border:1px solid rgba(229,156,142,.35);font-weight:500;',
+    soft: 'background:var(--sand);color:var(--espresso);font-weight:500;',
+  };
+  return <button type="button" aria-label={label} onClick={disabled ? undefined : onClick} disabled={disabled} style={{ ...st(base + kinds[kind]), ...(style || {}) }}>{icon && <Icon name={icon} size={small ? 12 : 14} strokeWidth={1.8} />}{children}</button>;
+}
+function Sq({ icon, size = 38, onClick, color, bg, round, badge: badgeN, label }) {
+  const stl = { width: size, height: size, flex: `0 0 ${size}px`, borderRadius: round ? '50%' : Math.round(size * 0.32), display: 'grid', placeItems: 'center', background: bg || 'var(--sand)', color: color || 'var(--espresso)', position: 'relative' };
+  const inner = (<React.Fragment><Icon name={icon} size={Math.round(size * 0.45)} strokeWidth={1.6} />{badgeN ? <span style={st('position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--danger);color:var(--porcelain);font:700 .55rem Inter,sans-serif;display:grid;place-items:center')}>{badgeN}</span> : null}</React.Fragment>);
+  if (onClick) return <button type="button" aria-label={label} onClick={onClick} style={{ all: 'unset', cursor: 'pointer', ...stl }}>{inner}</button>;
+  return <span style={stl}>{inner}</span>;
+}
+function Seg({ items, value, onChange, small }) {
+  return (
+    <div style={st('display:flex;background:var(--white);border-radius:12px;padding:3px;overflow-x:auto')}>
+      {items.map((it) => {
+        const on = it.id === value;
+        return <button type="button" key={it.id} onClick={() => onChange(it.id)} style={st(`all:unset;cursor:pointer;flex:1;text-align:center;padding:${small ? '6px 6px' : '7px 6px'};border-radius:9px;white-space:nowrap;font-family:var(--font-sans);font-size:${small ? '.62rem' : '.68rem'};color:${on ? 'var(--ink)' : 'var(--ink-3)'};background:${on ? 'var(--blush)' : 'transparent'}`)}>{it.label}</button>;
+      })}
+    </div>
+  );
+}
+function ListRow({ icon, title, sub, right, onClick, accent, chevron }) {
+  const inner = (
+    <React.Fragment>
+      {icon && <Sq icon={icon} />}
+      <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+        <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)' }}>{title}</span>
+        {sub && <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-3)', marginTop: 1 }}>{sub}</span>}
+      </span>
+      {right}
+      {chevron && <span style={{ color: 'var(--taupe-dark)' }}><Icon name="fwd" size={16} /></span>}
+    </React.Fragment>
+  );
+  const box = `display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin-top:8px;padding:11px 14px;background:var(--white);border-radius:18px;border:1px solid ${accent || 'var(--sand)'}`;
+  if (onClick) return <button type="button" onClick={onClick} style={st('all:unset;cursor:pointer;' + box)}>{inner}</button>;
+  return <div style={st(box)}>{inner}</div>;
+}
+function Toggle({ on, onClick, label }) {
+  return (
+    <button type="button" aria-label={label} onClick={onClick} style={st(`all:unset;cursor:pointer;width:34px;height:20px;flex:0 0 34px;border-radius:10px;position:relative;background:${on ? 'var(--espresso)' : 'var(--sand)'}`)}>
+      <span style={st(`position:absolute;top:2px;${on ? 'right:2px' : 'left:2px'};width:16px;height:16px;border-radius:50%;background:${on ? 'var(--porcelain)' : 'var(--taupe-dark)'}`)}></span>
+    </button>
+  );
+}
+function Avatar({ name, size = 40 }) {
+  const ini = String(name || '?').split(' ').map((w) => w[0]).filter(Boolean).slice(0, 2).join('');
+  return <span style={{ width: size, height: size, flex: `0 0 ${size}px`, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg,#6B4A3E,#3B2722)', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: size * 0.36, color: 'var(--ink)' }}>{ini}</span>;
+}
+function Sheet({ children }) {
+  return (
+    <div style={st('position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:282px;box-sizing:border-box;padding:16px 18px calc(22px + env(safe-area-inset-bottom));background:var(--white);border-radius:24px 24px 0 0;border-top:1px solid #3A2A25;box-shadow:0 -20px 40px -20px rgba(0,0,0,.6);z-index:25')}>
+      <div style={st('width:36px;height:4px;border-radius:2px;background:#4A322B;margin:-6px auto 12px')}></div>
+      {children}
+    </div>
+  );
+}
+function SheetBar({ sub, price, action, onAction, disabled }) {
+  return (
+    <Sheet>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={st(T.mut + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{sub}</div>
+          <div style={st(T.serif + ';font-size:1.4rem;line-height:1.2')}>{price}</div>
+        </div>
+        <Btn onClick={onAction} disabled={disabled} style={{ padding: '13px 18px', flexShrink: 0 }}>{action} <Icon name="arrow" size={14} strokeWidth={1.8} /></Btn>
+      </div>
+    </Sheet>
+  );
+}
+function Glow({ style }) {
+  return <div style={{ position: 'absolute', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(203,170,140,.28),transparent 70%)', top: -90, right: -90, pointerEvents: 'none', ...(style || {}) }}></div>;
+}
+function TabBar({ items }) {
+  return (
+    <div style={st('display:flex;justify-content:space-around;align-items:center;padding:12px 0 calc(14px + env(safe-area-inset-bottom));background:rgba(23,16,15,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #2C201C;position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:282px;box-sizing:border-box;z-index:20')}>
+      {items.map((it) => (
+        <button type="button" key={it.label} aria-label={it.label} onClick={it.onClick} style={st(`all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:44px;padding:0;position:relative;color:${it.on ? 'var(--espresso)' : '#7D6A62'}`)}>
+          <Icon name={it.icon} size={18} strokeWidth={1.6} />
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.56rem' }}>{it.label}</span>
+          {it.badge ? <span style={st('position:absolute;top:-2px;right:6px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--danger);color:var(--porcelain);font:700 .55rem Inter,sans-serif;display:grid;place-items:center')}>{it.badge}</span> : null}
+        </button>
+      ))}
+    </div>
+  );
+}
+function Stars({ value, onRate }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 2 }}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button type="button" key={n} onClick={onRate ? () => onRate(n) : undefined} aria-label={`Ohodnotiť ${n} hviezdičkami`} style={{ all: 'unset', cursor: onRate ? 'pointer' : 'default', color: n <= value ? 'var(--espresso)' : 'var(--beige)' }}>
+          <Icon name="starf" size={15} />
+        </button>
+      ))}
+    </span>
+  );
+}
+function Note({ tone = 'wait', icon = 'info', children, style }) {
+  const c = { wait: ['var(--wait-bg)', 'var(--wait)', 'rgba(229,184,110,.3)'], ok: ['var(--ok-bg)', 'var(--ok)', 'rgba(127,176,138,.3)'], danger: ['var(--danger-bg)', 'var(--danger)', 'rgba(229,156,142,.3)'], plain: ['var(--white)', 'var(--ink-3)', 'var(--sand)'] }[tone];
+  return <div style={{ ...st(`display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:10px 12px;font-family:var(--font-sans);font-size:.68rem;line-height:1.45;background:${c[0]};color:${c[1]};border:1px solid ${c[2]}`), ...(style || {}) }}><span style={{ flexShrink: 0, marginTop: 1 }}><Icon name={icon} size={14} strokeWidth={1.7} /></span><span>{children}</span></div>;
 }
 
 /* ---------- date helpers (real calendar, not a fixed demo window) ---------- */
@@ -46,7 +200,8 @@ function isoOffset(daysFromToday) {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   d.setDate(d.getDate() + daysFromToday);
-  return d.toISOString().slice(0, 10);
+  // lokálny dátum — toISOString() je v UTC a na Slovensku vracal včerajší deň
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 function isoParts(iso) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -113,10 +268,58 @@ function parseDateToIso(text) {
 function timeToHours(t) { const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60; }
 function formatDuration(h) {
   if (!h && h !== 0) return '';
-  if (h === 0.5) return '30 min';
-  return Number.isInteger(h) ? `${h} h` : `${String(h).replace('.', ',')} h`;
+  const total = Math.round(Number(h) * 60);
+  const hh = Math.floor(total / 60), mm = total % 60;
+  if (!hh) return `${mm} min`;
+  return mm ? `${hh} h ${mm} min` : `${hh} h`;
+}
+// "Gélové nechty" a "Gelove  nechty" musia byť pre štatistiky to isté
+function normText(t) {
+  return String(t == null ? '' : t).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+// mobil: 0915 123 456, +421 915 123 456, 00421…
+function normalizePhone(t) {
+  let p = String(t || '').replace(/[\s\-\/().]/g, '');
+  if (p.startsWith('00')) p = '+' + p.slice(2);
+  return p;
+}
+function isValidPhone(t) { return /^(\+\d{9,14}|0\d{9})$/.test(normalizePhone(t)); }
+function clampDuration(v) { return Math.min(8, Math.max(0.25, Math.round(Number(v) * 4) / 4)); }
+
+// Výber trvania bez písania: −/+ po 15 minútach a rýchle voľby.
+// (Pôvodné číselné pole sa pri mazaní "zaseklo" na 0,25 h.)
+const DURATION_CHIPS = [0.5, 1, 1.5, 2, 2.5, 3];
+function DurationField({ value, onChange, autoValue }) {
+  const v = Number(value) > 0 ? Number(value) : 1;
+  const roundBtn = 'all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);background:var(--white);color:var(--ink);font-size:.95rem;line-height:1;flex-shrink:0';
+  const chip = (on) => `all:unset;cursor:pointer;padding:5px 9px;border-radius:999px;font-family:var(--font-sans);font-size:.62rem;color:${on ? 'var(--porcelain)' : 'var(--ink-2)'};background:${on ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const showAuto = autoValue && Math.abs(autoValue - v) > 0.001;
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <button type="button" onClick={() => onChange(clampDuration(v - 0.25))} style={st(roundBtn)} aria-label="Skrátiť o 15 minút">−</button>
+        <div style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: '1.05rem', color: 'var(--ink)' }}>{formatDuration(v)}</div>
+        <button type="button" onClick={() => onChange(clampDuration(v + 0.25))} style={st(roundBtn)} aria-label="Predĺžiť o 15 minút">+</button>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {DURATION_CHIPS.map((d) => (
+          <button type="button" key={d} onClick={() => onChange(d)} style={st(chip(Math.abs(d - v) < 0.001))}>{formatDuration(d)}</button>
+        ))}
+      </div>
+      {showAuto && (
+        <button type="button" onClick={() => onChange(autoValue)} style={st('all:unset;cursor:pointer;display:block;margin-top:8px;font-family:var(--font-sans);font-size:.72rem;color:var(--mocha)')}>Podľa cenníka {formatDuration(autoValue)} — použiť</button>
+      )}
+    </div>
+  );
 }
 function overlaps(aStart, aDur, bStart, bDur) { return aStart < bStart + bDur && bStart < aStart + aDur; }
+// dnešný čas, ktorý už prešiel, sa ponúkať nemá
+function isPastSlot(iso, timeStr) {
+  if (iso !== isoOffset(0)) return iso < isoOffset(0);
+  const now = new Date();
+  return timeToHours(timeStr) <= now.getHours() + now.getMinutes() / 60;
+}
 function slotAvailable(iso, timeStr, durationHours, appointments) {
   const start = timeToHours(timeStr);
   if (start + durationHours > CLOSE_HOUR) return false;
@@ -124,7 +327,6 @@ function slotAvailable(iso, timeStr, durationHours, appointments) {
 }
 function buildTimeOptions() { return ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30']; }
 const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 }, { label: '1,5 h', val: 1.5 }, { label: '2 h', val: 2 }];
-const BIRTHDAY_DISCOUNT_CODE = 'NARODENINY10';
 const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
 
 // Predvolené trvanie služieb v hodinách. Slúži len ako záloha pre položky
@@ -272,6 +474,22 @@ function useOwnClientDoc(uid) {
   return data;
 }
 
+// Klientka smie čítať len svoje žiadosti (kvôli návrhom nového termínu).
+// Ak pravidlá databázy ešte nie sú aktualizované, appka ticho pokračuje bez nich.
+function useOwnRequests(uid) {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    if (!db || !uid) { setItems([]); return; }
+    const unsub = db.collection('requests').where('clientUid', '==', uid).onSnapshot((snap) => {
+      setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    }, (err) => { console.warn('own requests', err && err.code); setItems([]); });
+    return unsub;
+  }, [uid]);
+  return items;
+}
+
+const PROPOSAL_HOURS = 24;
+
 function usePricing() {
   const [categories, setCategories] = useState(null);
   useEffect(() => {
@@ -287,7 +505,7 @@ function usePricing() {
 /* ---------- setup notice (shown until firebase-config.js is filled in) ---------- */
 function SetupNotice() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center', fontFamily: 'var(--font-sans)', color: 'var(--ink)', background: 'var(--porcelain)' }}>
+    <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center', fontFamily: 'var(--font-sans)', color: 'var(--ink)', background: 'var(--porcelain)' }}>
       <div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', marginBottom: 12 }}>Appka ešte nie je pripojená k databáze</div>
         <p style={{ color: 'var(--ink-2)', maxWidth: 380, lineHeight: 1.6 }}>Doplň prosím Firebase konfiguráciu do súboru <code>firebase-config.js</code> podľa priloženého návodu.</p>
@@ -337,9 +555,51 @@ function App() {
   // specific uid finishes, so a leftover value from before is never reused.
   const isAdminFresh = authUser ? isAdminForUid === authUser.uid : true;
   const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
+  const myRequests = useOwnRequests(authUser && isAdminFresh && isAdmin === false ? authUser.uid : null);
+
+  // Návrhy nového termínu: Michaelina appka sama dokončí odsúhlasené návrhy
+  // (podržaný čas → potvrdený termín) a uprace vypršané / osirelé podržania.
+  const proposalWorkRef = useRef({});
+  useEffect(() => {
+    if (!db || !isAdmin || !appointmentsRaw || !requestsRaw || !clientsRaw) return;
+    const now = Date.now();
+    appointmentsRaw.filter((h) => h.hold).forEach((h) => {
+      if (proposalWorkRef.current[h.id]) return;
+      const req = requestsRaw.find((r) => r.id === h.requestId) || null;
+      if (h.accepted) {
+        proposalWorkRef.current[h.id] = true;
+        (async () => {
+          await db.collection('appointments').doc(h.id).update({ hold: false, accepted: null, expiresAt: null, requestId: null, manual: false });
+          const matched = clientsRaw.find((c) => c.name === h.name);
+          if (matched) {
+            await db.collection('clients').doc(matched.id).update({
+              visits: (matched.visits || 0) + 1,
+              lastVisit: isoLabel(h.date),
+              stamps: Math.min(5, (matched.stamps || 0) + 1),
+              history: [{ service: h.service, date: isoLabel(h.date) }, ...(matched.history || [])],
+            });
+          }
+          if (req) await db.collection('requests').doc(req.id).delete();
+        })().catch((e) => { proposalWorkRef.current[h.id] = false; console.error('finalize proposal failed', e); });
+      } else if (!req || !req.proposal || req.proposal.holdId !== h.id) {
+        proposalWorkRef.current[h.id] = true;
+        db.collection('appointments').doc(h.id).delete().catch(() => { proposalWorkRef.current[h.id] = false; });
+      } else if (h.expiresAt && h.expiresAt < now) {
+        proposalWorkRef.current[h.id] = true;
+        (async () => {
+          await db.collection('appointments').doc(h.id).delete();
+          if (req.proposal.status === 'pending') await db.collection('requests').doc(req.id).update({ 'proposal.status': 'expired' });
+        })().catch(() => { proposalWorkRef.current[h.id] = false; });
+      }
+    });
+  }, [isAdmin, appointmentsRaw, requestsRaw, clientsRaw]);
   const healedRef = useRef({});
+  // počas registrácie kartu zakladá doClientRegister (s menom a mobilom) —
+  // auto-oprava by ju inak mohla prepísať prázdnymi údajmi
+  const registeringRef = useRef(false);
   useEffect(() => {
     if (!db || !authUser || !isAdminFresh || isAdmin || myClientDoc !== null) return;
+    if (registeringRef.current) return;
     if (healedRef.current[authUser.uid]) return;
     healedRef.current[authUser.uid] = true;
     db.collection('clients').doc(authUser.uid).set({
@@ -355,9 +615,9 @@ function App() {
     adminTab: 'overview', selectedClientId: null,
     toast: { visible: false, msg: '' },
     addFormOpen: false, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00',
-    newClientService: '', newClientDuration: 1.5,
+    newClientService: '', newClientDuration: 1.5, newClientMainKey: null, newClientAddons: [],
     adminSelectedDate: isoOffset(0),
-    authMode: 'login', authName: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
+    authMode: 'login', authName: '', authFirstName: '', authLastName: '', authPhone: '', authEmail: '', authPassword: '', authError: '', authInfo: '',
     blockFormOpen: false, blockAllDay: true, blockTime: '8:00', blockDuration: 1,
     addItemCatIndex: null, newItemLabel: '', newItemPrice: '', newItemDuration: '1.5', newItemAddon: false,
     addCatFormOpen: false, newCatName: '', newCatSub: '',
@@ -365,9 +625,10 @@ function App() {
     dayAddOpen: false, dayAddQuery: '', dayAddClientId: null, dayAddNewName: '', dayAddNewPhone: '',
     dayAddCatIdx: null, dayAddItemIdx: null, dayAddAddons: [], dayAddDuration: null, dayAddTime: '',
     requestDurations: {},
+    reqView: 'new', proposeFor: null, proposeDateIso: null, proposeTime: '', proposeMsg: '', proposeSending: false,
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
-    clientSearch: '',
-    apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5,
+    clientSearch: '', clientSort: 'visits', statsPeriod: 'month', mapServiceSel: {},
+    apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5, apptMainKey: null, apptAddons: [],
     mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
     chatOpen: false, chatLog: [], chatView: 'menu', chatSvcIdx: null, chatDateIso: null,
   });
@@ -411,16 +672,16 @@ function App() {
   // unauthenticated visitor should reach the login screen immediately
   // instead of waiting forever on collections that require sign-in.
   if (authUser === undefined) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+    return <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && !isAdminFresh) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+    return <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && isAdmin && (clientsRaw === null || requestsRaw === null || appointmentsRaw === null || pricingRaw === null)) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+    return <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
   if (authUser && !isAdmin && (appointmentsRaw === null || pricingRaw === null)) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
+    return <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--porcelain)', color: 'var(--ink-3)', fontFamily: 'var(--font-sans)' }}>Načítavam…</div>;
   }
 
   const loggedInClient = myClientDoc;
@@ -429,26 +690,38 @@ function App() {
   // to empty arrays so admin-only computations below never crash for that role.
   const clients = clientsRaw || [];
   const requests = requestsRaw || [];
-  const appointments = appointmentsRaw || [];
+  // Podržané časy (návrh nového termínu) nie sú skutočné termíny, ale blokujú
+  // čas pre ostatné rezervácie, kým nevyprší 24 h lehota.
+  const nowMs = Date.now();
+  const allAppointments = appointmentsRaw || [];
+  const holds = allAppointments.filter((a) => a.hold && (a.accepted || !(a.expiresAt > 0) || a.expiresAt > nowMs));
+  const appointments = allAppointments.filter((a) => !a.hold);
+  const busyAppointments = appointments.concat(holds);
   const referrals = referralsRaw || [];
   const pricing = pricingRaw || [];
 
   const b = s.booking;
   const atLogin = s.screen === 'login', atClient = s.screen === 'client', atAdmin = s.screen === 'admin';
-  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '' });
+  const goClientAuth = () => set({ screen: 'client-auth', authMode: 'login', authError: '', authEmail: '', authPassword: '', authName: '', authFirstName: '', authLastName: '', authPhone: '' });
   const goAdminAuth = () => set({ screen: 'admin-auth', authError: '', authEmail: '', authPassword: '' });
   const backToEntry = () => set({ screen: 'login', authError: '' });
   const backToLogin = () => { if (auth) auth.signOut(); set({ screen: 'login', authMode: 'login', authEmail: '', authPassword: '', authName: '', authError: '' }); };
 
   const doClientRegister = async () => {
     set({ authError: '' });
-    if (!s.authName.trim()) { set({ authError: 'Zadajte meno a priezvisko.' }); return; }
+    const first = s.authFirstName.trim(), last = s.authLastName.trim();
+    if (!first) { set({ authError: 'Zadajte meno.' }); return; }
+    if (!last) { set({ authError: 'Zadajte priezvisko.' }); return; }
+    if (!isValidPhone(s.authPhone)) { set({ authError: 'Zadajte platné mobilné číslo (napr. 0915 123 456).' }); return; }
+    if (!s.authEmail.trim()) { set({ authError: 'Zadajte email.' }); return; }
+    registeringRef.current = true;
     try {
       const cred = await auth.createUserWithEmailAndPassword(s.authEmail.trim(), s.authPassword);
       await db.collection('clients').doc(cred.user.uid).set({
-        name: s.authName.trim(), email: s.authEmail.trim(), phone: '', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+        name: `${first} ${last}`, email: s.authEmail.trim(), phone: normalizePhone(s.authPhone), stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
       });
     } catch (e) { set({ authError: authErrorSk(e.code) }); }
+    finally { registeringRef.current = false; }
   };
   const doClientLogin = async () => {
     set({ authError: '' });
@@ -484,6 +757,15 @@ function App() {
   const isBirthdayToday = clientBirthday && clientBirthday.slice(5) === todayIso.slice(5);
 
   const setClientBirthday = (e) => { if (loggedInClient) db.collection('clients').doc(loggedInClient.id).update({ birthday: e.target.value }); };
+  // staršie účty mobil nemajú — klientka si ho doplní v profile
+  const clientMissingPhone = !!(loggedInClient && (!loggedInClient.phone || loggedInClient.phone === '—'));
+  const saveClientPhone = async (e) => {
+    const val = e.target.value;
+    if (!loggedInClient || normalizePhone(val) === normalizePhone(loggedInClient.phone)) return;
+    if (!isValidPhone(val)) { showToast('Neplatné mobilné číslo'); return; }
+    await db.collection('clients').doc(loggedInClient.id).update({ phone: normalizePhone(val) });
+    showToast('Mobilné číslo uložené');
+  };
   const startEditName = () => set({ nameEditOpen: true, nameEditValue: loggedInClient ? loggedInClient.name : '' });
   const cancelEditName = () => set({ nameEditOpen: false, nameEditValue: '' });
   const saveEditName = async () => {
@@ -532,22 +814,23 @@ function App() {
   const bookingPriceNum = bookingMain ? bookingMain.priceNum + bookingAddons.reduce((sum, a) => sum + a.priceNum, 0) : 0;
   const svcDuration = bookingMain ? bookingMain.duration + bookingAddons.reduce((sum, a) => sum + a.duration, 0) : 1;
   const dateOptions = dates.map((d) => {
-    const dayFull = buildTimeOptions().every((t) => !slotAvailable(d.iso, t, svcDuration, appointments));
+    const freeCount = buildTimeOptions().filter((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, svcDuration, busyAppointments)).length;
+    const dayFull = freeCount === 0;
     return {
-      iso: d.iso, dow: d.dow, num: d.num, mon: d.mon, full: dayFull, select: () => setBooking({ dateIso: d.iso, time: null }),
+      iso: d.iso, dow: d.dow, num: d.num, mon: d.mon, full: dayFull, free: freeCount, select: () => setBooking({ dateIso: d.iso, time: null }),
       style: `all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:13px;position:relative;color:${b.dateIso === d.iso ? 'var(--porcelain)' : dayFull ? 'var(--ink-3)' : 'var(--ink)'};background:${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${b.dateIso === d.iso ? 'var(--espresso)' : 'var(--line)'};opacity:${dayFull && b.dateIso !== d.iso ? 0.55 : 1}`,
     };
   });
 
   const bookingMaxIso = dates.length ? dates[dates.length - 1].iso : todayIso;
   const apptsByDateForFull = {};
-  appointments.forEach((a) => { (apptsByDateForFull[a.date] = apptsByDateForFull[a.date] || []).push(a); });
+  busyAppointments.forEach((a) => { (apptsByDateForFull[a.date] = apptsByDateForFull[a.date] || []).push(a); });
   const timeOptionsForFull = buildTimeOptions();
   const isDayFull = (iso) => {
     const dayAppts = apptsByDateForFull[iso] || [];
     return timeOptionsForFull.every((t) => {
       const start = timeToHours(t);
-      if (start + svcDuration > CLOSE_HOUR) return true;
+      if (isPastSlot(iso, t) || start + svcDuration > CLOSE_HOUR) return true;
       return dayAppts.some((a) => overlaps(start, svcDuration, timeToHours(a.time), a.duration));
     });
   };
@@ -557,11 +840,11 @@ function App() {
   const selectedDateFull = b.dateIso ? !!dateOptions.find((d) => d.iso === b.dateIso)?.full : false;
   const nearestAvailableDate = dateOptions.find((d) => !d.full && d.iso !== b.dateIso) || null;
   const timeOptions = buildTimeOptions().map((t) => {
-    const taken = b.dateIso === null ? true : !slotAvailable(b.dateIso, t, svcDuration, appointments);
+    const taken = b.dateIso === null ? true : (isPastSlot(b.dateIso, t) || !slotAvailable(b.dateIso, t, svcDuration, busyAppointments));
     const selected = b.time === t;
     return {
       label: t, taken, select: () => !taken && setBooking({ time: t }),
-      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
+      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(255,255,255,.02)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
     };
   });
   const booking_selectedService = bookingMain
@@ -631,7 +914,7 @@ function App() {
   // krok: výber dňa (najbližších 7 dní, plné dni sa neponúkajú)
   const chatSvcDuration = chatSvc ? chatSvc.duration : 1;
   const chatDateOptions = buildDateOptions(7)
-    .filter((d) => buildTimeOptions().some((t) => slotAvailable(d.iso, t, chatSvcDuration, appointments)))
+    .filter((d) => buildTimeOptions().some((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, chatSvcDuration, busyAppointments)))
     .map((d) => ({
       label: `${d.dow} ${d.num}. ${d.mon}`,
       run: () => {
@@ -642,7 +925,7 @@ function App() {
       },
     }));
   // krok: výber času (len skutočne voľné)
-  const chatTimeOptions = (s.chatDateIso ? buildTimeOptions().filter((t) => slotAvailable(s.chatDateIso, t, chatSvcDuration, appointments)) : [])
+  const chatTimeOptions = (s.chatDateIso ? buildTimeOptions().filter((t) => !isPastSlot(s.chatDateIso, t) && slotAvailable(s.chatDateIso, t, chatSvcDuration, busyAppointments)) : [])
     .map((t) => ({
       label: t,
       run: async () => {
@@ -674,10 +957,10 @@ function App() {
   const passStampDots = [0, 1, 2, 3, 4].map((i) => {
     const on = i < clientStamps;
     return {
-      style: `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;align-items:center;justify-content:center;background:${on ? 'linear-gradient(150deg,var(--taupe-light),var(--espresso))' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-3)'};border:${on ? '1px solid var(--espresso)' : '1px solid var(--line)'};box-shadow:${on ? 'var(--shadow-md, 0 10px 34px -16px rgba(56,48,42,.35))' : 'none'};transition:transform .2s ease`,
+      style: `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;align-items:center;justify-content:center;background:${on ? 'radial-gradient(circle at 35% 30%,var(--taupe-light),#B8916F)' : 'rgba(23,16,15,.35)'};color:${on ? 'var(--porcelain)' : 'rgba(217,185,155,.45)'};border:${on ? '0' : '1.5px dashed rgba(217,185,155,.4)'};box-shadow:${on ? 'var(--shadow-md, 0 10px 34px -16px rgba(56,48,42,.35))' : 'none'};transition:transform .2s ease`,
     };
   });
-  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'linear-gradient(150deg,var(--taupe-light),var(--mocha))' : 'var(--cream)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--ink-3)'};border:2px solid ${clientStamps >= 5 ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const rewardStyle = `aspect-ratio:1;border-radius:50%;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${clientStamps >= 5 ? 'radial-gradient(circle at 35% 30%,var(--taupe-light),#B8916F)' : 'rgba(23,16,15,.35)'};color:${clientStamps >= 5 ? 'var(--porcelain)' : 'var(--espresso)'};border:1.5px ${clientStamps >= 5 ? 'solid' : 'dashed'} ${clientStamps >= 5 ? 'var(--espresso)' : 'rgba(217,185,155,.55)'}`;
   const passHelperText = clientStamps >= 5 ? 'Máte 5 pečiatok — pri ďalšej návšteve vám Michaela uplatní odmenu!' : `Za každú návštevu vám Michaela pridá pečiatku. Aktuálne máte ${clientStamps}/5.`;
 
   const cennikCategories = pricing.map((cat, i) => ({
@@ -686,11 +969,11 @@ function App() {
     chevStyle: `display:flex;transform:rotate(${s.expandedCat === i ? 90 : 0}deg);transition:transform .3s;color:var(--ink-3)`,
   }));
 
-  const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'rgba(140,110,98,.14)' : tone === 'blocked' ? 'rgba(178,59,59,.12)' : 'rgba(62,39,39,.08)'};color:${tone === 'pending' ? 'var(--mocha)' : tone === 'blocked' ? '#b23b3b' : 'var(--espresso)'}`;
-  const myAppointments = loggedInClient ? appointments.filter((a) => a.name === loggedInClient.name) : [];
+  const badge = (tone) => `font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:${tone === 'pending' ? 'var(--wait-bg)' : tone === 'blocked' ? 'var(--danger-bg)' : 'var(--ok-bg)'};color:${tone === 'pending' ? 'var(--wait)' : tone === 'blocked' ? 'var(--danger)' : 'var(--ok)'};font-weight:600`;
+  const myAppointments = loggedInClient ? appointments.concat(holds.filter((h) => h.accepted)).filter((a) => a.name === loggedInClient.name) : [];
   const upcomingAppts = myAppointments.filter((a) => a.date >= todayIso).sort((a, bb) => a.date === bb.date ? timeToHours(a.time) - timeToHours(bb.time) : a.date.localeCompare(bb.date))
     .map((a) => ({
-      id: a.id, service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual ? 'pending' : undefined),
+      id: a.id, iso: a.date, duration: a.duration, service: a.service, date: isoLabel(a.date), time: a.time, badgeLabel: a.hold ? 'Potvrdené' : a.manual ? 'Telefonicky' : 'Potvrdené', badgeStyle: badge(a.manual && !a.hold ? 'pending' : undefined),
       mine: !!(a.clientUid && authUser && a.clientUid === authUser.uid),
     }));
   const rebookService = (serviceName) => {
@@ -721,8 +1004,9 @@ function App() {
     if (!rescheduleTarget || !s.rescheduleDateIso || !s.rescheduleTime) return null;
     const startHours = timeToHours(s.rescheduleTime);
     if (startHours < OPEN_HOUR) return `Štúdio otvára až o ${OPEN_HOUR}:00.`;
+    if (isPastSlot(s.rescheduleDateIso, s.rescheduleTime)) return 'Tento čas už prešiel, vyberte neskorší.';
     if (startHours + (rescheduleTarget.duration || 1) > CLOSE_HOUR) return `Tento čas presahuje otváracie hodiny (do ${CLOSE_HOUR}:00).`;
-    const others = appointments.filter((x) => x.id !== rescheduleTarget.id);
+    const others = busyAppointments.filter((x) => x.id !== rescheduleTarget.id);
     if (!slotAvailable(s.rescheduleDateIso, s.rescheduleTime, rescheduleTarget.duration || 1, others)) return 'Tento čas je už obsadený, vyberte iný.';
     return null;
   })();
@@ -737,7 +1021,7 @@ function App() {
     { icon: 'sparkle', title: 'Aura Pass', text: `Aktuálne máte ${clientStamps}/5 pečiatok.`, time: '' },
   ];
   if (isBirthdayToday) {
-    notifications.unshift({ icon: 'gift', title: 'Všetko najlepšie k narodeninám!', text: `Nech je váš deň krásny ako vaše nechty. Darček od nás: 10 % zľava na ďalšiu starostlivosť s kódom ${BIRTHDAY_DISCOUNT_CODE}.`, time: 'dnes' });
+    notifications.unshift({ icon: 'gift', title: 'Všetko najlepšie k narodeninám!', text: 'Nech je váš deň krásny ako vaše nechty.', time: 'dnes' });
   }
   const notificationsPreview = notifications.slice(0, 2);
 
@@ -761,16 +1045,8 @@ function App() {
   const adminHeaderMap = { overview: 'Prehľad', requests: 'Žiadosti', clients: 'Klientky', pricing: 'Cenník', stats: 'Štatistiky' };
 
   const statsWeekStart = isoOffset(-(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1));
-  const statsMonthPrefix = todayIso.slice(0, 7);
   const nonBlockedAppts = appointments.filter((a) => !a.blocked);
-  const statsThisWeek = nonBlockedAppts.filter((a) => a.date >= statsWeekStart).length;
-  const statsThisMonth = nonBlockedAppts.filter((a) => a.date.slice(0, 7) === statsMonthPrefix).length;
-  const serviceCounts = {};
-  nonBlockedAppts.forEach((a) => { serviceCounts[a.service] = (serviceCounts[a.service] || 0) + 1; });
-  const topServices = Object.entries(serviceCounts).sort((a, bb) => bb[1] - a[1]).slice(0, 5);
   const totalClientsCount = clients.length;
-  const avgVisits = totalClientsCount ? (clients.reduce((sum, c) => sum + (c.visits || 0), 0) / totalClientsCount) : 0;
-  const totalUpcoming = nonBlockedAppts.filter((a) => a.date >= todayIso).length;
   const upcomingBirthdays = clients
     .map((c) => ({ ...c, daysUntil: daysUntilBirthday(c.birthday) }))
     .filter((c) => c.daysUntil !== null && c.daysUntil <= 7)
@@ -778,8 +1054,11 @@ function App() {
   const ratedAppts = nonBlockedAppts.filter((a) => a.rating);
   const avgRating = ratedAppts.length ? (ratedAppts.reduce((sum, a) => sum + a.rating, 0) / ratedAppts.length) : null;
   const exportClientsCsv = () => {
-    const header = ['Meno', 'Telefón', 'Email', 'Návštevy', 'Pečiatky', 'Posledná návšteva'];
-    const rows = clients.map((c) => [c.name, c.phone || '', c.email || '', c.visits || 0, c.stamps || 0, c.lastVisit || '']);
+    const header = ['Meno', 'Telefón', 'Email', 'Návštevy', 'Útrata spolu (€)', 'Pečiatky', 'Posledná návšteva'];
+    const rows = clients.map((c) => {
+      const r = clientApptStats(c);
+      return [c.name, c.phone || '', c.email || '', r.visits, Math.round(r.spend), c.stamps || 0, r.last ? isoLabel(r.last) : (c.lastVisit || '')];
+    });
     const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -841,13 +1120,13 @@ function App() {
 
   const adminMonthGrid = buildMonthGrid(s.adminMonthOffset || 0, s.adminSelectedDate, todayIso, null, (iso) => occupancyColor(countsByDate[iso] || 0) !== 'var(--line)' ? occupancyColor(countsByDate[iso] || 0) : null);
   const calendarSelectedLabel = isoLabel(s.adminSelectedDate);
-  const selectedDayAppts = appointments.filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
+  const selectedDayAppts = appointments.concat(holds).filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
     const matched = clients.find((c) => c.name === a.name);
     return {
       ...a,
-      badgeLabel: a.blocked ? 'Zatvorené' : (a.manual ? 'Telefonicky' : 'Potvrdené'),
-      badgeStyle: badge(a.blocked ? 'blocked' : (a.manual ? 'pending' : undefined)),
-      open: a.blocked ? () => deleteBlock(a.id) : (() => matched && set({ adminTab: 'clients', selectedClientId: matched.id })),
+      badgeLabel: a.hold ? (a.accepted ? 'Odsúhlasené' : 'Návrh · čaká') : a.blocked ? 'Zatvorené' : (a.manual ? 'Telefonicky' : 'Potvrdené'),
+      badgeStyle: badge(a.hold ? (a.accepted ? undefined : 'pending') : a.blocked ? 'blocked' : (a.manual ? 'pending' : undefined)),
+      open: a.hold ? () => set({ adminTab: 'requests', reqView: 'waiting' }) : a.blocked ? () => deleteBlock(a.id) : (() => matched && set({ adminTab: 'clients', selectedClientId: matched.id })),
     };
   });
   const noDayAppts = selectedDayAppts.length === 0;
@@ -869,7 +1148,9 @@ function App() {
   });
   const cancelDayAdd = () => set({ dayAddOpen: false });
   // najčastejšie klientky — tie sa Michaele ponúknu hneď, bez písania
-  const frequentClients = [...clients].sort((a, bb) => (bb.visits || 0) - (a.visits || 0)).slice(0, 6);
+  // (funkcia, lebo štatistiky návštev sa počítajú až nižšie)
+  const getFrequentClients = () => clients.map((c) => ({ ...c, visitCount: clientApptStats(c).visits }))
+    .sort((a, bb) => bb.visitCount - a.visitCount).slice(0, 6);
   const dayAddQ = s.dayAddQuery.trim().toLowerCase();
   const dayAddMatches = dayAddQ.length >= 2
     ? clients.filter((c) => (c.name || '').toLowerCase().includes(dayAddQ) || (c.phone || '').toLowerCase().includes(dayAddQ)).slice(0, 8)
@@ -895,11 +1176,11 @@ function App() {
   const dayAddPriceNum = dayAddMain ? dayAddMain.priceNum + dayAddAddonItems.reduce((sum, a) => sum + a.priceNum, 0) : 0;
   const dayAddServiceLabel = dayAddMain ? [dayAddMain.label, ...dayAddAddonItems.map((a) => a.label)].join(' + ') : '';
   const dayAddTimeOptions = buildTimeOptions().map((t) => {
-    const taken = !slotAvailable(s.adminSelectedDate, t, dayAddDuration, appointments);
+    const taken = !slotAvailable(s.adminSelectedDate, t, dayAddDuration, busyAppointments);
     const selected = s.dayAddTime === t;
     return {
       label: t, taken, select: () => !taken && set({ dayAddTime: t }),
-      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(62,39,39,.05)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
+      style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(255,255,255,.02)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
     };
   });
   const dayAddDisabled = !dayAddName || !s.dayAddTime;
@@ -922,12 +1203,246 @@ function App() {
     set({ dayAddOpen: false });
     showToast(dayAddIsNew ? 'Klientka a termín pridané' : 'Termín pridaný');
   };
-  const chipStyle = (selected) => `all:unset;cursor:pointer;padding:8px 13px;border-radius:999px;font-family:var(--font-sans);font-size:.76rem;color:${selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line-gold)'}`;
-  const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.72rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  /* ---------- služba vždy z cenníka (karta klientky, nová klientka) ----------
+     Voľný text vytváral rôzne názvy tej istej služby ("Gelove nechty" vs
+     "Gélové nechty") a štatistiky sa potom rozpadali. */
+  const cennikByNorm = {};
+  cennikMain.concat(cennikAddons).forEach((m) => { const k = normText(m.label); if (!cennikByNorm[k]) cennikByNorm[k] = m; });
+  const pickedService = (mainKey, addonKeys) => {
+    const main = cennikMain.find((m) => m.key === mainKey) || null;
+    if (!main) return null;
+    const all = [main, ...cennikAddons.filter((a) => (addonKeys || []).indexOf(a.key) !== -1)];
+    const priceNum = all.reduce((sum, it) => sum + it.priceNum, 0);
+    return {
+      label: all.map((it) => it.label).join(' + '), priceNum, priceLabel: formatPrice(priceNum),
+      duration: all.reduce((sum, it) => sum + it.duration, 0),
+      items: all.map((it) => ({ label: it.label, price: it.price, duration: it.duration })),
+    };
+  };
+  // existujúci termín → položky cenníka (podľa uložených položiek alebo názvu)
+  const keysFromAppt = (a) => {
+    const labels = (a.items && a.items.length) ? a.items.map((it) => it.label) : String(a.service || '').split(' + ');
+    const found = labels.map((l) => cennikByNorm[normText(l)]).filter(Boolean);
+    const main = found.find((m) => cennikMain.indexOf(m) !== -1);
+    return { mainKey: main ? main.key : null, addons: found.filter((m) => cennikAddons.indexOf(m) !== -1).map((m) => m.key) };
+  };
+  const renderServicePicker = (mainKey, addonKeys, onPickMain, onToggleAddon) => (
+    <React.Fragment>
+      {cennikMainByCat.map((cat) => (
+        <div key={cat.ci} style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', marginBottom: 6 }}>{cat.name}</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {cat.items.map((m) => (
+              <button type="button" key={m.key} onClick={() => onPickMain(m)} style={st(chipStyle(mainKey === m.key))}>{m.label} · {m.price}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+      {mainKey && cennikAddons.length > 0 && (
+        <React.Fragment>
+          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', margin: '10px 0 6px' }}>Doplnky</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 10 }}>
+            {cennikAddons.map((a) => (
+              <button type="button" key={a.key} onClick={() => onToggleAddon(a)} style={st(chipStyle((addonKeys || []).indexOf(a.key) !== -1))}>+ {a.label} · {a.price}</button>
+            ))}
+          </div>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
+  const toggleKey = (list, key) => ((list || []).indexOf(key) !== -1 ? list.filter((k) => k !== key) : [...(list || []), key]);
+  const apptPicked = pickedService(s.apptMainKey, s.apptAddons);
+  const newClientPicked = pickedService(s.newClientMainKey, s.newClientAddons);
+
+  /* ---------- štatistiky ---------- */
+  const cennikCatByNorm = {};
+  pricing.forEach((cat) => { cennikCatByNorm[normText(cat.name)] = cat.name; });
+  // hlavná služba termínu, zjednotená podľa cenníka
+  const canonicalService = (a) => {
+    const raw = ((a.items && a.items[0] && a.items[0].label) || String(a.service || '').split(' + ')[0]).trim();
+    const n = normText(raw);
+    if (!n || n === 'bez upresnenia') return { label: 'Bez upresnenia', status: 'none' };
+    const m = cennikByNorm[n];
+    if (m) return { label: m.label, status: 'item' };
+    if (cennikCatByNorm[n]) return { label: `${cennikCatByNorm[n]} (bez upresnenia)`, status: 'category' };
+    return { label: raw, status: 'unknown' };
+  };
+  // cena termínu: uložená, inak súčet položiek, inak dohľadaná v cenníku
+  const apptPrice = (a) => {
+    if (Number(a.price) > 0) return Number(a.price);
+    if (a.items && a.items.length) {
+      const sum = a.items.reduce((t, it) => t + priceToNumber(it.price), 0);
+      if (sum) return sum;
+    }
+    return String(a.service || '').split(' + ').reduce((t, l) => {
+      const m = cennikByNorm[normText(l)];
+      return t + (m ? m.priceNum : 0);
+    }, 0);
+  };
+  const money = (n) => formatPrice(Math.round(n));
+  const isoFromDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const isoAddDays = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoFromDate(d); };
+  const daysBetween = (a, bIso) => Math.round((new Date(bIso + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+
+  // prehľad po klientkach (párujeme podľa mena, rovnako ako zvyšok appky)
+  const statsByName = {};
+  nonBlockedAppts.forEach((a) => {
+    const r = statsByName[a.name] || (statsByName[a.name] = { past: 0, spend: 0, first: null, last: null, next: null });
+    if (!r.first || a.date < r.first) r.first = a.date;
+    if (a.date <= todayIso) {
+      r.past += 1; r.spend += apptPrice(a);
+      if (!r.last || a.date > r.last) r.last = a.date;
+    } else if (!r.next || a.date < r.next) r.next = a.date;
+  });
+  const clientApptStats = (c) => {
+    const r = statsByName[c.name] || { past: 0, spend: 0, first: null, last: null, next: null };
+    // c.visits pochádza zo schválených žiadostí — tie sú zároveň v termínoch, preto max, nie súčet
+    return { ...r, visits: Math.max(c.visits || 0, r.past) };
+  };
+
+  const STATS_PERIODS = [{ id: 'week', label: 'Týždeň' }, { id: 'month', label: 'Mesiac' }, { id: 'lastMonth', label: 'Min. mesiac' }, { id: 'year', label: 'Rok' }];
+  const todayDate = new Date(todayIso + 'T00:00:00');
+  const [pFrom, pTo] = (() => {
+    const y = todayDate.getFullYear(), m = todayDate.getMonth();
+    if (s.statsPeriod === 'week') return [statsWeekStart, isoAddDays(statsWeekStart, 6)];
+    if (s.statsPeriod === 'lastMonth') return [isoFromDate(new Date(y, m - 1, 1)), isoFromDate(new Date(y, m, 0))];
+    if (s.statsPeriod === 'year') return [`${y}-01-01`, `${y}-12-31`];
+    return [isoFromDate(new Date(y, m, 1)), isoFromDate(new Date(y, m + 1, 0))];
+  })();
+  const inPeriod = (a) => a.date >= pFrom && a.date <= pTo;
+  const periodAppts = nonBlockedAppts.filter(inPeriod);
+  const periodDone = periodAppts.filter((a) => a.date <= todayIso);
+  const periodPlanned = periodAppts.filter((a) => a.date > todayIso);
+  const revenueDone = periodDone.reduce((t, a) => t + apptPrice(a), 0);
+  const revenuePlanned = periodPlanned.reduce((t, a) => t + apptPrice(a), 0);
+  const hoursDone = periodDone.reduce((t, a) => t + (Number(a.duration) || 0), 0);
+  const avgTicket = periodDone.length ? revenueDone / periodDone.length : 0;
+  const newClientsInPeriod = Object.values(statsByName).filter((r) => r.first >= pFrom && r.first <= pTo).length;
+  // vyťaženosť: obsadené hodiny / (dni × otváracie hodiny − nastavené voľno)
+  const occupancyFor = (from, to) => {
+    if (to < from) return null;
+    const days = daysBetween(from, to) + 1;
+    const inRange = (a) => a.date >= from && a.date <= to;
+    const blockedH = appointments.filter((a) => a.blocked && inRange(a)).reduce((t, a) => t + (Number(a.duration) || 0), 0);
+    const capacity = days * (CLOSE_HOUR - OPEN_HOUR) - blockedH;
+    if (capacity <= 0) return null;
+    const booked = nonBlockedAppts.filter(inRange).reduce((t, a) => t + (Number(a.duration) || 0), 0);
+    return Math.min(1, booked / capacity);
+  };
+  const occupancyPeriod = occupancyFor(pFrom, pTo < todayIso ? pTo : todayIso);
+  const occupancyNext7 = occupancyFor(isoAddDays(todayIso, 1), isoAddDays(todayIso, 7));
+  const pct = (f) => (f === null ? '—' : `${Math.round(f * 100)} %`);
+
+  // služby v období (zjednotené podľa cenníka)
+  const svcAgg = {};
+  let unspecifiedCount = 0;
+  periodAppts.forEach((a) => {
+    const c = canonicalService(a);
+    if (c.status === 'none') { unspecifiedCount += 1; return; }
+    const r = svcAgg[c.label] || (svcAgg[c.label] = { label: c.label, count: 0, revenue: 0 });
+    r.count += 1; r.revenue += apptPrice(a);
+  });
+  const topServices = Object.values(svcAgg).sort((a, bb) => bb.count - a.count || bb.revenue - a.revenue).slice(0, 6);
+  const topServiceMax = topServices.length ? topServices[0].count : 1;
+
+  // rozloženie podľa dní v týždni
+  const WEEKDAYS = ['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne'];
+  const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+  periodAppts.forEach((a) => { weekdayCounts[(new Date(a.date + 'T00:00:00').getDay() + 6) % 7] += 1; });
+  const weekdayMax = Math.max(1, ...weekdayCounts);
+
+  // tržby za posledných 6 mesiacov
+  const monthlyRevenue = [5, 4, 3, 2, 1, 0].map((back) => {
+    const d = new Date(todayDate.getFullYear(), todayDate.getMonth() - back, 1);
+    const prefix = isoFromDate(d).slice(0, 7);
+    const list = nonBlockedAppts.filter((a) => a.date.slice(0, 7) === prefix);
+    const done = list.filter((a) => a.date <= todayIso).reduce((t, a) => t + apptPrice(a), 0);
+    const planned = list.filter((a) => a.date > todayIso).reduce((t, a) => t + apptPrice(a), 0);
+    return { label: SK_MON[d.getMonth()], done, planned, count: list.length };
+  });
+  const monthlyMax = Math.max(1, ...monthlyRevenue.map((m) => m.done + m.planned));
+
+  // najvernejšie klientky a tie, ktoré dlho neboli
+  const clientsWithStats = clients.map((c) => ({ c, r: clientApptStats(c) }));
+  const topClients = clientsWithStats.filter((x) => x.r.visits > 0)
+    .sort((a, bb) => bb.r.visits - a.r.visits || bb.r.spend - a.r.spend).slice(0, 5);
+  const LAPSED_DAYS = 42;
+  const lapsedClients = clientsWithStats
+    .filter((x) => x.r.last && !x.r.next && daysBetween(x.r.last, todayIso) >= LAPSED_DAYS)
+    .map((x) => ({ ...x, since: daysBetween(x.r.last, todayIso) }))
+    .sort((a, bb) => a.since - bb.since).slice(0, 8);
+
+  // staré názvy služieb, ktoré nesedia s cenníkom — Michaela ich jedným klikom zjednotí
+  const unmatchedAgg = {};
+  nonBlockedAppts.forEach((a) => {
+    const st2 = canonicalService(a).status;
+    if (st2 === 'category' || st2 === 'unknown') unmatchedAgg[a.service] = (unmatchedAgg[a.service] || 0) + 1;
+  });
+  const unmatchedServices = Object.entries(unmatchedAgg).sort((a, bb) => bb[1] - a[1]);
+  const remapService = async (raw) => {
+    const m = cennikMain.find((x) => x.key === s.mapServiceSel[raw]);
+    if (!m) return;
+    const targets = nonBlockedAppts.filter((a) => a.service === raw);
+    if (!window.confirm(`Prepísať „${raw}“ na „${m.label}“ (${m.price}) v ${targets.length} termínoch?`)) return;
+    const batch = db.batch();
+    targets.forEach((a) => batch.update(db.collection('appointments').doc(a.id), {
+      service: m.label, items: [{ label: m.label, price: m.price, duration: m.duration }], price: m.priceNum, priceLabel: formatPrice(m.priceNum),
+    }));
+    clients.forEach((c) => {
+      const h = c.history || [];
+      if (h.some((x) => x.service === raw)) batch.update(db.collection('clients').doc(c.id), { history: h.map((x) => (x.service === raw ? { ...x, service: m.label } : x)) });
+    });
+    await batch.commit();
+    set({ mapServiceSel: { ...s.mapServiceSel, [raw]: undefined } });
+    showToast('Názov služby zjednotený');
+  };
+  const statTile = (value, label, sub) => (
+    <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', color: 'var(--ink)', lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em', marginTop: 4 }}>{label}</div>
+      {sub && <div style={{ fontSize: '.66rem', color: 'var(--mocha)', marginTop: 3 }}>{sub}</div>}
+    </div>
+  );
+  const statHeading = (title, note) => (
+    <div style={{ margin: '24px 0 10px' }}>
+      <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>{title}</div>
+      {note && <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2, lineHeight: 1.5 }}>{note}</div>}
+    </div>
+  );
+  const statBar = (key, label, valueText, frac, plannedFrac) => (
+    <div key={key} style={{ padding: '8px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 5 }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink-2)', minWidth: 0 }}>{label}</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)', flexShrink: 0 }}>{valueText}</span>
+      </div>
+      <div style={{ height: 6, borderRadius: 3, background: 'var(--cream)', display: 'flex', overflow: 'hidden' }}>
+        <div style={{ width: `${Math.round(frac * 100)}%`, background: 'var(--mocha)' }}></div>
+        {plannedFrac > 0 && <div style={{ width: `${Math.round(plannedFrac * 100)}%`, background: 'var(--taupe)' }}></div>}
+      </div>
+    </div>
+  );
+
+  const chipStyle = (selected) => `all:unset;cursor:pointer;padding:6px 10px;border-radius:999px;font-family:var(--font-sans);font-size:.64rem;color:${selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${selected ? 'var(--espresso)' : 'var(--line-gold)'}`;
+  const blockTimePresetStyle = (active) => `all:unset;cursor:pointer;padding:6px 10px;border-radius:999px;font-family:var(--font-sans);font-size:.64rem;color:${active ? 'var(--porcelain)' : 'var(--ink-2)'};background:${active ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${active ? 'var(--espresso)' : 'var(--line-gold)'}`;
   // Referral system removed
   const adminTodayCount = countsByDate[todayIso] || 0;
-  const adminPendingCount = requests.length;
+  // stav návrhu nového termínu: pending | accepted | declined | expired | null
+  const proposalState = (r) => {
+    const p = r.proposal;
+    if (!p) return null;
+    const hold = p.holdId ? allAppointments.find((a) => a.id === p.holdId) : null;
+    if (hold && hold.accepted) return 'accepted';
+    if (p.status === 'pending' && p.expiresAt && p.expiresAt < nowMs) return 'expired';
+    // klientka podržanie zrušila, ale stav žiadosti sa nestihol zapísať
+    if (p.status === 'pending' && !hold) return 'declined';
+    return p.status || null;
+  };
+  const isWaitingRequest = (r) => { const st0 = proposalState(r); return st0 === 'pending' || st0 === 'accepted'; };
+  const newRequests = requests.filter((r) => !isWaitingRequest(r));
+  const waitingRequests = requests.filter(isWaitingRequest);
+  const adminPendingCount = newRequests.length;
   const noRequests = requests.length === 0;
+  const reqViewWaiting = s.reqView === 'waiting' && waitingRequests.length > 0;
   const getRequestDuration = (r) => {
     const stored = s.requestDurations[r.id];
     if (stored === undefined) return r.duration || 1.5;
@@ -935,38 +1450,130 @@ function App() {
     return isNaN(n) ? (r.duration || 1.5) : n;
   };
   const setRequestDuration = (id, val) => set({ requestDurations: { ...s.requestDurations, [id]: val } });
-  const adminRequestsList = requests.map((r) => ({
-    ...r, dateLabel: isoLabel(r.date), durationValue: getRequestDuration(r),
-    approve: async () => {
-      const apptRef = await db.collection('appointments').add({
-        date: r.date, time: r.time, name: r.name, service: r.service, duration: getRequestDuration(r),
-        items: r.items || [], price: r.price || 0, priceLabel: r.priceLabel || '',
-        phone: r.phone || '', email: r.email || '',
-        manual: false, clientUid: r.clientUid || null,
-      });
-      const matched = clients.find((c) => c.name === r.name);
-      if (matched) {
-        await db.collection('clients').doc(matched.id).update({
-          visits: (matched.visits || 0) + 1,
-          lastVisit: isoLabel(r.date),
-          stamps: Math.min(5, (matched.stamps || 0) + 1),
-          history: [{ service: r.service, date: isoLabel(r.date) }, ...(matched.history || [])],
+  const notifyClient = async (uid, title, message, type) => {
+    if (!uid || typeof NotificationManager === 'undefined') return;
+    try { await new NotificationManager(db, auth, uid).sendCustomNotification(title, message, type || 'info'); }
+    catch (e) { console.warn('notify failed', e && e.message); }
+  };
+  const fmtDeadline = (ms) => { const d = new Date(ms); return `${d.getDate()}. ${d.getMonth() + 1}. o ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  const hoursLeft = (ms) => Math.max(0, Math.round((ms - nowMs) / 3600000));
+  const proposeDates = buildDateOptions();
+  const adminRequestsList = (reqViewWaiting ? waitingRequests : newRequests).map((r) => {
+    const pState = proposalState(r);
+    const dur = getRequestDuration(r);
+    const conflict = !slotAvailable(r.date, r.time, dur, busyAppointments) || isPastSlot(r.date, r.time);
+    const proposing = s.proposeFor === r.id;
+    const proposeTimes = proposing && s.proposeDateIso ? buildTimeOptions().map((t) => {
+      const start = timeToHours(t);
+      const ownHold = r.proposal && r.proposal.holdId;
+      const others = busyAppointments.filter((a) => a.id !== ownHold);
+      const taken = isPastSlot(s.proposeDateIso, t) || start + dur > CLOSE_HOUR || !slotAvailable(s.proposeDateIso, t, dur, others);
+      return { label: t, taken, selected: s.proposeTime === t };
+    }) : [];
+    return {
+      ...r, dateLabel: isoLabel(r.date), durationValue: dur, pState, conflict, proposing, proposeTimes,
+      approve: async () => {
+        const apptRef = await db.collection('appointments').add({
+          date: r.date, time: r.time, name: r.name, service: r.service, duration: dur,
+          items: r.items || [], price: r.price || 0, priceLabel: r.priceLabel || '',
+          phone: r.phone || '', email: r.email || '',
+          manual: false, clientUid: r.clientUid || null,
         });
-      }
-      await db.collection('requests').doc(r.id).delete();
-      if (r.clientUid && typeof NotificationManager !== 'undefined') {
+        const matched = clients.find((c) => c.name === r.name);
+        if (matched) {
+          await db.collection('clients').doc(matched.id).update({
+            visits: (matched.visits || 0) + 1,
+            lastVisit: isoLabel(r.date),
+            stamps: Math.min(5, (matched.stamps || 0) + 1),
+            history: [{ service: r.service, date: isoLabel(r.date) }, ...(matched.history || [])],
+          });
+        }
+        if (r.proposal && r.proposal.holdId) await db.collection('appointments').doc(r.proposal.holdId).delete().catch(() => {});
+        await db.collection('requests').doc(r.id).delete();
+        if (r.clientUid && typeof NotificationManager !== 'undefined') {
+          try {
+            const notifMgr = new NotificationManager(db, auth, r.clientUid);
+            await notifMgr.sendConfirmationNotification({ id: apptRef.id, service: r.service, date: r.date, time: r.time });
+          } catch (e) { console.error('notify approve failed', e); }
+        }
+        showToast('Rezervácia potvrdená');
+      },
+      reject: async () => {
+        if (r.proposal && r.proposal.holdId) await db.collection('appointments').doc(r.proposal.holdId).delete().catch(() => {});
+        await db.collection('requests').doc(r.id).delete();
+        showToast('Žiadosť zamietnutá');
+      },
+      openPropose: () => set({ proposeFor: r.id, proposeDateIso: r.date >= todayIso ? r.date : todayIso, proposeTime: '', proposeMsg: '' }),
+      closePropose: () => set({ proposeFor: null }),
+      sendProposal: async () => {
+        if (!s.proposeDateIso || !s.proposeTime || s.proposeSending) return;
+        set({ proposeSending: true });
         try {
-          const notifMgr = new NotificationManager(db, auth, r.clientUid);
-          await notifMgr.sendConfirmationNotification({ id: apptRef.id, service: r.service, date: r.date, time: r.time });
-        } catch (e) { console.error('notify approve failed', e); }
-      }
-      showToast('Rezervácia potvrdená');
+          const now = Date.now();
+          const exp = now + PROPOSAL_HOURS * 3600 * 1000;
+          const holdRef = await db.collection('appointments').add({
+            date: s.proposeDateIso, time: s.proposeTime, duration: dur, name: r.name, service: r.service,
+            items: r.items || [], price: r.price || 0, priceLabel: r.priceLabel || '',
+            phone: r.phone || '', email: r.email || '', clientUid: r.clientUid || null,
+            manual: false, hold: true, accepted: false, requestId: r.id, expiresAt: exp,
+          });
+          const prevHold = r.proposal && r.proposal.holdId;
+          await db.collection('requests').doc(r.id).update({
+            duration: dur,
+            proposal: { date: s.proposeDateIso, time: s.proposeTime, message: (s.proposeMsg || '').trim(), sentAt: now, expiresAt: exp, holdId: holdRef.id, status: 'pending' },
+          });
+          if (prevHold) await db.collection('appointments').doc(prevHold).delete().catch(() => {});
+          await notifyClient(r.clientUid, 'Návrh nového termínu',
+            `Michaela navrhuje ${isoLabel(s.proposeDateIso)} o ${s.proposeTime}. Potvrďte ho prosím v appke do ${PROPOSAL_HOURS} hodín.`, 'reschedule');
+          set({ proposeFor: null, proposeSending: false, reqView: 'waiting' });
+          showToast('Návrh odoslaný klientke');
+        } catch (e) {
+          console.error('send proposal failed', e);
+          set({ proposeSending: false });
+          showToast('Návrh sa nepodarilo odoslať');
+        }
+      },
+      withdraw: async () => {
+        if (r.proposal && r.proposal.holdId) await db.collection('appointments').doc(r.proposal.holdId).delete().catch(() => {});
+        await db.collection('requests').doc(r.id).update({ proposal: null });
+        set({ reqView: 'new' });
+        showToast('Návrh stiahnutý');
+      },
+    };
+  });
+
+  /* ---------- klientka: návrhy nového termínu ---------- */
+  const myProposals = (myRequests || []).filter((r) => {
+    const p = r.proposal;
+    if (!p || p.status !== 'pending' || !(p.expiresAt > nowMs)) return false;
+    const hold = allAppointments.find((a) => a.id === p.holdId);
+    return !!hold && !hold.accepted;
+  }).map((r) => ({
+    ...r,
+    oldLabel: `${isoLabel(r.date)} · ${r.time}`,
+    newLabel: `${isoLabel(r.proposal.date)} · ${r.proposal.time}`,
+    deadline: fmtDeadline(r.proposal.expiresAt),
+    accept: async () => {
+      try {
+        await db.collection('appointments').doc(r.proposal.holdId).update({ accepted: true, acceptedAt: Date.now() });
+        await db.collection('requests').doc(r.id).update({ 'proposal.status': 'accepted' }).catch(() => {});
+        showToast('Termín potvrdený');
+      } catch (e) { console.error('accept proposal failed', e); showToast('Nepodarilo sa potvrdiť, skúste znova'); }
     },
-    reject: async () => { await db.collection('requests').doc(r.id).delete(); showToast('Žiadosť zamietnutá'); },
+    decline: async (rebook) => {
+      await db.collection('appointments').doc(r.proposal.holdId).delete().catch(() => {});
+      await db.collection('requests').doc(r.id).update({ 'proposal.status': 'declined', 'proposal.declinedAt': Date.now(), 'proposal.rebook': !!rebook }).catch(() => {});
+      if (rebook) rebookService(r.service); else showToast('Návrh odmietnutý');
+    },
   }));
 
   const clientsListView = s.selectedClientId === null;
-  const adminClientsList = clients.map((c) => ({ ...c, initials: initials(c.name), open: () => set({ selectedClientId: c.id }) }));
+  const adminClientsList = clients.map((c) => {
+    const r = clientApptStats(c);
+    return { ...c, initials: initials(c.name || '—'), visitCount: r.visits, lastIso: r.last, open: () => set({ selectedClientId: c.id }) };
+  }).sort(s.clientSort === 'alpha'
+    ? (a, bb) => (a.name || '').localeCompare(bb.name || '', 'sk', { sensitivity: 'base' })
+    : (a, bb) => bb.visitCount - a.visitCount || (bb.lastIso || '').localeCompare(a.lastIso || '') || (a.name || '').localeCompare(bb.name || '', 'sk'));
   const clientSearchLower = s.clientSearch.trim().toLowerCase();
   const adminClientsListFiltered = clientSearchLower
     ? adminClientsList.filter((c) => (c.name || '').toLowerCase().includes(clientSearchLower) || (c.email || '').toLowerCase().includes(clientSearchLower) || (c.phone || '').toLowerCase().includes(clientSearchLower))
@@ -1023,7 +1630,16 @@ function App() {
   };
   const updateClientNotes = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ notes: e.target.value }); };
   const updateClientBirthday = (e) => { if (s.selectedClientId) db.collection('clients').doc(s.selectedClientId).update({ birthday: e.target.value }); };
-  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00', newClientService: '' });
+  const openAddClient = () => set({ addFormOpen: true, newClientName: '', newClientPhone: '', newClientDateIso: null, newClientTime: '09:00', newClientService: '', newClientMainKey: null, newClientAddons: [], newClientDuration: 1.5 });
+  const pickNewClientMain = (m) => {
+    const p = pickedService(m.key, s.newClientAddons);
+    set({ newClientMainKey: m.key, newClientDuration: p ? p.duration : s.newClientDuration });
+  };
+  const toggleNewClientAddon = (a) => {
+    const addons = toggleKey(s.newClientAddons, a.key);
+    const p = pickedService(s.newClientMainKey, addons);
+    set({ newClientAddons: addons, newClientDuration: p ? p.duration : s.newClientDuration });
+  };
   const cancelAddClient = () => set({ addFormOpen: false });
   const durationPresetOptions = DURATION_PRESETS.map((d) => ({
     label: d.label, select: () => set({ newClientDuration: d.val }),
@@ -1040,11 +1656,16 @@ function App() {
     if (saveDisabled) return;
     const hasAppt = s.newClientDateIso && s.newClientTime.trim();
     await db.collection('clients').add({
-      name: s.newClientName.trim(), phone: s.newClientPhone.trim() || '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
+      name: s.newClientName.trim(), phone: s.newClientPhone.trim() ? normalizePhone(s.newClientPhone) : '—', stamps: 0, visits: 0, lastVisit: '—', notes: '', birthday: '', history: [],
     });
     if (hasAppt) {
-      const parsedDuration = parseFloat(s.newClientDuration);
-      await db.collection('appointments').add({ date: s.newClientDateIso, time: s.newClientTime.trim(), name: s.newClientName.trim(), service: s.newClientService.trim() || 'Bez upresnenia', duration: isNaN(parsedDuration) ? 1.5 : parsedDuration, manual: true });
+      const p = newClientPicked;
+      await db.collection('appointments').add({
+        date: s.newClientDateIso, time: s.newClientTime.trim(), name: s.newClientName.trim(),
+        service: p ? p.label : 'Bez upresnenia', items: p ? p.items : [], price: p ? p.priceNum : 0, priceLabel: p ? p.priceLabel : '',
+        phone: s.newClientPhone.trim() ? normalizePhone(s.newClientPhone) : '',
+        duration: clampDuration(s.newClientDuration || 1.5), manual: true,
+      });
     }
     set({ addFormOpen: false });
     showToast(hasAppt ? 'Klientka a termín pridané' : 'Klientka pridaná');
@@ -1058,8 +1679,20 @@ function App() {
   const currentAppt = allClientAppts.find((a) => a.date >= todayIso);
   const pastAppts = allClientAppts.filter((a) => a.date < todayIso);
   const selClientAppts = [...(currentAppt ? [currentAppt] : []), ...pastAppts];
-  const openAddAppt = () => set({ apptFormOpen: true, apptEditingId: null, apptDateIso: calendarDates[0].iso, apptTime: '', apptService: '', apptDuration: 1.5 });
-  const openEditAppt = (a) => set({ apptFormOpen: true, apptEditingId: a.id, apptDateIso: a.date, apptTime: a.time, apptService: a.service, apptDuration: a.duration || 1.5 });
+  const openAddAppt = () => set({ apptFormOpen: true, apptEditingId: null, apptDateIso: calendarDates[0].iso, apptTime: '', apptService: '', apptDuration: 1.5, apptMainKey: null, apptAddons: [] });
+  const openEditAppt = (a) => {
+    const k = keysFromAppt(a);
+    set({ apptFormOpen: true, apptEditingId: a.id, apptDateIso: a.date, apptTime: a.time, apptService: a.service, apptDuration: a.duration || 1.5, apptMainKey: k.mainKey, apptAddons: k.addons });
+  };
+  const pickApptMain = (m) => {
+    const p = pickedService(m.key, s.apptAddons);
+    set({ apptMainKey: m.key, apptDuration: p ? p.duration : s.apptDuration });
+  };
+  const toggleApptAddon = (a) => {
+    const addons = toggleKey(s.apptAddons, a.key);
+    const p = pickedService(s.apptMainKey, addons);
+    set({ apptAddons: addons, apptDuration: p ? p.duration : s.apptDuration });
+  };
   const cancelApptForm = () => set({ apptFormOpen: false, apptEditingId: null });
   const apptDateOptions = calendarDates.map((d) => ({
     dow: d.dow, num: d.num, mon: d.mon, select: () => set({ apptDateIso: d.iso }),
@@ -1072,8 +1705,12 @@ function App() {
   const apptSaveDisabled = !s.apptDateIso || !s.apptTime.trim();
   const saveAppt = async () => {
     if (apptSaveDisabled) return;
-    const parsedApptDuration = parseFloat(s.apptDuration);
-    const payload = { date: s.apptDateIso, time: s.apptTime.trim(), name: selClient.name, service: s.apptService.trim() || 'Bez upresnenia', duration: isNaN(parsedApptDuration) ? 1.5 : parsedApptDuration, manual: true };
+    const p = apptPicked;
+    const payload = { date: s.apptDateIso, time: s.apptTime.trim(), name: selClient.name, duration: clampDuration(s.apptDuration || 1.5) };
+    if (p) Object.assign(payload, { service: p.label, items: p.items, price: p.priceNum, priceLabel: p.priceLabel });
+    else if (!s.apptEditingId) Object.assign(payload, { service: 'Bez upresnenia', items: [], price: 0, priceLabel: '' });
+    // pri úprave bez zvolenej služby ponecháme pôvodnú (a pôvodné "manual")
+    if (!s.apptEditingId) payload.manual = true;
     if (s.apptEditingId) await db.collection('appointments').doc(s.apptEditingId).update(payload);
     else await db.collection('appointments').add(payload);
     set({ apptFormOpen: false, apptEditingId: null });
@@ -1087,61 +1724,90 @@ function App() {
 
   const inputStyle = 'all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px';
 
+  /* ---------- redesign: pomocné hodnoty pre obrazovky ---------- */
+  const hourNow = new Date().getHours();
+  const greetWord = 'Dobrý deň';
+  const firstName = loggedInClient ? String(loggedInClient.name || '').split(' ')[0] : '';
+  const daysLabel = (iso) => { const n = daysBetween(todayIso, iso); return n <= 0 ? 'dnes' : n === 1 ? 'zajtra' : n < 5 ? `o ${n} dni` : `o ${n} dní`; };
+  const shortDate = (iso) => { const p = isoParts(iso); return `${p.dow} ${p.num}. ${p.mon}`; };
+  const freeLabel = (n) => (n === 1 ? '1 voľný' : n >= 2 && n <= 4 ? `${n} voľné` : `${n} voľných`);
+  const MONTHS_FULL = ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December'];
+  const maxDayPage = Math.max(0, Math.ceil(dateOptions.length / 4) - 1);
+  const bookingDayPage = Math.min(maxDayPage, b.dayPage || 0);
+  const visibleDays = dateOptions.slice(bookingDayPage * 4, bookingDayPage * 4 + 4);
+  const visibleMonthLabel = (() => {
+    if (!visibleDays.length) return '';
+    const a = new Date(visibleDays[0].iso + 'T00:00:00'); const z = new Date(visibleDays[visibleDays.length - 1].iso + 'T00:00:00');
+    return a.getMonth() === z.getMonth() ? `${MONTHS_FULL[a.getMonth()]} ${a.getFullYear()}` : `${MONTHS_FULL[a.getMonth()].slice(0, 3)} – ${MONTHS_FULL[z.getMonth()].slice(0, 3)} ${z.getFullYear()}`;
+  })();
+  const bookCatPosRaw = b.catTab != null ? b.catTab : (bookingMain ? cennikMainByCat.findIndex((c) => c.ci === bookingMain.ci) : 0);
+  const bookCatPos = bookCatPosRaw >= 0 && bookCatPosRaw < cennikMainByCat.length ? bookCatPosRaw : 0;
+  const shortCat = (n) => { const t = String(n || ''); if (/g[ée]l/i.test(t)) return 'Gélové'; if (/manik/i.test(t)) return 'Manikúra'; if (/starostl/i.test(t)) return 'Starostl.'; if (/dizajn|doplnk/i.test(t)) return 'Dizajn'; return t.split(' ')[0]; };
+  const shortAddon = (n) => String(n || '').replace(/\s+manikúra/i, '');
+  const historyRatedAvg = (() => { const r = historyAppts.filter((h) => h.rating); return r.length ? (r.reduce((t, h) => t + h.rating, 0) / r.length).toFixed(1).replace('.', ',') : ''; })();
+  const pricePos = s.expandedCat != null && pricing[s.expandedCat] ? s.expandedCat : 0;
+  const downloadIcs = () => {
+    if (!b.dateIso || !b.time) return;
+    const [hh, mm] = b.time.split(':').map(Number);
+    const start = new Date(b.dateIso + 'T00:00:00'); start.setHours(hh, mm || 0, 0, 0);
+    const end = new Date(start.getTime() + svcDuration * 3600000);
+    const f = (d) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}00`;
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Aura Nails//SK', 'BEGIN:VEVENT', `UID:${Date.now()}@auranails.sk`, `DTSTART:${f(start)}`, `DTEND:${f(end)}`,
+      `SUMMARY:Aura Nails – ${booking_selectedService}`, 'LOCATION:Námestie Baníkov 2\\, Handlová', 'DESCRIPTION:Čaká na potvrdenie od Michaely.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+    a.download = 'aura-nails-termin.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  const todayLongLabel = (() => { const d = new Date(); const dn = ['Nedeľa', 'Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok', 'Sobota'][d.getDay()]; return `${dn} ${d.getDate()}. ${d.getMonth() + 1}.`; })();
+  const todayRealAppts = appointments.filter((a) => a.date === todayIso && !a.blocked).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time));
+  const nowH = new Date().getHours() + new Date().getMinutes() / 60;
+  const nextTodayAppt = todayRealAppts.find((a) => timeToHours(a.time) + (Number(a.duration) || 0) > nowH) || null;
+  const todayRangeLabel = todayRealAppts.length ? `${todayRealAppts[0].time} – ${(() => { const l = todayRealAppts[todayRealAppts.length - 1]; const e = timeToHours(l.time) + (Number(l.duration) || 0); return `${Math.floor(e)}:${String(Math.round((e % 1) * 60)).padStart(2, '0')}`; })()}` : '';
+  const apptCountByDate = {};
+  const closedByDate = {};
+  appointments.forEach((a) => {
+    if (a.blocked) { if ((Number(a.duration) || 0) >= CLOSE_HOUR - OPEN_HOUR) closedByDate[a.date] = true; }
+    else apptCountByDate[a.date] = (apptCountByDate[a.date] || 0) + 1;
+  });
+  const blockConflicts = (() => {
+    const st0 = s.blockAllDay ? OPEN_HOUR : timeToHours(s.blockTime || '8:00');
+    const du = s.blockAllDay ? CLOSE_HOUR - OPEN_HOUR : (s.blockDuration || 1);
+    return appointments.filter((a) => !a.blocked && a.date === s.adminSelectedDate && overlaps(st0, du, timeToHours(a.time), Number(a.duration) || 0));
+  })();
+
   return (
     <div style={st('height:100%;display:flex;flex-direction:column;position:relative;background:var(--porcelain)')}>
 
-      {atLogin && (
-        <div style={st('flex:1;display:flex;flex-direction:column;padding:76px 30px 40px;box-sizing:border-box;background:var(--porcelain)')}>
-          <div style={st('display:flex;flex-direction:column;align-items:center;margin-bottom:40px')}>
-            <img src="assets/aura-mark.svg" alt="" style={{ width: 52, height: 52, marginBottom: 14 }} />
-            <div style={st('font-family:var(--font-display);font-weight:400;font-size:1.7rem;color:var(--ink)')}>Aura Nails</div>
-            <div style={st('font-family:var(--font-sans);font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mocha);margin-top:6px')}>Rozumiem · Handlová</div>
+      {(s.screen === 'client-auth' || s.screen === 'login') && (
+        <div className="aura-rise" style={st('flex:1;display:flex;flex-direction:column;padding:var(--top) 18px 30px;box-sizing:border-box;background:var(--porcelain);position:relative;overflow:hidden')}>
+          <Glow style={{ top: -60, left: -60, right: 'auto' }} />
+          <div style={{ textAlign: 'center', marginTop: 14, position: 'relative' }}>
+            <div style={st(T.serif + ';font-size:2rem;letter-spacing:.04em;line-height:1.2')}>Aura Nails</div>
+            <Lbl style={{ marginTop: 4 }}>Nechtové štúdio · Handlová</Lbl>
           </div>
-          <div style={st('font-family:var(--font-display);font-size:1.5rem;color:var(--ink);text-align:center;margin-bottom:8px')}>Prihlásenie</div>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.88rem;color:var(--ink-2);text-align:center;line-height:1.6;margin:0 0 32px')}>Vyberte, ako chcete pokračovať</p>
-          <button onClick={goClientAuth} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--white);border:1px solid var(--line-gold);box-shadow:var(--shadow-md);margin-bottom:14px')}>
-            <span style={st('width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso);flex-shrink:0')}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-4 3.2-6.4 7-6.4s7 2.4 7 6.4" /></svg>
-            </span>
-            <span style={st('flex:1;text-align:left')}>
-              <span style={st('display:block;font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>Som klientka</span>
-              <span style={st('display:block;font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3)')}>Rezervácie, Aura Pass, cenník</span>
-            </span>
-            <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--ink-3)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
-          <button onClick={goAdminAuth} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--espresso);box-shadow:var(--shadow-md);margin-bottom:28px')}>
-            <span style={st('width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(247,242,239,0.14);color:var(--taupe-light);flex-shrink:0')}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5l1.7 5.6 5.6 1.7-5.6 1.7L12 17.8l-1.7-5.6L4.7 10.5l5.6-1.7z" /></svg>
-            </span>
-            <span style={st('flex:1;text-align:left')}>
-              <span style={st('display:block;font-family:var(--font-display);font-size:1.15rem;color:var(--porcelain)')}>Som Michaela</span>
-              <span style={st('display:block;font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--taupe-light)')}>Rezervácie, žiadosti, klientky</span>
-            </span>
-            <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}><path d="M1 1l6 6-6 6" stroke="var(--taupe-light)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
-          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:auto;letter-spacing:.02em')}>Dáta appky sa teraz ukladajú natrvalo. (build 22)</p>
-        </div>
-      )}
-
-      {s.screen === 'client-auth' && (
-        <div style={st('flex:1;display:flex;flex-direction:column;padding:76px 30px 40px;box-sizing:border-box;background:var(--porcelain)')}>
-          <button onClick={backToEntry} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:24px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Späť</button>
-          <div style={st('display:flex;flex-direction:column;align-items:center;margin-bottom:28px')}>
-            <img src="assets/aura-mark.svg" alt="" style={{ width: 44, height: 44, marginBottom: 12 }} />
-            <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink)')}>{s.authMode === 'login' ? 'Prihlásenie klientky' : 'Vytvorenie účtu'}</div>
+          <div style={{ marginTop: 18 }}>
+            <Seg items={[{ id: 'login', label: 'Prihlásenie' }, { id: 'register', label: 'Registrácia' }]} value={s.authMode} onChange={(v) => set({ authMode: v, authError: '', authInfo: '' })} />
           </div>
-          {s.authMode === 'register' && (
-            <React.Fragment>
-              <input value={s.authName} onChange={(e) => set({ authName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
-            </React.Fragment>
-          )}
-          <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
-          <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
-          {s.authError && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
-          {s.authInfo && <p style={{ color: 'var(--mocha)', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authInfo}</p>}
-          <button onClick={s.authMode === 'login' ? doClientLogin : doClientRegister} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:15px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:6px;margin-bottom:18px;box-shadow:var(--shadow-md)')}>{s.authMode === 'login' ? 'Prihlásiť sa' : 'Zaregistrovať sa'}</button>
-          <button onClick={() => set({ authMode: s.authMode === 'login' ? 'register' : 'login', authError: '', authInfo: '' })} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:var(--mocha);margin-bottom:12px')}>{s.authMode === 'login' ? 'Nemáte účet? Zaregistrujte sa' : 'Už máte účet? Prihláste sa'}</button>
-          {s.authMode === 'login' && <button onClick={doForgotPassword} style={st('all:unset;cursor:pointer;text-align:center;font-family:var(--font-sans);font-size:.72rem;color:var(--ink-3)')}>Zabudli ste heslo?</button>}
+          <div style={{ display: 'grid', gap: 7, marginTop: 10 }}>
+            {s.authMode === 'register' && (
+              <React.Fragment>
+                <div style={{ display: 'flex', gap: 7 }}>
+                  <input value={s.authFirstName} onChange={(e) => set({ authFirstName: e.target.value })} placeholder="Meno" autoComplete="given-name" style={st(T.inp)} />
+                  <input value={s.authLastName} onChange={(e) => set({ authLastName: e.target.value })} placeholder="Priezvisko" autoComplete="family-name" style={st(T.inp)} />
+                </div>
+                <input value={s.authPhone} onChange={(e) => set({ authPhone: e.target.value })} placeholder="Mobilné číslo" type="tel" autoComplete="tel" style={st(T.inp)} />
+              </React.Fragment>
+            )}
+            <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" autoComplete="email" style={st(T.inp)} />
+            <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" autoComplete={s.authMode === 'login' ? 'current-password' : 'new-password'} style={st(T.inp)} />
+          </div>
+          {s.authMode === 'register' && <div style={st(T.mut + ';font-size:.64rem;margin-top:6px')}>Mobil potrebujeme, aby vás Michaela vedela kontaktovať pri zmene termínu.</div>}
+          {s.authError && <div style={{ marginTop: 10 }}><Note tone="danger">{s.authError}</Note></div>}
+          {s.authInfo && <div style={{ marginTop: 10 }}><Note tone="ok" icon="check">{s.authInfo}</Note></div>}
+          <div style={{ marginTop: 14 }}><Btn full style={{ padding: 13 }} onClick={s.authMode === 'login' ? doClientLogin : doClientRegister}>{s.authMode === 'login' ? 'Prihlásiť sa' : 'Vytvoriť účet'}</Btn></div>
+          {s.authMode === 'login' && <button type="button" onClick={doForgotPassword} style={st('all:unset;cursor:pointer;text-align:center;margin-top:12px;font-family:var(--font-sans);font-size:.72rem;color:var(--ink-3)')}>Zabudli ste heslo?</button>}
+          <div style={st(T.mut + ';text-align:center;margin-top:10px')}>Ste Michaela? <button type="button" onClick={goAdminAuth} style={st('all:unset;cursor:pointer;color:var(--espresso)')}>Vstup pre admin</button></div>
         </div>
       )}
 
@@ -1149,642 +1815,698 @@ function App() {
         <div style={st('flex:1;display:flex;flex-direction:column;padding:76px 30px 40px;box-sizing:border-box;background:var(--porcelain)')}>
           <button onClick={backToEntry} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:24px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Späť</button>
           <div style={st('display:flex;flex-direction:column;align-items:center;margin-bottom:28px')}>
-            <img src="assets/aura-mark.svg" alt="" style={{ width: 44, height: 44, marginBottom: 12 }} />
+            <img src="assets/aura-mark-gold.svg" alt="" style={{ width: 44, height: 44, marginBottom: 12 }} />
             <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink)')}>Prihlásenie — Michaela</div>
           </div>
-          <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(inputStyle)} />
-          <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(inputStyle)} />
-          {s.authError && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
+          <input value={s.authEmail} onChange={(e) => set({ authEmail: e.target.value })} placeholder="Email" type="email" style={st(T.inp + ';margin-bottom:8px')} />
+          <input value={s.authPassword} onChange={(e) => set({ authPassword: e.target.value })} placeholder="Heslo" type="password" style={st(T.inp + ';margin-bottom:8px')} />
+          {s.authError && <p style={{ color: 'var(--danger)', fontFamily: 'var(--font-sans)', fontSize: '.8rem', margin: '0 0 12px', lineHeight: 1.5 }}>{s.authError}</p>}
           <button onClick={doAdminLogin} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:15px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:6px;box-shadow:var(--shadow-md)')}>Prihlásiť sa</button>
           <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.72rem;color:var(--ink-3);text-align:center;margin-top:24px;line-height:1.6')}>Účet pre admin prístup zakladá majiteľ appky ručne vo Firebase konzole.</p>
         </div>
       )}
 
       {atClient && (
-        <div style={st('flex:1;display:flex;flex-direction:column;min-height:100%;position:relative')}>
-          <div style={st('padding:56px 20px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--porcelain);position:sticky;top:0;z-index:5')}>
-            <div>
-              <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--mocha)')}>{clientHeaderEyebrow}</div>
-              <div style={st('font-family:var(--font-display);font-size:1.55rem;color:var(--ink);margin-top:2px')}>{clientHeaderTitle}</div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button onClick={() => set({ notifOpen: true })} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--ink-2);position:relative')}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 14.5c-.6.8 0 2 1 2h12c1 0 1.6-1.2 1-2l-1.5-2c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" /><path d="M9.5 19a2.5 2.5 0 005 0" /></svg>
-                {clientUnreadCount > 0 && <span style={{ position: 'absolute', top: 3, right: 3, width: 8, height: 8, borderRadius: '50%', background: 'var(--mocha)' }}></span>}
-              </button>
-              <button onClick={backToLogin} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--ink-2)')}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M15 5H8a2 2 0 00-2 2v10a2 2 0 002 2h7M11 8l-4 4 4 4M7 12h13" /></svg>
-              </button>
-            </div>
-          </div>
-          {typeof NotificationCenter === 'function' && (
-            <NotificationCenter
-              isOpen={!!s.notifOpen}
-              onClose={() => set({ notifOpen: false })}
-              notifications={clientNotifs}
-              onMarkRead={(id) => clientNotifMgr && clientNotifMgr.markAsRead(id)}
-              onDelete={(id) => clientNotifMgr && clientNotifMgr.deleteNotification(id)}
-              onMarkAllRead={() => clientNotifMgr && clientNotifMgr.markAllAsRead()}
-            />
-          )}
+        <div style={st('flex:1;display:flex;flex-direction:column;min-height:100%;position:relative;overflow:hidden')}>
+          {(tabHome || tabPass) && <Glow style={tabPass ? { top: 160, left: -120, right: 'auto' } : null} />}
 
-          {tabHome && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.95rem;color:var(--ink-2);margin-bottom:18px')}>Dobrý deň, <span style={{ color: 'var(--ink)' }}>{loggedInClient ? loggedInClient.name.split(' ')[0] : ''}</span> 🤍</div>
-              {isBirthdayToday && (
-                <div style={st('border-radius:24px;padding:22px;background:var(--white);border:1px solid var(--line-gold);box-shadow:var(--shadow-md);margin-bottom:16px;text-align:center')}>
-                  <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mocha);margin-bottom:10px')}>Darček od Aura Nails</div>
-                  <div style={st('font-family:var(--font-display);font-size:1.4rem;color:var(--ink);margin-bottom:8px')}>Všetko najlepšie k narodeninám!</div>
-                  <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.86rem;color:var(--ink-2);line-height:1.6;margin:0 0 16px')}>Nech je váš deň krásny ako vaše nechty. Máte od nás 10 % zľavu na ďalšiu starostlivosť.</p>
-                  <span style={st('display:inline-block;font-family:var(--font-sans);font-size:.8rem;letter-spacing:.1em;color:var(--espresso);padding:9px 18px;border-radius:999px;border:1px dashed var(--line-gold);background:var(--cream)')}>{BIRTHDAY_DISCOUNT_CODE}</span>
-                </div>
-              )}
-              {upcomingAppts.length > 0 && (
-                <div style={st('border-radius:24px;padding:22px;background:linear-gradient(135deg,var(--taupe-light),var(--espresso));color:var(--porcelain);box-shadow:var(--shadow-lg);margin-bottom:20px')}>
-                  <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe-light);margin-bottom:8px')}>Váš najbližší termín</div>
-                  <div style={st('font-family:var(--font-display);font-size:1.5rem;margin-bottom:6px')}>{upcomingAppts[0].service}</div>
-                  <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.9rem;opacity:.9')}>{upcomingAppts[0].date} · {upcomingAppts[0].time}</div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                    <span style={st('font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(247,242,239,.18);border:1px solid rgba(247,242,239,.35)')}>{upcomingAppts[0].badgeLabel}</span>
-                  </div>
-                </div>
-              )}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 22 }}>
-                <button onClick={goBooking} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
-                  <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
+          {/* ---------- notifikácie (vlastný panel v štýle Espresso Night) ---------- */}
+          {s.notifOpen && (
+            <div onClick={() => set({ notifOpen: false })} style={st('position:fixed;inset:0;z-index:70;background:rgba(5,3,3,.6);display:flex;justify-content:center;align-items:flex-end')}>
+              <div onClick={(e) => e.stopPropagation()} style={st('width:100%;max-width:282px;max-height:78vh;overflow:auto;box-sizing:border-box;padding:16px 18px calc(22px + env(safe-area-inset-bottom));background:var(--white);border-radius:24px 24px 0 0;border-top:1px solid var(--beige)')}>
+                <div style={st('width:36px;height:4px;border-radius:2px;background:var(--taupe);margin:-4px auto 14px')}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={st(T.serif + ';font-size:1.3rem')}>Upozornenia</span>
+                  <span style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    {clientUnreadCount > 0 && <button type="button" onClick={() => clientNotifMgr && clientNotifMgr.markAllAsRead()} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;color:var(--espresso)')}>Označiť všetky</button>}
+                    <button type="button" aria-label="Zavrieť" onClick={() => set({ notifOpen: false })} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
                   </span>
-                  <span style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink)')}>Rezervovať termín</span>
-                </button>
-                <button onClick={goPass} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
-                  <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}><Icon name="heart" size={17} /></span>
-                  <span style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink)')}>Aura Pass ({clientStamps}/5)</span>
-                </button>
-                <button onClick={goPricing} style={st('all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--white);border:1px solid var(--line)')}>
-                  <span style={st('width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--taupe);color:var(--espresso)')}><Icon name="list" size={17} /></span>
-                  <span style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink)')}>Cenník</span>
-                </button>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>Pripomienky</div>
-                <button onClick={goReminders} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;color:var(--mocha)')}>Všetky</button>
-              </div>
-              {notificationsPreview.map((n, i) => (
-                <div key={i} style={st('display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)')}>
-                  <span style={st('width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--mocha);flex-shrink:0')}><Icon name={n.icon} size={15} /></span>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={st('font-family:var(--font-sans);font-size:.86rem;color:var(--ink)')}>{n.title}</div>
-                    <div style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin-top:2px;line-height:1.4')}>{n.text}</div>
-                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {tabBooking && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              {b.done && (
-                <div style={st('display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:40px')}>
-                  <span style={st('width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--espresso);margin-bottom:20px')}><Icon name="check" size={28} /></span>
-                  <div style={st('font-family:var(--font-display);font-size:1.6rem;color:var(--ink);margin-bottom:10px')}>Žiadosť odoslaná</div>
-                  <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.88rem;color:var(--ink-2);line-height:1.7;max-width:260px')}>{bookingSummary} — čaká na potvrdenie od Michaely. Ozveme sa vám čoskoro.</p>
-                  <span style={st('margin-top:14px;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;padding:6px 14px;border-radius:999px;background:rgba(140,110,98,.15);color:var(--mocha);border:1px solid var(--line-gold)')}>Čaká na potvrdenie</span>
-                  <button onClick={resetBooking} style={st('all:unset;cursor:pointer;margin-top:28px;font-family:var(--font-sans);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mocha);border-bottom:1px solid var(--line-gold);padding-bottom:4px')}>Nová rezervácia</button>
-                </div>
-              )}
-              {!b.done && (
-                <React.Fragment>
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 22 }}>
-                    <div style={st(dotStyle(step0, b.step > 0))}></div><div style={st(dotStyle(step1, b.step > 1))}></div>
-                    <div style={st(dotStyle(step2, false))}></div>
-                  </div>
-                  {step0 && (
-                    <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>1 · Vyberte službu</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 18px')}>Vyberte si presne z cenníka — cenu aj trvanie spočítame za vás.</p>
-                      {cennikMainByCat.length === 0 && <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-3)')}>Cenník sa načítava…</p>}
-                      {cennikMainByCat.map((cat) => (
-                        <div key={cat.ci} style={{ marginBottom: 18 }}>
-                          <div style={st('font-family:var(--font-sans);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mocha);margin-bottom:8px')}>{cat.name}</div>
-                          {cat.items.map((m) => (
-                            <button key={m.key} onClick={() => pickBookingService(m)} style={st(serviceItemStyle(bookingMain && bookingMain.key === m.key))}>
-                              <span style={{ flex: 1, minWidth: 0 }}>
-                                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', display: 'block' }}>{m.label}</span>
-                                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.72rem', display: 'block', marginTop: 2, opacity: .7 }}>{formatDuration(m.duration)}</span>
-                              </span>
-                              <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', flexShrink: 0 }}>{m.price}</span>
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                      {bookingMain && cennikAddons.length > 0 && (
-                        <React.Fragment>
-                          <div style={st('font-family:var(--font-sans);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mocha);margin-bottom:4px')}>Doplnky</div>
-                          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>Nepovinné — pridajte, čo si k službe želáte.</p>
-                          {cennikAddons.map((a) => {
-                            const on = (b.addons || []).indexOf(a.key) !== -1;
-                            return (
-                              <button key={a.key} onClick={() => toggleBookingAddon(a.key)} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:13px;margin-bottom:8px;background:var(--white);border:1px solid ' + (on ? 'var(--espresso)' : 'var(--line)'))}>
-                                <span style={st('width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--porcelain);background:' + (on ? 'var(--espresso)' : 'transparent') + ';border:1px solid ' + (on ? 'var(--espresso)' : 'var(--line-gold)'))}>
-                                  {on && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
-                                </span>
-                                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)', display: 'block' }}>{a.label}</span>
-                                  <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.72rem', color: 'var(--ink-3)' }}>+{formatDuration(a.duration)}</span>
-                                </span>
-                                <span style={{ fontFamily: 'var(--font-display)', fontSize: '.98rem', color: 'var(--mocha)', flexShrink: 0 }}>{a.price}</span>
-                              </button>
-                            );
-                          })}
-                        </React.Fragment>
-                      )}
-                      {bookingMain && (
-                        <div style={st('display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--cream);border:1px solid var(--line-gold)')}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)' }}>Spolu · {booking_durationLabel}</span>
-                          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{booking_priceLabel}</span>
-                        </div>
-                      )}
-                    </React.Fragment>
-                  )}
-                  {step1 && (
-                    <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:4px')}>2 · Deň a čas</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3);margin:0 0 14px')}>{booking_selectedService} · {booking_priceLabel} · trvanie {booking_durationLabel}</p>
-                      <div className="cal-month-nav">
-                        <button onClick={() => setBooking({ monthOffset: (b.monthOffset || 0) - 1 })}>‹</button>
-                        <span>{clientMonthGrid.label}</span>
-                        <button onClick={() => setBooking({ monthOffset: (b.monthOffset || 0) + 1 })}>›</button>
-                      </div>
-                      <div className="cal-dow-row"><span>Po</span><span>Ut</span><span>St</span><span>Št</span><span>Pi</span><span>So</span><span>Ne</span></div>
-                      {clientMonthGrid.weeks.map((week, wi) => (
-                        <div className="cal-grid" key={wi} style={{ marginBottom: 18 }}>
-                          {week.map((cell, ci) => (
-                            <button key={ci} className={`cal-day${cell.muted ? ' muted' : ''}${cell.selected ? ' selected' : ''}${cell.today ? ' today' : ''}${cell.disabled ? ' disabled' : ''}`} disabled={cell.disabled} onClick={() => setBooking({ dateIso: cell.iso, time: null })}>
-                              <span className="cal-day-circle">{cell.num}</span>
-                              {cell.dot && <span className="cal-dot" style={{ background: cell.dot }}></span>}
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                      {b.dateIso ? (
-                        <React.Fragment>
-                          <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.78rem;color:var(--ink-3);margin:0 0 10px')}>{booking_selectedDate} · voľné a obsadené časy (otvorené {OPEN_HOUR}:00–{CLOSE_HOUR}:00)</p>
-                          {selectedDateFull && nearestAvailableDate && (
-                            <button onClick={nearestAvailableDate.select} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:11px;border-radius:12px;background:var(--cream);border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.78rem;margin-bottom:14px')}>Tento deň je plný — skočiť na najbližší voľný deň ({nearestAvailableDate.dow} {nearestAvailableDate.num}. {nearestAvailableDate.mon})</button>
-                          )}
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7 }}>
-                            {timeOptions.map((t, i) => (
-                              <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
-                            ))}
-                          </div>
-                        </React.Fragment>
-                      ) : (
-                        <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.82rem;color:var(--ink-3)')}>Najprv vyberte deň hore, potom sa zobrazia voľné časy.</p>
-                      )}
-                    </React.Fragment>
-                  )}
-                  {step2 && (
-                    <React.Fragment>
-                      <div style={st('font-family:var(--font-display);font-size:1.3rem;color:var(--ink);margin-bottom:16px')}>3 · Zhrnutie</div>
-                      <div style={st('border-radius:20px;padding:20px;background:var(--cream);border:1px solid var(--line);margin-bottom:20px')}>
-                        {bookingMain && [bookingMain, ...bookingAddons].map((it, i) => (
-                          <div key={it.key} style={st('display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)')}>
-                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: i === 0 ? 'var(--ink)' : 'var(--ink-2)' }}>{i === 0 ? it.label : '+ ' + it.label}</span>
-                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--mocha)', flexShrink: 0 }}>{it.price}</span>
-                          </div>
-                        ))}
-                        <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Deň</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{booking_selectedDate}</span></div>
-                        <div style={st('display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Čas</span><span style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink)' }}>{b.time} — {booking_durationLabel}</span></div>
-                        <div style={st('display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 2px')}><span style={{ fontSize: '.72rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-3)' }}>Cena spolu</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', color: 'var(--ink)' }}>{booking_priceLabel}</span></div>
-                      </div>
-                      <button onClick={submitBooking} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:16px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;box-shadow:var(--shadow-md)')}>Odoslať rezerváciu</button>
-                    </React.Fragment>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 22 }}>
-                    <button onClick={prevStep} disabled={step0} style={st(prevBtnStyle)}>Späť</button>
-                    {!step2 && <button onClick={nextStep} disabled={nextDisabled} style={st(nextBtnStyle)}>Ďalej</button>}
-                  </div>
-                </React.Fragment>
-              )}
-            </div>
-          )}
-
-          {tabPass && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <div style={st('position:relative;border-radius:26px;padding:22px;background:rgba(255,255,255,.85);border:1px solid var(--line-gold);box-shadow:var(--shadow-lg);margin-bottom:22px;overflow:hidden')}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <img src="assets/aura-mark.svg" alt="" style={{ width: 28, height: 28 }} />
-                    <div>
-                      <div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>Aura Pass</div>
-                      <div style={st('font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)')}>MF · Handlová</div>
-                    </div>
-                  </div>
-                  <span style={st('font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:rgba(62,39,39,.1);color:var(--mocha);border:1px solid var(--line-gold)')}>{clientStamps}/5</span>
-                </div>
-                <div style={{ height: 1, background: 'var(--line-gold)', marginBottom: 18 }}></div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-                  {passStampDots.map((p, i) => (
-                    <div key={i} style={st(p.style)}><Icon name="sparkle" size={20} /></div>
-                  ))}
-                  <div style={st(rewardStyle)}>
-                    <Icon name="gift" size={22} />
-                    <span style={{ fontSize: '.5rem', letterSpacing: '.12em', textTransform: 'uppercase', display: 'block', marginTop: 4 }}>Darček</span>
-                  </div>
-                </div>
-                <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.8rem;color:var(--ink-3);text-align:center;margin:18px 0 4px;line-height:1.6')}>{passHelperText}</p>
-              </div>
-              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Ako to funguje</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {[
-                  { icon: 'sparkle', title: 'Za každú návštevu', text: 'Jedna pečiatka pri každom termíne.' },
-                  { icon: 'heart', title: 'Päť rituálov krásy', text: 'Vlastným tempom, bez ponáhľania.' },
-                  { icon: 'gift', title: 'Šiesta s darčekom', text: 'Rituál so zľavou a malým darčekom.' },
-                ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12 }}>
-                    <span style={st('width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--mocha)')}><Icon name={item.icon} size={16} /></span>
-                    <div>
-                      <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink)')}>{item.title}</div>
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.8rem;color:var(--ink-3);margin:3px 0 0;line-height:1.5')}>{item.text}</p>
-                    </div>
-                  </div>
+                {(clientNotifs || []).length === 0 && <div style={st(T.mut + ';text-align:center;padding:30px 0')}>Zatiaľ žiadne upozornenia.</div>}
+                {(clientNotifs || []).map((n) => (
+                  <ListRow key={n.id} icon={n.type === 'reschedule' ? 'swap' : n.type === 'confirmation' ? 'check' : 'bell'} title={n.title} sub={n.message}
+                    accent={n.read ? null : 'var(--taupe)'}
+                    onClick={() => clientNotifMgr && !n.read && clientNotifMgr.markAsRead(n.id)}
+                    right={!n.read ? <i style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--espresso)', flexShrink: 0 }}></i> : <button type="button" aria-label="Zmazať" onClick={(e) => { e.stopPropagation(); clientNotifMgr && clientNotifMgr.deleteNotification(n.id); }} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={14} /></button>} />
                 ))}
               </div>
             </div>
           )}
 
-          {tabPricing && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-2);margin:0 0 18px;line-height:1.6')}>Každá služba zahŕňa konzultáciu, dokonalú hygienu a čas venovaný len vám.</p>
-              {cennikCategories.map((cat, i) => (
-                <div key={i} style={st('border-radius:18px;background:var(--white);border:1px solid var(--line);margin-bottom:12px;overflow:hidden')}>
-                  <button onClick={cat.toggle} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:16px 18px')}>
-                    <span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1.08rem', color: 'var(--ink)', display: 'block' }}>{cat.name}</span><span style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>{cat.sub}</span></span>
-                    <span style={st(cat.chevStyle)}><Icon name="arrow" size={14} /></span>
-                  </button>
-                  {cat.open && (
-                    <div style={{ padding: '0 18px 14px' }}>
-                      {cat.items.map((it, j) => (
-                        <div key={j} style={st('display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)')}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-2)' }}>{it.label}</span>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--mocha)' }}>{it.price}</span>
-                        </div>
-                      ))}
+          {/* ===================== DOMOV ===================== */}
+          {tabHome && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:var(--top);position:relative')}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Lbl>Aura Nails · Handlová</Lbl>
+                <Sq icon="bell" size={32} round onClick={() => set({ notifOpen: true })} badge={clientUnreadCount || null} label="Upozornenia" />
+              </div>
+              <div style={st(T.serif + ';font-size:1.7rem;line-height:1.1;margin:6px 0 14px')}>{greetWord},<br /><em style={{ color: 'var(--espresso)' }}>{firstName}.</em></div>
+
+              {myProposals.map((r) => (
+                <div key={r.id} className="aura-rise" style={st('position:relative;overflow:hidden;border-radius:22px;padding:18px;background:var(--hero);border:1px solid #6B5230;box-shadow:var(--shadow-lg);margin-bottom:12px')}>
+                  <Lbl style={{ color: 'var(--wait)' }}>Michaela navrhuje iný termín</Lbl>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: '.76rem' }}>
+                    <span style={{ color: 'var(--ink-3)' }}>Vaša žiadosť</span><span style={{ color: 'var(--ink-3)', textDecoration: 'line-through' }}>{r.oldLabel}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>Nový návrh</span>
+                    <span style={st(T.serif + ';font-size:1.15rem;white-space:nowrap')}>{r.newLabel}</span>
+                  </div>
+                  <div style={st(T.mut + ';text-align:right;margin-top:2px')}>{r.service}</div>
+                  {r.proposal.message && (
+                    <div style={st('margin-top:10px;padding:9px 12px;border-radius:16px 16px 16px 5px;background:#1B1311;border:1px solid var(--sand);font-family:var(--font-sans);font-size:.78rem;line-height:1.45;color:var(--ink)')}>
+                      „{r.proposal.message}“<div style={st(T.mut + ';margin-top:3px')}>— Michaela</div>
                     </div>
                   )}
+                  <div style={{ marginTop: 12, position: 'relative', zIndex: 1 }}><Btn full icon="check" onClick={r.accept}>Súhlasím</Btn></div>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6, position: 'relative', zIndex: 1 }}>
+                    <Btn kind="ghost" small style={{ flex: 1, padding: 10 }} onClick={() => r.decline(true)}>Vybrať iný čas</Btn>
+                    <Btn kind="red" small style={{ flex: 1, padding: 10 }} onClick={() => r.decline(false)}>Odmietnuť</Btn>
+                  </div>
+                  <div style={st(T.mut + ';text-align:center;margin-top:10px;font-size:.66rem')}>Návrh platí do {r.deadline}</div>
                 </div>
               ))}
+
+              {clientMissingPhone && (
+                <ListRow icon="phone" title="Doplňte prosím mobilné číslo" sub="Aby vás Michaela mohla kontaktovať pri zmene termínu." onClick={goProfile} accent="#5A4322" chevron />
+              )}
+
+              {upcomingAppts.length > 0 ? (
+                <div style={st('position:relative;overflow:hidden;margin-top:12px;padding:18px;border-radius:22px;background:var(--hero);border:1px solid #4A322B;box-shadow:var(--shadow-lg)')}>
+                  <Lbl gold>Váš najbližší termín</Lbl>
+                  <div style={st(T.serif + ';font-size:1.45rem;margin:6px 0 2px')}>{shortDate(upcomingAppts[0].iso)} · {upcomingAppts[0].time}</div>
+                  <div style={st(T.mut)}>{upcomingAppts[0].service}{upcomingAppts[0].duration ? ` · ${formatDuration(upcomingAppts[0].duration)}` : ''}</div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 14 }}>
+                    <span style={st(upcomingAppts[0].badgeStyle)}>{upcomingAppts[0].badgeLabel}</span>
+                    <span style={st(T.mut)}>{daysLabel(upcomingAppts[0].iso)}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={st('margin-top:12px;padding:18px;border-radius:22px;background:var(--hero);border:1px solid #4A322B')}>
+                  <Lbl gold>Zatiaľ bez termínu</Lbl>
+                  <div style={st(T.serif + ';font-size:1.3rem;margin:6px 0 2px')}>Doprajte si chvíľu pre seba</div>
+                  <div style={st(T.mut)}>Voľné termíny nájdete v rezervácii.</div>
+                </div>
+              )}
+              <div style={{ marginTop: 10 }}><Btn full icon="cal" onClick={goBooking} style={{ padding: 13 }}>Rezervovať termín</Btn></div>
+
+              <Lbl style={{ marginTop: 14 }}>Nedávne</Lbl>
+              {isBirthdayToday && <ListRow icon="gift" title="Darček od Aura Nails" sub="10 % zľava k narodeninám" />}
+              <ListRow icon="star" title="Aura Pass" sub={`Máte ${clientStamps} z 5 pečiatok`} onClick={goPass} />
             </div>
           )}
 
-          {tabProfile && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              {s.profileView === 'main' && (
+          {/* ===================== REZERVÁCIA ===================== */}
+          {tabBooking && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:var(--top);padding-bottom:150px')}>
+              {b.done ? (
+                <div style={{ textAlign: 'center', position: 'relative' }}>
+                  <Glow style={{ top: 0, left: 20, right: 'auto' }} />
+                  <div style={st('width:84px;height:84px;border-radius:50%;margin:24px auto 16px;display:grid;place-items:center;background:radial-gradient(circle,#D9B99B,#9A7558);color:#17100F;box-shadow:0 0 0 10px rgba(217,185,155,.12),0 0 0 22px rgba(217,185,155,.06)')}><Icon name="check" size={38} strokeWidth={2} /></div>
+                  <div style={st(T.serif + ';font-size:1.7rem')}>Žiadosť <em style={{ color: 'var(--espresso)' }}>odoslaná</em></div>
+                  <p style={st(T.mut + ';font-size:.8rem;margin:8px 16px 0')}>Michaela ju potvrdí čo najskôr. Dáme vám vedieť notifikáciou aj e-mailom.</p>
+                  <div style={st(T.card + ';margin-top:18px;text-align:left')}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.8rem', fontFamily: 'var(--font-sans)' }}><span style={{ color: 'var(--ink-3)' }}>Termín</span><span style={{ color: 'var(--ink)' }}>{booking_selectedDate} · {b.time}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: '.8rem', fontFamily: 'var(--font-sans)', marginTop: 8 }}><span style={{ color: 'var(--ink-3)' }}>Služby</span><span style={{ color: 'var(--ink)', textAlign: 'right' }}>{booking_selectedService}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.8rem', fontFamily: 'var(--font-sans)', marginTop: 8 }}><span style={{ color: 'var(--ink-3)' }}>Spolu</span><span style={{ color: 'var(--espresso)' }}>{booking_priceLabel} · {booking_durationLabel}</span></div>
+                  </div>
+                  <ListRow icon="star" title={<span>Po návšteve získate <span style={{ color: 'var(--espresso)' }}>+1 pečiatku</span></span>} />
+                  <div style={{ display: 'grid', gap: 8, marginTop: 18 }}>
+                    <Btn full onClick={downloadIcs} icon="cal">Pridať do kalendára</Btn>
+                    <Btn full kind="ghost" onClick={() => { resetBooking(); goHome(); }}>Späť domov</Btn>
+                  </div>
+                </div>
+              ) : (
                 <React.Fragment>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
-                    <span style={st('width:56px;height:56px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.35rem;flex-shrink:0;border:1px solid var(--line-gold)')}>{loggedInClient ? initials(loggedInClient.name) : ''}</span>
-                    <div style={{ flex: 1 }}>
-                      {s.nameEditOpen ? (
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <input value={s.nameEditValue} onChange={(e) => set({ nameEditValue: e.target.value })} style={{ all: 'unset', fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)', borderBottom: '1px solid var(--line-gold)', flex: 1, minWidth: 0 }} />
-                          <button onClick={saveEditName} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--espresso)')}>Uložiť</button>
-                          <button onClick={cancelEditName} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)')}>Zrušiť</button>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink)')}>{loggedInClient ? loggedInClient.name : '—'}</div>
-                          <button onClick={startEditName} style={st('all:unset;cursor:pointer;color:var(--ink-3)')} aria-label="Upraviť meno">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
-                          </button>
+                  {step0 ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Nová rezervácia</span>
+                      <span style={st(T.mut)}>1 / 3</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <button type="button" aria-label="Späť" onClick={prevStep} style={st('all:unset;cursor:pointer;color:var(--ink)')}><Icon name="back" size={20} /></button>
+                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>{step1 ? 'Vyberte termín' : 'Zhrnutie'}</span>
+                      <span style={st(T.mut)}>{b.step + 1} / 3</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                    {[0, 1, 2].map((i) => <i key={i} style={{ flex: 1, height: 8, borderRadius: 4, background: i <= b.step ? 'var(--espresso)' : 'rgba(255,255,255,.15)' }}></i>)}
+                  </div>
+
+                  {step0 && (
+                    <React.Fragment>
+                      <Lbl style={{ marginTop: 14 }}>Vyberte službu</Lbl>
+                      {cennikMainByCat.length === 0 && <div style={{ marginTop: 10 }}><div className="aura-sk" style={{ height: 40 }}></div><div className="aura-sk" style={{ height: 58, marginTop: 8 }}></div><div className="aura-sk" style={{ height: 58, marginTop: 8 }}></div></div>}
+                      {cennikMainByCat.length > 0 && (
+                        <div style={{ margin: '6px 0 0' }}>
+                          <Seg items={cennikMainByCat.map((c, i) => ({ id: i, label: shortCat(c.name) }))} value={bookCatPos} onChange={(i) => setBooking({ catTab: i })} />
                         </div>
                       )}
-                      <div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{loggedInClient ? (loggedInClient.email || loggedInClient.phone) : ''}</div>
+                      {cennikMainByCat[bookCatPos] && cennikMainByCat[bookCatPos].items.map((m) => {
+                        const on = !!(bookingMain && bookingMain.key === m.key);
+                        return (
+                          <button type="button" key={m.key} onClick={() => (on ? setBooking({ catIdx: null, itemIdx: null, addons: [], time: null }) : pickBookingService(m))} style={st(`all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:11px 12px;margin-top:7px;border-radius:16px;background:${on ? '#2C1F1B' : 'var(--white)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--sand)'}`)}>
+                            <span style={{ minWidth: 0, textAlign: 'left' }}>
+                              <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)' }}>{m.label}</span>
+                              <span style={st(T.mut)}>{formatDuration(m.duration)}</span>
+                            </span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)' }}>
+                              {m.price}
+                              <span style={st(`width:20px;height:20px;border-radius:6px;display:grid;place-items:center;border:1.5px solid ${on ? 'var(--espresso)' : '#5A443B'};background:${on ? 'var(--espresso)' : 'transparent'};color:var(--porcelain)`)}>{on && <Icon name="check" size={13} strokeWidth={2.4} />}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                      {bookingMain && cennikAddons.length > 0 && (
+                        <React.Fragment>
+                          <Lbl style={{ marginTop: 14 }}>Doplnky <span style={{ textTransform: 'none', letterSpacing: 0 }}>· nepovinné</span></Lbl>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                            {cennikAddons.map((a) => {
+                              const on = (b.addons || []).indexOf(a.key) !== -1;
+                              return (
+                                <button type="button" key={a.key} onClick={() => toggleBookingAddon(a.key)} style={st(`all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:99px;font-family:var(--font-sans);font-size:.64rem;background:${on ? 'var(--espresso)' : 'transparent'};color:${on ? 'var(--porcelain)' : 'var(--ink)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--taupe)'}`)}>
+                                  {on && <Icon name="check" size={11} strokeWidth={2.2} />}{shortAddon(a.label)} +{a.price}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </React.Fragment>
+                      )}
+                    </React.Fragment>
+                  )}
+
+                  {step1 && (
+                    <React.Fragment>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18 }}>
+                        <span style={st(T.serif + ';font-size:1.15rem')}>{visibleMonthLabel}</span>
+                        <span style={{ display: 'flex', gap: 6 }}>
+                          <button type="button" aria-label="Predchádzajúce dni" disabled={bookingDayPage === 0} onClick={() => setBooking({ dayPage: Math.max(0, bookingDayPage - 1) })} style={st(`all:unset;cursor:pointer;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sand);color:var(--espresso);opacity:${bookingDayPage === 0 ? 0.35 : 1}`)}><Icon name="back" size={15} /></button>
+                          <button type="button" aria-label="Ďalšie dni" disabled={bookingDayPage >= maxDayPage} onClick={() => setBooking({ dayPage: Math.min(maxDayPage, bookingDayPage + 1) })} style={st(`all:unset;cursor:pointer;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sand);color:var(--espresso);opacity:${bookingDayPage >= maxDayPage ? 0.35 : 1}`)}><Icon name="fwd" size={15} /></button>
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginTop: 10 }}>
+                        {visibleDays.map((d) => {
+                          const on = b.dateIso === d.iso;
+                          return (
+                            <button type="button" key={d.iso} disabled={d.full} onClick={d.select} style={st(`all:unset;cursor:${d.full ? 'not-allowed' : 'pointer'};text-align:center;padding:10px 0;border-radius:16px;font-family:var(--font-sans);font-size:.62rem;background:${on ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--sand)'};color:${on ? '#3B2722' : 'var(--ink-3)'};opacity:${d.full ? 0.55 : 1}`)}>
+                              {d.dow}
+                              <b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: '1.45rem', lineHeight: 1.2, color: on ? '#17100F' : 'var(--ink)' }}>{d.num}</b>
+                              <em style={{ fontStyle: 'normal', display: 'block', fontSize: '.56rem', marginTop: 2, color: on ? '#3B2722' : d.full ? 'var(--danger)' : '#7FB08A' }}>{d.full ? 'plné' : freeLabel(d.free)}</em>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {b.dateIso ? (
+                        <React.Fragment>
+                          <Lbl style={{ marginTop: 16 }}>{booking_selectedDate} · voľné časy</Lbl>
+                          {selectedDateFull && nearestAvailableDate && (
+                            <div style={{ marginTop: 8 }}><Note tone="wait" icon="cal">Tento deň je plný. <button type="button" onClick={() => { nearestAvailableDate.select(); const idx = dateOptions.findIndex((x) => x.iso === nearestAvailableDate.iso); setBooking({ dateIso: nearestAvailableDate.iso, time: null, dayPage: Math.floor(idx / 4) }); }} style={st('all:unset;cursor:pointer;text-decoration:underline')}>Najbližší voľný: {nearestAvailableDate.dow} {nearestAvailableDate.num}. {nearestAvailableDate.mon}</button></Note></div>
+                          )}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginTop: 10 }}>
+                            {timeOptions.map((t) => {
+                              const on = b.time === t.label;
+                              return <button type="button" key={t.label} onClick={t.select} disabled={t.taken} style={st(`all:unset;cursor:${t.taken ? 'not-allowed' : 'pointer'};text-align:center;padding:11px 0;border-radius:12px;font-family:var(--font-sans);font-size:.82rem;border:1px solid ${on ? 'var(--ink)' : 'var(--sand)'};background:${on ? 'var(--ink)' : 'transparent'};color:${on ? '#17100F' : 'var(--ink)'};font-weight:${on ? 600 : 400};opacity:${t.taken ? 0.25 : 1};text-decoration:${t.taken ? 'line-through' : 'none'}`)}>{t.label}</button>;
+                            })}
+                          </div>
+                        </React.Fragment>
+                      ) : (
+                        <div style={{ marginTop: 14 }}><Note tone="plain" icon="cal">Vyberte deň, potom sa zobrazia voľné časy.</Note></div>
+                      )}
+                      <div style={{ marginTop: 12 }}><Note tone="plain" icon="info">Zrušenie do 24 h pred termínom je spoplatnené 15 €.</Note></div>
+                    </React.Fragment>
+                  )}
+
+                  {step2 && (
+                    <React.Fragment>
+                      <div style={st('position:relative;overflow:hidden;margin-top:18px;padding:18px;border-radius:22px;background:var(--hero);border:1px solid #4A322B')}>
+                        <Lbl gold>Vaša rezervácia</Lbl>
+                        <div style={st(T.serif + ';font-size:1.3rem;margin:8px 0 12px')}>{booking_selectedService}</div>
+                        {bookingMain && [bookingMain, ...bookingAddons].map((it, i) => (
+                          <div key={it.key} style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: '.78rem', marginTop: 5 }}><span style={{ color: 'var(--ink-3)' }}>{i === 0 ? it.label : '+ ' + it.label}</span><span style={{ color: 'var(--ink-2)' }}>{it.price}</span></div>
+                        ))}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: '.8rem', marginTop: 10 }}><span style={{ color: 'var(--ink-3)' }}>Deň</span><span style={{ color: 'var(--ink)' }}>{booking_selectedDate}</span></div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: '.8rem', marginTop: 6 }}><span style={{ color: 'var(--ink-3)' }}>Čas</span><span style={{ color: 'var(--ink)' }}>{b.time} · {booking_durationLabel}</span></div>
+                        <div style={st('display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid #4A322B')}><span style={st(T.mut)}>Cena spolu</span><span style={st(T.serif + ';font-size:1.25rem;color:var(--espresso)')}>{booking_priceLabel}</span></div>
+                      </div>
+                      <div style={{ marginTop: 10 }}><Note tone="plain" icon="info">Rezervácia je žiadosť – Michaela ju potvrdí a dáme vám vedieť. Zrušenie do 24 h pred termínom je spoplatnené 15 €.</Note></div>
+                    </React.Fragment>
+                  )}
+                </React.Fragment>
+              )}
+            </div>
+          )}
+          {tabBooking && !b.done && step0 && bookingMain && <SheetBar sub={bookingMain ? `${[bookingMain.label, ...bookingAddons.map((x) => shortAddon(x.label).toLowerCase())].join(' + ')} · ${booking_durationLabel}` : 'Vyberte službu'} price={bookingMain ? booking_priceLabel : '—'} action="Ďalej" onAction={nextStep} disabled={nextDisabled} />}
+          {tabBooking && !b.done && step1 && <SheetBar sub={b.dateIso && b.time ? `${booking_selectedDate} · ${b.time} · ${booking_durationLabel}` : 'Vyberte deň a čas'} price={booking_priceLabel} action="Ďalej" onAction={nextStep} disabled={nextDisabled} />}
+          {tabBooking && !b.done && step2 && <Sheet><Btn full onClick={submitBooking} style={{ padding: 14 }}>Odoslať rezerváciu</Btn></Sheet>}
+
+          {/* ===================== AURA PASS ===================== */}
+          {tabPass && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:var(--top);position:relative')}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={st(T.serif + ';font-size:1.6rem')}>Aura Pass</span>
+                <Sq icon="bell" size={34} round onClick={() => set({ notifOpen: true })} badge={clientUnreadCount || null} label="Upozornenia" />
+              </div>
+              <div style={st(T.mut)}>Vernostný program Aura Nails</div>
+              <div style={st('position:relative;border-radius:22px;padding:18px;margin-top:14px;background:var(--wallet);border:1px solid #6B4A3E;box-shadow:var(--shadow-xl);overflow:hidden')}>
+                <div className="aura-wallet-sheen"></div>
+                <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={st('font-family:var(--font-display);font-weight:400;font-size:1.05rem;letter-spacing:.08em;color:var(--ink)')}>AURA</span>
+                  <Lbl gold>Pass · MF</Lbl>
+                </div>
+                <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8, marginTop: 18 }}>
+                  {[0, 1, 2, 3, 4].map((i) => {
+                    const on = i < clientStamps; const last = i === 4;
+                    return (
+                      <i key={i} style={st(`aspect-ratio:1;border-radius:50%;display:grid;place-items:center;${on ? 'background:radial-gradient(circle at 35% 30%,#F0D9C2,#B8916F);color:#17100F;border:0' : 'border:1.5px dashed rgba(217,185,155,.4);color:var(--espresso)'}`)}>
+                        {on ? <Icon name="check" size={15} strokeWidth={2.2} /> : last ? <Icon name="gift" size={16} /> : null}
+                      </i>
+                    );
+                  })}
+                </div>
+                <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16 }}>
+                  <span style={st(T.serif + ';font-size:1.7rem')}>{clientStamps}<span style={{ fontSize: '.9rem', color: 'var(--ink-3)' }}> / 5</span></span>
+                  <Lbl>{loggedInClient ? loggedInClient.name : ''}</Lbl>
+                </div>
+              </div>
+              <ListRow icon="gift" title="Darček" sub={clientStamps >= 5 ? 'Máte 5 pečiatok – pri ďalšej návšteve vás čaká odmena.' : `Ešte ${5 - clientStamps} ${5 - clientStamps === 1 ? 'návšteva' : 'návštevy'} do odmeny`} accent={clientStamps >= 5 ? 'var(--espresso)' : null} />
+              <div style={st(T.card + ';margin-top:8px')}>
+                <Lbl>Ako to funguje</Lbl>
+                <p style={st(T.mut + ';font-size:.76rem;margin:6px 0 0;line-height:1.55')}>Za každú potvrdenú návštevu dostanete pečiatku. Pečiatky pridáva Michaela – nemusíte nič robiť. Po piatich vás čaká rituál so zľavou a malým darčekom.</p>
+              </div>
+            </div>
+          )}
+
+          {/* ===================== CENNÍK ===================== */}
+          {tabPricing && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:var(--top)')}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={st(T.serif + ';font-size:1.6rem')}>Cenník</span>
+                <Sq icon="bell" size={34} round onClick={() => set({ notifOpen: true })} badge={clientUnreadCount || null} label="Upozornenia" />
+              </div>
+              {pricing.length > 0 && (
+                <div style={{ margin: '10px 0' }}>
+                  <Seg items={pricing.map((c, i) => ({ id: i, label: shortCat(c.name) }))} value={pricePos} onChange={(i) => set({ expandedCat: i })} />
+                </div>
+              )}
+              {pricing[pricePos] && (
+                <div style={st('background:var(--white);border:1px solid var(--sand);border-radius:18px;padding:4px 14px')}>
+                  {(pricing[pricePos].items || []).map((it, j, arr) => (
+                    <div key={j} style={st(`display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;${j < arr.length - 1 ? 'border-bottom:1px solid var(--sand)' : ''}`)}>
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--ink)' }}>{it.label}</span>
+                        <span style={st(T.mut)}>{formatDuration(itemDuration(it))}{isAddonItem(it) ? ' · doplnok' : ''}</span>
+                      </span>
+                      <span style={st(T.serif + ';font-size:1.05rem;flex-shrink:0')}>{it.price}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={st(T.mut + ';font-size:.66rem;margin-top:10px')}>Každá služba zahŕňa konzultáciu, dokonalú hygienu a čas venovaný len vám. Záruka na modeláže 48 h, nevzťahuje sa na mechanické poškodenie.</div>
+              <div style={{ marginTop: 14 }}><Btn full kind="ghost" icon="cal" onClick={goBooking}>Rezervovať termín</Btn></div>
+            </div>
+          )}
+
+          {/* ===================== PROFIL ===================== */}
+          {tabProfile && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:var(--top)')}>
+              {s.profileView === 'main' && (
+                <React.Fragment>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <Avatar name={loggedInClient ? loggedInClient.name : ''} size={50} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {s.nameEditOpen ? (
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <input value={s.nameEditValue} onChange={(e) => set({ nameEditValue: e.target.value })} style={st(T.inp + ';padding:8px 10px')} />
+                          <Btn small onClick={saveEditName}>Uložiť</Btn>
+                          <button type="button" aria-label="Zrušiť" onClick={cancelEditName} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={16} /></button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={st(T.serif + ';font-size:1.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{loggedInClient ? loggedInClient.name : '—'}</span>
+                          <button type="button" onClick={startEditName} aria-label="Upraviť meno" style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="edit" size={14} /></button>
+                        </div>
+                      )}
+                      <div style={st(T.mut)}>{historyAppts.length} {historyAppts.length === 1 ? 'návšteva' : historyAppts.length >= 2 && historyAppts.length <= 4 ? 'návštevy' : 'návštev'}{historyRatedAvg ? ` · ${historyRatedAvg} ★ priemer` : ''}</div>
                     </div>
                   </div>
-                  <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={clientBirthday} onChange={setClientBirthday} style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)', textAlign: 'right', border: '1px solid var(--line-gold)', borderRadius: 8, padding: '6px 10px', background: 'var(--cream)', cursor: 'pointer' }} />
+
+                  <div style={{ marginTop: 14 }}>
+                    <Seg items={[{ id: 'up', label: 'Nadchádzajúce' }, { id: 'hist', label: 'História' }, { id: 'data', label: 'Údaje' }]} value={s.profileSeg || 'up'} onChange={(v) => set({ profileSeg: v })} />
                   </div>
-                  <div style={st('display:flex;flex-direction:column;border-radius:18px;border:1px solid var(--line);background:var(--white);margin-bottom:22px;overflow:hidden')}>
-                    <button onClick={goReminders} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:15px 16px')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>Pripomienky a upozornenia</span><Icon name="arrow" size={14} /></button>
-                  </div>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nadchádzajúce</div>
-                  {upcomingAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Žiadne nadchádzajúce termíny.</p>}
-                  {upcomingAppts.map((a, i) => (
-                    <React.Fragment key={i}>
-                      <div style={st('display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)')}>
-                        <div>
-                          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{a.service}</div>
-                          <div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{a.date} · {a.time}</div>
-                          {a.mine && (
-                            <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-                              <button onClick={() => openReschedule(a)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Zmeniť termín</button>
-                              <button onClick={() => cancelMyAppt(a.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b')}>Zrušiť</button>
+
+                  {(s.profileSeg || 'up') === 'up' && (
+                    <React.Fragment>
+                      {upcomingAppts.length === 0 && <div style={{ marginTop: 10 }}><Note tone="plain" icon="cal">Žiadne nadchádzajúce termíny.</Note></div>}
+                      {upcomingAppts.map((a) => (
+                        <div key={a.id} style={st(T.card + ';margin-top:8px')}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                            <span style={st(T.serif + ';font-size:1.05rem')}>{shortDate(a.iso)} · {a.time}</span>
+                            <span style={st(a.badgeStyle)}>{a.badgeLabel}</span>
+                          </div>
+                          <div style={st(T.mut + ';margin-top:2px')}>{a.service}</div>
+                          {a.mine && s.rescheduleApptId !== a.id && (
+                            <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                              <Btn kind="ghost" small icon="swap" style={{ flex: 1, padding: 9 }} onClick={() => openReschedule(a)}>Zmeniť termín</Btn>
+                              <Btn kind="red" small style={{ flex: 1, padding: 9 }} onClick={() => cancelMyAppt(a.id)}>Zrušiť</Btn>
+                            </div>
+                          )}
+                          {s.rescheduleApptId === a.id && (
+                            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--sand)' }}>
+                              <Lbl>Nový deň</Lbl>
+                              <div style={st('display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px')}>
+                                {dates.map((d) => {
+                                  const on = s.rescheduleDateIso === d.iso;
+                                  return (
+                                    <button type="button" key={d.iso} onClick={() => set({ rescheduleDateIso: d.iso })} style={st(`all:unset;cursor:pointer;flex-shrink:0;width:46px;text-align:center;padding:7px 0;border-radius:12px;font-family:var(--font-sans);font-size:.58rem;background:${on ? 'var(--espresso)' : 'var(--cream)'};color:${on ? '#3B2722' : 'var(--ink-3)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--sand)'}`)}>
+                                      {d.dow}<b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: '1.05rem', color: on ? '#17100F' : 'var(--ink)' }}>{d.num}</b>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <Lbl style={{ marginTop: 8 }}>Čas</Lbl>
+                              <input type="time" value={s.rescheduleTime} onChange={(e) => set({ rescheduleTime: e.target.value })} style={st(T.inp + ';margin-top:6px')} />
+                              {rescheduleValidReason && <div style={{ marginTop: 8 }}><Note tone="danger">{rescheduleValidReason}</Note></div>}
+                              <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                                <Btn kind="ghost" small style={{ flex: 1, padding: 9 }} onClick={cancelReschedule}>Zrušiť</Btn>
+                                <Btn small style={{ flex: 1, padding: 9 }} onClick={saveReschedule} disabled={!!rescheduleValidReason}>Uložiť</Btn>
+                              </div>
                             </div>
                           )}
                         </div>
-                        <span style={st(a.badgeStyle)}>{a.badgeLabel}</span>
-                      </div>
-                      {s.rescheduleApptId === a.id && (
-                        <div style={st('border-radius:18px;padding:16px;background:var(--cream);border:1px solid var(--line-gold);margin:10px 0')}>
-                          <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Zmeniť termín</div>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
-                            {dates.map((d, di) => (
-                              <button key={di} onClick={() => set({ rescheduleDateIso: d.iso })} style={st(`all:unset;cursor:pointer;text-align:center;padding:8px 4px;border-radius:12px;color:${s.rescheduleDateIso === d.iso ? 'var(--porcelain)' : 'var(--ink)'};background:${s.rescheduleDateIso === d.iso ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${s.rescheduleDateIso === d.iso ? 'var(--espresso)' : 'var(--line)'}`)}>
-                                <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
-                                <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
-                              </button>
-                            ))}
-                          </div>
-                          <input type="time" value={s.rescheduleTime} onChange={(e) => set({ rescheduleTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid var(--line-gold);background:var(--white);font-family:var(--font-sans);font-size:.9rem;color:var(--ink);margin-bottom:8px')} />
-                          {rescheduleValidReason && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.76rem', margin: '0 0 10px' }}>{rescheduleValidReason}</p>}
-                          <div style={{ display: 'flex', gap: 10 }}>
-                            <button onClick={cancelReschedule} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                            <button onClick={saveReschedule} disabled={!!rescheduleValidReason} style={st(`all:unset;cursor:${rescheduleValidReason ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:10px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${rescheduleValidReason ? 0.5 : 1}`)}>Uložiť</button>
-                          </div>
-                        </div>
-                      )}
+                      ))}
                     </React.Fragment>
-                  ))}
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História</div>
-                  {historyAppts.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadna história.</p>}
-                  {historyAppts.map((h, i) => (
-                    <div key={i} style={st('padding:13px 0;border-bottom:1px solid var(--line)')}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{h.service}</div><div style={{ fontSize: '.74rem', color: 'var(--ink-3)', marginTop: 2 }}>{h.date} · {h.time}</div></div>
-                        <button onClick={h.rebook} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Rezervovať znova</button>
-                      </div>
-                      {h.mine && (
-                        <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button key={n} onClick={() => rateAppt(h.id, n)} style={st('all:unset;cursor:pointer;color:' + (n <= h.rating ? 'var(--mocha)' : 'var(--line-gold)'))} aria-label={`Ohodnotiť ${n} hviezdičkami`}>
-                              <Icon name="sparkle" size={15} />
-                            </button>
-                          ))}
+                  )}
+
+                  {s.profileSeg === 'hist' && (
+                    <React.Fragment>
+                      {historyAppts.length === 0 && <div style={{ marginTop: 10 }}><Note tone="plain" icon="clock">Zatiaľ žiadna história.</Note></div>}
+                      {historyAppts.map((h) => (
+                        <div key={h.id} style={st(T.card + ';margin-top:8px;padding:11px 13px')}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                            <span style={{ minWidth: 0 }}><span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>{h.service}</span><span style={st(T.mut)}>{h.date} · {h.time}</span></span>
+                            <Stars value={h.rating} onRate={h.mine ? (n) => rateAppt(h.id, n) : null} />
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                            <span style={st(T.mut)}>{h.rating ? 'Ohodnotené' : h.mine ? 'Ohodnoťte návštevu' : ''}</span>
+                            <button type="button" onClick={h.rebook} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;font-weight:600;color:var(--espresso)')}>Rezervovať znova →</button>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      ))}
+                    </React.Fragment>
+                  )}
+
+                  {s.profileSeg === 'data' && (
+                    <React.Fragment>
+                      <div style={st('display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid var(--sand)')}>
+                        <Sq icon="cake" size={34} />
+                        <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Dátum narodenia</span>
+                        <input type="date" value={clientBirthday} onChange={setClientBirthday} style={st(T.inp + ';width:auto;padding:7px 9px;font-size:.78rem')} />
+                      </div>
+                      <div style={st(`display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid ${clientMissingPhone ? '#5A4322' : 'var(--sand)'}`)}>
+                        <Sq icon="phone" size={34} />
+                        <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Mobilné číslo</span>
+                        <input key={loggedInClient ? loggedInClient.phone : ''} type="tel" defaultValue={loggedInClient && loggedInClient.phone !== '—' ? loggedInClient.phone : ''} onBlur={saveClientPhone} placeholder="0915 123 456" style={st(T.inp + ';width:130px;padding:7px 9px;font-size:.78rem;text-align:right')} />
+                      </div>
+                    </React.Fragment>
+                  )}
+
+                  <ListRow icon="bell" title="Pripomienky a upozornenia" sub={`${remindDayBefore ? 'Deň vopred' : ''}${remindDayBefore && remindHoursBefore ? ' · ' : ''}${remindHoursBefore ? '2 h vopred' : ''}` || 'Vypnuté'} onClick={goReminders} chevron />
+                  <div style={{ marginTop: 16 }}><Btn full kind="ghost" icon="logout" onClick={backToLogin}>Odhlásiť sa</Btn></div>
                 </React.Fragment>
               )}
+
               {s.profileView === 'reminders' && (
                 <React.Fragment>
-                  <button onClick={backToProfile} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:16px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Späť</button>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nastavenia</div>
-                  <div style={st('border-radius:16px;border:1px solid var(--line);background:var(--white);margin-bottom:22px')}>
-                    <div style={st('display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)')}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>Deň vopred</span>
-                      <button onClick={toggleDayBefore} style={st(toggleTrack(remindDayBefore))}><span style={st(toggleKnob(remindDayBefore))}></span></button>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>2 hodiny vopred</span>
-                      <button onClick={toggleHourBefore} style={st(toggleTrack(remindHoursBefore))}><span style={st(toggleKnob(remindHoursBefore))}></span></button>
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <button type="button" aria-label="Späť" onClick={backToProfile} style={st('all:unset;cursor:pointer;color:var(--ink)')}><Icon name="back" size={20} /></button>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>Pripomienky a upozornenia</span>
+                    <span style={{ width: 20 }}></span>
                   </div>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Nedávne</div>
+                  <Lbl style={{ marginTop: 18 }}>Nastavenia</Lbl>
+                  <ListRow icon="cal" title="Deň vopred" sub="E-mail + notifikácia" right={<Toggle on={remindDayBefore} onClick={toggleDayBefore} label="Deň vopred" />} />
+                  <ListRow icon="clock" title="2 hodiny vopred" sub="Notifikácia" right={<Toggle on={remindHoursBefore} onClick={toggleHourBefore} label="2 hodiny vopred" />} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18 }}>
+                    <Lbl>Upozornenia</Lbl>
+                    {clientUnreadCount > 0 && <button type="button" onClick={() => clientNotifMgr && clientNotifMgr.markAllAsRead()} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.66rem;color:var(--espresso)')}>Označiť všetky</button>}
+                  </div>
+                  {(clientNotifs || []).map((n) => (
+                    <ListRow key={n.id} icon={n.type === 'reschedule' ? 'swap' : n.type === 'confirmation' ? 'check' : 'bell'} title={n.title} sub={n.message} accent={n.read ? null : 'var(--taupe)'} onClick={() => clientNotifMgr && !n.read && clientNotifMgr.markAsRead(n.id)} right={!n.read ? <i style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--espresso)', flexShrink: 0 }}></i> : null} />
+                  ))}
                   {notifications.map((n, i) => (
-                    <div key={i} style={st('display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)')}>
-                      <span style={st('width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-gold);color:var(--mocha);flex-shrink:0')}><Icon name={n.icon} size={14} /></span>
-                      <div style={{ minWidth: 0, flex: 1 }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>{n.title}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2, lineHeight: 1.4 }}>{n.text}</div></div>
-                      <span style={{ fontSize: '.66rem', color: 'var(--ink-3)', flexShrink: 0 }}>{n.time}</span>
-                    </div>
+                    <ListRow key={'l' + i} icon={n.icon === 'sparkle' ? 'star' : n.icon} title={n.title} sub={n.text} />
                   ))}
                 </React.Fragment>
               )}
             </div>
           )}
 
-          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;box-sizing:border-box;z-index:20')}>
-            <button onClick={goHome} style={st(navBtn(tabHome))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 11.5L12 4l8 7.5" /><path d="M6 10v9h5v-5h2v5h5v-9" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Domov</span>
-            </button>
-            <button onClick={goBooking} style={st(navBtn(tabBooking))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Rezervácia</span>
-            </button>
-            <button onClick={goPass} style={st(navBtn(tabPass))}><Icon name="heart" size={21} /><span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Pass</span></button>
-            <button onClick={goPricing} style={st(navBtn(tabPricing))}><Icon name="list" size={21} /><span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Cenník</span></button>
-            <button onClick={goProfile} style={st(navBtn(tabProfile))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="8.2" r="3.6" /><path d="M5 20c0-4 3.2-6.4 7-6.4s7 2.4 7 6.4" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Profil</span>
-            </button>
-          </div>
+          {!(tabBooking && !b.done && (bookingMain || !step0)) && (
+            <TabBar items={[
+              { icon: 'home', label: 'Domov', on: tabHome, onClick: goHome },
+              { icon: 'cal', label: 'Rezervácia', on: tabBooking, onClick: goBooking },
+              { icon: 'star', label: 'Pass', on: tabPass, onClick: goPass },
+              { icon: 'tag', label: 'Cenník', on: tabPricing, onClick: goPricing },
+              { icon: 'user', label: 'Profil', on: tabProfile, onClick: goProfile },
+            ]} />
+          )}
         </div>
       )}
 
       {atAdmin && (
-        <div style={st('flex:1;display:flex;flex-direction:column;min-height:100%;position:relative;background:var(--porcelain)')}>
-          <div style={st('padding:56px 20px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--espresso);position:sticky;top:0;z-index:5')}>
-            <div>
-              <div style={st('font-family:var(--font-sans);font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--taupe-light)')}>Michaela · Admin</div>
-              <div style={st('font-family:var(--font-display);font-size:1.5rem;color:var(--porcelain);margin-top:2px')}>{adminHeaderMap[s.adminTab]}</div>
+        <div style={st('flex:1;display:flex;flex-direction:column;min-height:100%;position:relative;overflow:hidden;background:var(--porcelain)')}>
+          {adminTabOverview && <Glow />}
+          <div style={st('padding:var(--top) 18px 0;position:relative;z-index:2')}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Lbl>{adminTabOverview ? `Admin · ${todayLongLabel}` : 'Michaela · Admin'}</Lbl>
+              <Sq icon="logout" size={32} round onClick={backToLogin} color="var(--ink-3)" label="Odhlásiť sa" />
             </div>
-            <button onClick={backToLogin} style={st('all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(247,242,239,.35);color:var(--taupe-light)')}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M15 5H8a2 2 0 00-2 2v10a2 2 0 002 2h7M11 8l-4 4 4 4M7 12h13" /></svg>
-            </button>
+            {adminTabOverview ? (
+              <div style={st(T.serif + ';font-size:1.9rem;line-height:1.1;margin-top:4px')}>{greetWord},<br /><em style={{ color: 'var(--espresso)' }}>Michaela.</em></div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                <span style={st(T.serif + ';font-size:1.6rem')}>
+                  {adminHeaderMap[s.adminTab]}
+                  {adminTabRequests && requests.length > 0 && <span style={{ fontSize: '1rem', color: 'var(--espresso)' }}> {requests.length}</span>}
+                </span>
+                {adminTabClients && clientsListView && !s.addFormOpen && <Btn small icon="plus" onClick={openAddClient}>Pridať</Btn>}
+                {adminTabPricing && !s.addCatFormOpen && <Btn small kind="ghost" onClick={openAddCategory}>+ Nová kategória</Btn>}
+              </div>
+            )}
           </div>
 
+          {/* ===================== PREHĽAD ===================== */}
           {adminTabOverview && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-                <div style={st('border-radius:18px;padding:18px;background:var(--white);box-shadow:var(--shadow-sm, 0 1px 2px rgba(56,48,42,.05));transition:transform .2s ease,box-shadow .2s ease')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 600, color: 'var(--ink)' }}>{adminTodayCount}</div><div style={{ fontSize: '.7rem', color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: 4 }}>Termínov dnes</div></div>
-                <div style={st('border-radius:18px;padding:18px;background:var(--white);box-shadow:var(--shadow-sm, 0 1px 2px rgba(56,48,42,.05));transition:transform .2s ease,box-shadow .2s ease')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 600, color: 'var(--mocha)' }}>{adminPendingCount}</div><div style={{ fontSize: '.7rem', color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: 4 }}>Čakajúce žiadosti</div></div>
-              </div>
-              {upcomingBirthdays.length > 0 && (
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:20px')}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                    <Icon name="gift" size={16} style={{ color: 'var(--mocha)' }} />
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>Narodeniny čoskoro</span>
+            <div className="aura-rise" style={st(T.page + ';position:relative;z-index:1')}>
+              {nextTodayAppt && (
+                <div style={st('position:relative;overflow:hidden;margin-top:12px;padding:14px;border-radius:22px;background:var(--hero);border:1px solid #4A322B')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><Lbl gold>Dnes · {adminTodayCount} {adminTodayCount === 1 ? 'termín' : adminTodayCount >= 2 && adminTodayCount <= 4 ? 'termíny' : 'termínov'}</Lbl><span style={st(T.mut)}>{todayRangeLabel}</span></div>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 10 }}>
+                    <span style={st(T.serif + ';font-size:1.35rem')}>{nextTodayAppt.time}</span>
+                    <span style={{ minWidth: 0 }}><span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>{nextTodayAppt.name} · {nextTodayAppt.service}</span><span style={st(T.mut)}>{formatDuration(nextTodayAppt.duration)}{nextTodayAppt.priceLabel ? ` · ${nextTodayAppt.priceLabel}` : ''}</span></span>
                   </div>
-                  {upcomingBirthdays.map((c, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '.82rem' }}>
-                      <span style={{ color: 'var(--ink-2)', fontFamily: 'var(--font-sans)' }}>{c.name}</span>
-                      <span style={{ color: 'var(--ink-3)' }}>{c.daysUntil === 0 ? 'dnes' : c.daysUntil === 1 ? 'zajtra' : `o ${c.daysUntil} dní`}</span>
-                    </div>
-                  ))}
                 </div>
               )}
-              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Kalendár obsadenosti</div>
-              <div className="cal-month-nav">
-                <button onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) - 1 })}>‹</button>
-                <span>{adminMonthGrid.label}</span>
-                <button onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) + 1 })}>›</button>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginTop: 10 }}>
+                {[['Dnes', adminTodayCount, null, null], ['Žiadosti', adminPendingCount, 'var(--wait)', goRequests], ['Narodeniny', upcomingBirthdays.length, null, null]].map(([l, v, c, fn]) => (
+                  <button type="button" key={l} onClick={fn || undefined} style={st(`all:unset;cursor:${fn ? 'pointer' : 'default'};box-sizing:border-box;padding:10px;border-radius:16px;background:var(--white);border:1px solid ${c && v ? '#5A4322' : 'var(--sand)'}`)}>
+                    <span style={st(T.mut + ';font-size:.62rem;display:block')}>{l}</span>
+                    <b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: '1.45rem', color: c && v ? c : 'var(--ink)', marginTop: 2 }}>{v}</b>
+                  </button>
+                ))}
               </div>
-              <div className="cal-dow-row"><span>Po</span><span>Ut</span><span>St</span><span>Št</span><span>Pi</span><span>So</span><span>Ne</span></div>
-              {adminMonthGrid.weeks.map((week, wi) => (
-                <div className="cal-grid" key={wi}>
-                  {week.map((cell, ci) => (
-                    <button key={ci} className={`cal-day${cell.muted ? ' muted' : ''}${cell.selected ? ' selected' : ''}${cell.today ? ' today' : ''}`} onClick={() => set({ adminSelectedDate: cell.iso })}>
-                      <span className="cal-day-circle">{cell.num}</span>
-                      {cell.dot && <span className="cal-dot" style={{ background: cell.dot }}></span>}
-                    </button>
-                  ))}
-                </div>
-              ))}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink)')}>{calendarSelectedLabel}</div>
+              {upcomingBirthdays.length > 0 && (
+                <ListRow icon="cake" title={upcomingBirthdays[0].daysUntil === 0 ? 'Dnes má narodeniny' : upcomingBirthdays[0].daysUntil === 1 ? 'Zajtra má narodeniny' : `Narodeniny o ${upcomingBirthdays[0].daysUntil} dní`} sub={upcomingBirthdays.map((c) => c.name).join(', ')} />
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
+                <span style={st(T.serif + ';font-size:1.1rem')}>{adminMonthGrid.label}</span>
+                <span style={{ display: 'flex', gap: 5 }}>
+                  <Sq icon="back" size={28} onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) - 1 })} label="Predchádzajúci mesiac" />
+                  <Sq icon="fwd" size={28} onClick={() => set({ adminMonthOffset: (s.adminMonthOffset || 0) + 1 })} label="Ďalší mesiac" />
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginTop: 8, textAlign: 'center' }}>
+                {['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne'].map((d) => <span key={d} style={st(T.mut + ';font-size:.58rem')}>{d}</span>)}
+                {adminMonthGrid.weeks.map((week) => week.map((cell) => {
+                  const n = apptCountByDate[cell.iso] || 0;
+                  const closed = !!closedByDate[cell.iso];
+                  const bg = cell.muted ? 'transparent' : closed ? 'repeating-linear-gradient(45deg,#2A1E1B 0 4px,#1F1715 4px 8px)' : n >= 4 ? '#D9B99B' : n === 3 ? '#A47C60' : n === 2 ? '#6B4A3B' : n === 1 ? '#3A2A23' : '#1F1715';
+                  const dark = !cell.muted && !closed && n >= 3;
+                  return (
+                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false })} style={st(`all:unset;cursor:pointer;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : dark ? '#17100F' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>{cell.num}</button>
+                  );
+                }))}
+              </div>
+              <div style={{ display: 'flex', gap: 9, alignItems: 'center', marginTop: 7, flexWrap: 'wrap' }}>
+                {[['#3A2A23', '1'], ['#6B4A3B', '2'], ['#A47C60', '3'], ['#D9B99B', '4+']].map(([c, l]) => <span key={l} style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 10, height: 10, borderRadius: 3, background: c, display: 'inline-block' }}></i>{l}</span>)}
+                <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'repeating-linear-gradient(45deg,#2A1E1B 0 3px,#1F1715 3px 6px)', display: 'inline-block' }}></i>voľno</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
+                <Lbl>{calendarSelectedLabel}</Lbl>
                 {!s.blockFormOpen && !s.dayAddOpen && (
-                  <span style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
-                    <button onClick={openDayAdd} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--espresso)')}>+ Klientka</button>
-                    <button onClick={openBlockForm} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Voľno</button>
+                  <span style={{ display: 'flex', gap: 5 }}>
+                    <Btn small icon="plus" onClick={openDayAdd}>Klientka</Btn>
+                    <Btn small kind="ghost" icon="moon" onClick={openBlockForm}>Voľno</Btn>
                   </span>
                 )}
               </div>
+
               {s.dayAddOpen && (
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--espresso);margin-bottom:16px')}>
-                  <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Nový termín — {calendarSelectedLabel}</div>
+                <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={st(T.serif + ';font-size:1.1rem')}>Pridať · {calendarSelectedLabel}</span>
+                    <button type="button" aria-label="Zavrieť" onClick={cancelDayAdd} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
+                  </div>
+                  <Lbl>Klientka</Lbl>
                   {!dayAddName ? (
                     <React.Fragment>
-                      <input value={s.dayAddQuery} onChange={(e) => set({ dayAddQuery: e.target.value })} placeholder="Meno klientky (stačia 3 písmená)" autoFocus style={st(inputStyle)} />
-                      {dayAddQ.length < 2 && frequentClients.length > 0 && (
+                      <input value={s.dayAddQuery} onChange={(e) => set({ dayAddQuery: e.target.value })} placeholder="Meno klientky (stačia 3 písmená)" autoFocus style={st(T.inp + ';margin-top:6px')} />
+                      {dayAddQ.length < 2 && clients.length > 0 && (
                         <React.Fragment>
-                          <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', margin: '4px 0 8px' }}>Chodia najčastejšie</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
-                            {frequentClients.map((c) => (
-                              <button key={c.id} onClick={() => pickDayAddClient(c)} style={st(chipStyle(false))}>{c.name}{c.visits ? ` · ${c.visits}×` : ''}</button>
+                          <div style={st(T.mut + ';margin:10px 0 6px')}>Chodia najčastejšie</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {getFrequentClients().map((c) => (
+                              <button type="button" key={c.id} onClick={() => pickDayAddClient(c)} style={st(chipStyle(false))}>{c.name}{c.visitCount ? ` · ${c.visitCount}×` : ''}</button>
                             ))}
                           </div>
                         </React.Fragment>
                       )}
                       {dayAddQ.length >= 2 && (
-                        <React.Fragment>
+                        <div style={st('margin-top:6px;border-radius:12px;background:var(--cream);border:1px solid var(--sand);padding:2px 12px')}>
                           {dayAddMatches.map((c) => (
-                            <button key={c.id} onClick={() => pickDayAddClient(c)} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:10px 13px;border-radius:12px;margin-bottom:7px;background:var(--cream);border:1px solid var(--line)')}>
-                              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{c.name}</span>
-                              <span style={{ fontSize: '.74rem', color: 'var(--ink-3)' }}>{c.phone || '—'}</span>
+                            <button type="button" key={c.id} onClick={() => pickDayAddClient(c)} style={st('all:unset;cursor:pointer;display:flex;justify-content:space-between;width:100%;box-sizing:border-box;padding:9px 0;border-bottom:1px solid var(--sand);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')}>
+                              <span>{c.name}</span><span style={{ color: 'var(--ink-3)' }}>{c.phone || '—'}</span>
                             </button>
                           ))}
-                          <button onClick={pickDayAddNew} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:11px;border-radius:12px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.78rem')}>
-                            {dayAddMatches.length ? 'Nie je medzi nimi — ' : ''}Založiť novú klientku „{s.dayAddQuery.trim()}“
-                          </button>
-                        </React.Fragment>
+                          <button type="button" onClick={pickDayAddNew} style={st('all:unset;cursor:pointer;display:block;width:100%;padding:9px 0;font-family:var(--font-sans);font-size:.8rem;color:var(--espresso)')}>+ {dayAddMatches.length ? 'Nie je medzi nimi – ' : ''}Nová klientka „{s.dayAddQuery.trim()}“</button>
+                        </div>
                       )}
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <div style={st('display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--line-gold);margin-bottom:10px')}>
-                        <span style={{ minWidth: 0 }}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)', display: 'block' }}>{dayAddName}</span>
-                          <span style={{ fontSize: '.7rem', color: 'var(--ink-3)' }}>{dayAddIsNew ? 'nová klientka' : `${dayAddPicked.visits || 0}× u nás`}</span>
-                        </span>
-                        <button onClick={clearDayAddClient} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mocha);flex-shrink:0')}>Zmeniť</button>
+                      <div style={st('display:flex;align-items:center;gap:10px;margin-top:6px;padding:10px 12px;border-radius:12px;background:var(--cream);border:1px solid var(--taupe)')}>
+                        <Avatar name={dayAddName} size={32} />
+                        <span style={{ flex: 1, minWidth: 0 }}><span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>{dayAddName}</span><span style={st(T.mut)}>{dayAddIsNew ? 'nová klientka' : `${clientApptStats(dayAddPicked).visits}× u nás`}</span></span>
+                        <button type="button" onClick={clearDayAddClient} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;color:var(--espresso)')}>Zmeniť</button>
                       </div>
-                      {dayAddIsNew && (
-                        <input value={s.dayAddNewPhone} onChange={(e) => set({ dayAddNewPhone: e.target.value })} placeholder="Telefón (nepovinné)" style={st(inputStyle)} />
-                      )}
-                      <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', margin: '10px 0 8px' }}>Služba z cenníka</div>
-                      {cennikMainByCat.map((cat) => (
-                        <div key={cat.ci} style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', marginBottom: 6 }}>{cat.name}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                            {cat.items.map((m) => (
-                              <button key={m.key} onClick={() => pickDayAddService(m)} style={st(chipStyle(dayAddMain && dayAddMain.key === m.key))}>{m.label} · {m.price}</button>
-                            ))}
+                      {dayAddIsNew && <input value={s.dayAddNewPhone} onChange={(e) => set({ dayAddNewPhone: e.target.value })} placeholder="Telefón (nepovinné)" style={st(T.inp + ';margin-top:8px')} />}
+                      <Lbl style={{ marginTop: 12 }}>Služba z cenníka</Lbl>
+                      <div style={{ marginTop: 6 }}>
+                        {cennikMainByCat.map((cat) => (
+                          <div key={cat.ci} style={{ marginBottom: 8 }}>
+                            <div style={st(T.mut + ';font-size:.6rem;margin-bottom:5px')}>{cat.name}</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                              {cat.items.map((m) => <button type="button" key={m.key} onClick={() => pickDayAddService(m)} style={st(chipStyle(dayAddMain && dayAddMain.key === m.key))}>{m.label} · {m.price}</button>)}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                      {dayAddMain && cennikAddons.length > 0 && (
-                        <React.Fragment>
-                          <div style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mocha)', margin: '10px 0 6px' }}>Doplnky</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 10 }}>
-                            {cennikAddons.map((a) => (
-                              <button key={a.key} onClick={() => toggleDayAddAddon(a.key)} style={st(chipStyle((s.dayAddAddons || []).indexOf(a.key) !== -1))}>+ {a.label} · {a.price}</button>
-                            ))}
-                          </div>
-                        </React.Fragment>
-                      )}
-                      {dayAddMain && (
-                        <div style={st('display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--line);margin:8px 0 12px')}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)' }}>Spolu · {formatDuration(dayAddDuration)}</span>
-                          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', color: 'var(--ink)' }}>{formatPrice(dayAddPriceNum)}</span>
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
-                        <input type="number" step="0.25" min="0.25" max="8" value={dayAddDuration} onChange={(e) => set({ dayAddDuration: parseFloat(e.target.value) || 0.25, dayAddTime: '' })} style={st('all:unset;width:70px;box-sizing:border-box;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                        <span style={{ fontSize: '.7rem', color: 'var(--ink-3)' }}>z cenníka {formatDuration(dayAddAutoDuration)}</span>
-                      </div>
-                      <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 8 }}>Čas — voľné a obsadené</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7, marginBottom: 14 }}>
-                        {dayAddTimeOptions.map((t, i) => (
-                          <button key={i} onClick={t.select} disabled={t.taken} style={st(t.style)}>{t.label}</button>
                         ))}
+                        {dayAddMain && cennikAddons.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, margin: '4px 0 8px' }}>
+                            {cennikAddons.map((a) => <button type="button" key={a.key} onClick={() => toggleDayAddAddon(a.key)} style={st(chipStyle((s.dayAddAddons || []).indexOf(a.key) !== -1))}>+ {a.label} · {a.price}</button>)}
+                          </div>
+                        )}
+                      </div>
+                      {dayAddMain && <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: '.78rem', margin: '4px 0 10px' }}><span style={{ color: 'var(--ink-3)' }}>Spolu · {formatDuration(dayAddDuration)}</span><span style={st(T.serif + ';font-size:1.05rem')}>{formatPrice(dayAddPriceNum)}</span></div>}
+                      <Lbl>Trvanie úkonu</Lbl>
+                      <div style={{ marginTop: 8 }}><DurationField value={dayAddDuration} onChange={(v) => set({ dayAddDuration: v, dayAddTime: '' })} autoValue={dayAddMain ? dayAddAutoDuration : null} /></div>
+                      <Lbl>Čas — voľné a obsadené</Lbl>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 5, margin: '8px 0 12px' }}>
+                        {dayAddTimeOptions.map((t) => {
+                          const on = s.dayAddTime === t.label;
+                          return <button type="button" key={t.label} onClick={t.select} disabled={t.taken} style={st(`all:unset;cursor:${t.taken ? 'not-allowed' : 'pointer'};text-align:center;padding:9px 0;border-radius:12px;font-family:var(--font-sans);font-size:.76rem;border:1px solid ${on ? 'var(--ink)' : 'var(--sand)'};background:${on ? 'var(--ink)' : 'transparent'};color:${on ? '#17100F' : 'var(--ink)'};opacity:${t.taken ? 0.25 : 1};text-decoration:${t.taken ? 'line-through' : 'none'}`)}>{t.label}</button>;
+                        })}
                       </div>
                     </React.Fragment>
                   )}
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button onClick={cancelDayAdd} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                    <button onClick={saveDayAdd} disabled={dayAddDisabled} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:' + (dayAddDisabled ? 0.45 : 1))}>Uložiť termín</button>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelDayAdd}>Zrušiť</Btn>
+                    <Btn style={{ flex: 1.5 }} onClick={saveDayAdd} disabled={dayAddDisabled}>Uložiť termín</Btn>
                   </div>
                 </div>
               )}
+
               {s.blockFormOpen && (
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:16px')}>
-                  <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>Nastaviť voľno — {calendarSelectedLabel}</div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-                    <button onClick={() => set({ blockAllDay: true })} style={st(blockTimePresetStyle(s.blockAllDay))}>Celý deň</button>
-                    <button onClick={() => set({ blockAllDay: false })} style={st(blockTimePresetStyle(!s.blockAllDay))}>Konkrétny čas</button>
+                <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={st(T.serif + ';font-size:1.1rem')}>Voľno · {calendarSelectedLabel}</span>
+                    <button type="button" aria-label="Zavrieť" onClick={cancelBlockForm} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
                   </div>
+                  <Seg items={[{ id: 'all', label: 'Celý deň' }, { id: 'part', label: 'Konkrétny čas' }]} value={s.blockAllDay ? 'all' : 'part'} onChange={(v) => set({ blockAllDay: v === 'all' })} />
                   {!s.blockAllDay && (
                     <React.Fragment>
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Od</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-                        {buildTimeOptions().map((t, i) => (
-                          <button key={i} onClick={() => set({ blockTime: t })} style={st(blockTimePresetStyle(s.blockTime === t))}>{t}</button>
-                        ))}
+                      <Lbl style={{ marginTop: 12 }}>Od</Lbl>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                        {buildTimeOptions().map((t) => <button type="button" key={t} onClick={() => set({ blockTime: t })} style={st(blockTimePresetStyle(s.blockTime === t))}>{t}</button>)}
                       </div>
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie</div>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                        {DURATION_PRESETS.map((d, i) => (
-                          <button key={i} onClick={() => set({ blockDuration: d.val })} style={st(blockTimePresetStyle(s.blockDuration === d.val))}>{d.label}</button>
-                        ))}
+                      <Lbl style={{ marginTop: 12 }}>Trvanie</Lbl>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                        {DURATION_PRESETS.map((d) => <button type="button" key={d.val} onClick={() => set({ blockDuration: d.val })} style={st(blockTimePresetStyle(s.blockDuration === d.val))}>{d.label}</button>)}
                       </div>
                     </React.Fragment>
                   )}
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button onClick={cancelBlockForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                    <button onClick={saveBlock} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Uložiť</button>
+                  <div style={{ marginTop: 12 }}>{blockConflicts.length === 0 ? <Note tone="ok" icon="check">V tomto čase nemáte žiadne termíny.</Note> : <Note tone="wait">V tomto čase máte {blockConflicts.length} {blockConflicts.length === 1 ? 'termín' : 'termíny'} – zostanú zapísané.</Note>}</div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelBlockForm}>Zrušiť</Btn>
+                    <Btn style={{ flex: 1.5 }} onClick={saveBlock}>Uložiť</Btn>
                   </div>
                 </div>
               )}
-              {noDayAppts && <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-3);padding:8px 0')}>Žiadne termíny na tento deň.</p>}
-              {selectedDayAppts.map((ap, i) => (
-                <div key={i} style={st('display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:14px 0;border-bottom:1px solid var(--line)')}>
-                  <button onClick={ap.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex:1;text-align:left')}>
-                    <div style={{ width: 48, flexShrink: 0 }}>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--ink)' }}>{ap.time}</div>
-                      <div style={{ fontSize: '.64rem', color: 'var(--ink-3)' }}>{formatDuration(ap.duration)}</div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink)' }}>{ap.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{ap.service}{ap.priceLabel ? ` · ${ap.priceLabel}` : ''}</div></div>
-                    <span style={st(ap.badgeStyle)}>{ap.badgeLabel}</span>
-                  </button>
-                  {!ap.blocked && <button onClick={() => cancelAppt(ap.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b;flex-shrink:0')}>Zmazať</button>}
+
+              {noDayAppts && !s.dayAddOpen && <div style={{ marginTop: 10 }}><Note tone="plain" icon="cal">Žiadne termíny na tento deň.</Note></div>}
+              {selectedDayAppts.map((ap) => (
+                <div key={ap.id} style={{ display: 'flex', gap: 10, marginTop: 7 }}>
+                  <span style={st(T.mut + ';width:40px;padding-top:10px;flex-shrink:0')}>{ap.time}</span>
+                  <div style={st(`flex:1;min-width:0;display:flex;align-items:center;gap:8px;border-radius:14px;padding:9px 11px;background:var(--white);border-left:3px solid ${ap.blocked ? 'var(--taupe-dark)' : ap.hold ? 'var(--wait)' : ap.manual ? 'var(--wait)' : 'var(--espresso)'}`)}>
+                    <button type="button" onClick={ap.open} style={st('all:unset;cursor:pointer;flex:1;min-width:0')}>
+                      <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ap.blocked ? (ap.service || 'Voľno') : `${ap.name} · ${ap.service}`}</span>
+                      <span style={st(T.mut + ';font-size:.66rem')}>{formatDuration(ap.duration)}{ap.priceLabel ? ` · ${ap.priceLabel}` : ''}</span>
+                    </button>
+                    <span style={st(ap.badgeStyle + ';font-size:.52rem;padding:3px 7px')}>{ap.badgeLabel}</span>
+                    {!ap.blocked && !ap.hold && <button type="button" aria-label="Zmazať termín" onClick={() => cancelAppt(ap.id)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={14} /></button>}
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
           {adminTabRequests && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              {noRequests && (
+            <div className="aura-rise" style={st(T.page + ';padding-top:12px')}>
+              {waitingRequests.length > 0 && (
+                <div style={st('display:flex;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:14px')}>
+                  {[['new', `Nové · ${newRequests.length}`], ['waiting', `Čaká na klientku · ${waitingRequests.length}`]].map(([id, label]) => {
+                    const on = (id === 'waiting') === reqViewWaiting;
+                    return <button key={id} onClick={() => set({ reqView: id, proposeFor: null })} style={st(`all:unset;cursor:pointer;flex:1;text-align:center;padding:9px 4px;border-radius:10px;font-family:var(--font-sans);font-size:.64rem;white-space:nowrap;color:${on ? 'var(--ink)' : 'var(--ink-3)'};background:${on ? 'var(--blush)' : 'transparent'}`)}>{label}</button>;
+                  })}
+                </div>
+              )}
+              {(noRequests || (!reqViewWaiting && newRequests.length === 0)) && (
                 <div style={{ textAlign: 'center', paddingTop: 60, color: 'var(--ink-3)' }}>
+                  <div style={st('width:64px;height:64px;margin:0 auto 16px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:var(--white);border:1px solid var(--line-gold);color:var(--espresso)')}><Icon name="check" size={26} /></div>
                   <div style={st('font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:8px')}>Žiadne čakajúce žiadosti</div>
                   <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem' }}>Všetko je vybavené — skvelá práca.</p>
                 </div>
               )}
-              {adminRequestsList.map((r, i) => (
-                <div key={i} style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line);margin-bottom:12px')}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: 'var(--ink)' }}>{r.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{r.phone}</div></div>
-                    <span style={st('font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(140,110,98,.14);color:var(--mocha)')}>Nová</span>
+              {adminRequestsList.map((r) => (
+                <div key={r.id} className="aura-rise" style={st(`border-radius:18px;padding:16px;background:var(--white);border:1px solid ${r.pState === 'pending' || r.pState === 'accepted' ? 'rgba(229,184,110,.35)' : 'var(--line)'};margin-bottom:12px`)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 10 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 300, color: 'var(--ink)' }}>{r.name}</div>
+                      <div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>
+                        {r.phone ? <a href={`tel:${normalizePhone(r.phone)}`} style={{ color: 'var(--ink-3)', textDecoration: 'none' }}>{r.phone}</a> : 'bez telefónu'}
+                      </div>
+                    </div>
+                    {r.pState === 'pending' ? <span style={st(badge('pending'))}>Čaká na klientku</span>
+                      : r.pState === 'accepted' ? <span style={st(badge())}>Odsúhlasené</span>
+                      : <span style={st(badge('pending'))}>Nová</span>}
                   </div>
                   {(r.items && r.items.length > 0) ? (
                     <div style={st('border-radius:12px;background:var(--cream);border:1px solid var(--line);padding:10px 12px;margin-bottom:10px')}>
                       {r.items.map((it, ii) => (
                         <div key={ii} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, padding: '3px 0' }}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: ii === 0 ? 'var(--ink)' : 'var(--ink-2)' }}>{ii === 0 ? it.label : '+ ' + it.label}</span>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--mocha)', flexShrink: 0 }}>{it.price}</span>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.74rem', color: ii === 0 ? 'var(--ink)' : 'var(--ink-2)' }}>{ii === 0 ? it.label : '+ ' + it.label}</span>
+                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--mocha)', flexShrink: 0 }}>{it.price}</span>
                         </div>
                       ))}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--line)' }}>
@@ -1793,324 +2515,477 @@ function App() {
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.76rem', color: 'var(--ink-2)', marginBottom: 4 }}>{r.service}</div>
                   )}
-                  <div style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 12 }}>{r.dateLabel} · {r.time}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                    <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
-                    <input type="number" step="0.25" min="0.25" max="8" value={r.durationValue} onChange={(e) => setRequestDuration(r.id, e.target.value)} style={st('all:unset;width:70px;box-sizing:border-box;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                  </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button onClick={r.reject} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zamietnuť</button>
-                    <button onClick={r.approve} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Potvrdiť</button>
-                  </div>
+
+                  {(r.pState === 'pending' || r.pState === 'accepted') ? (
+                    <React.Fragment>
+                      <div style={st('border-radius:12px;background:var(--cream);border:1px solid var(--line);padding:10px 12px;margin-bottom:10px;font-family:var(--font-sans);font-size:.72rem')}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '2px 0' }}><span style={{ color: 'var(--ink-3)' }}>Pôvodne</span><span style={{ color: 'var(--ink-3)', textDecoration: 'line-through' }}>{r.dateLabel} · {r.time}</span></div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '2px 0' }}><span style={{ color: 'var(--ink-3)' }}>Navrhnuté</span><span style={{ color: 'var(--ink)' }}>{isoLabel(r.proposal.date)} · {r.proposal.time}</span></div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '2px 0' }}><span style={{ color: 'var(--ink-3)' }}>Platí ešte</span><span style={{ color: 'var(--wait)' }}>{r.pState === 'accepted' ? 'odsúhlasené – zapisujem…' : `${hoursLeft(r.proposal.expiresAt)} h (do ${fmtDeadline(r.proposal.expiresAt)})`}</span></div>
+                        {r.proposal.message && <div style={{ marginTop: 6, color: 'var(--ink-2)', fontStyle: 'italic' }}>„{r.proposal.message}“</div>}
+                      </div>
+                      {r.pState === 'pending' && (
+                        <div style={{ display: 'flex', gap: 10 }}>
+                          <button onClick={r.openPropose} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:9px;border-radius:14px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase')}>Zmeniť návrh</button>
+                          <button onClick={r.withdraw} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:9px;border-radius:14px;border:1px solid rgba(229,156,142,.4);color:var(--danger);font-family:var(--font-sans);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase')}>Stiahnuť návrh</button>
+                        </div>
+                      )}
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <div style={{ fontSize: '.74rem', color: 'var(--ink-2)', marginBottom: 10 }}>{r.dateLabel} · {r.time}</div>
+                      {(r.pState === 'declined' || r.pState === 'expired') && (
+                        <div style={st('display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:9px 11px;margin-bottom:10px;background:var(--wait-bg);color:var(--wait);font-family:var(--font-sans);font-size:.66rem;line-height:1.45')}>
+                          <Icon name="clock" size={15} />
+                          <span>{r.pState === 'expired'
+                            ? `Klientka návrh (${isoLabel(r.proposal.date)} · ${r.proposal.time}) neodsúhlasila do ${PROPOSAL_HOURS} h – podržaný čas sa uvoľnil.`
+                            : `Klientka odmietla návrh ${isoLabel(r.proposal.date)} · ${r.proposal.time}${r.proposal.rebook ? ' a vyberá si iný čas.' : '.'}`}</span>
+                        </div>
+                      )}
+                      {r.conflict && !r.proposing && (
+                        <div style={st('display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:9px 11px;margin-bottom:10px;background:var(--danger-bg);color:var(--danger);font-family:var(--font-sans);font-size:.66rem;line-height:1.45')}>
+                          <Icon name="clock" size={15} />
+                          <span>S trvaním {formatDuration(r.durationValue)} sa tento čas prekrýva s iným termínom alebo už prešiel. Zvážte zmenu termínu.</span>
+                        </div>
+                      )}
+                      <div style={{ fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 8 }}>Trvanie</div>
+                      <DurationField value={r.durationValue} onChange={(v) => setRequestDuration(r.id, v)} autoValue={r.duration || null} />
+                      {!r.proposing && (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={r.reject} aria-label="Zamietnuť" style={st('all:unset;cursor:pointer;flex:0.8;text-align:center;padding:9px 4px;border-radius:14px;border:1px solid rgba(229,156,142,.4);color:var(--danger);font-family:var(--font-sans);font-size:.6rem;letter-spacing:.04em;text-transform:uppercase')}>Zamietnuť</button>
+                          <button onClick={r.openPropose} style={st('all:unset;cursor:pointer;flex:1.1;text-align:center;padding:9px 4px;border-radius:14px;border:1px solid var(--line-gold);color:var(--ink);font-family:var(--font-sans);font-size:.6rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap')}>Zmeniť termín</button>
+                          <button onClick={r.approve} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:9px 4px;border-radius:14px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase')}>Potvrdiť</button>
+                        </div>
+                      )}
+                    </React.Fragment>
+                  )}
+
+                  {r.proposing && (
+                    <div style={st('margin-top:12px;padding-top:14px;border-top:1px solid var(--line)')}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                        <span style={st('font-family:var(--font-display);font-size:1rem;font-weight:300;color:var(--ink)')}>Navrhnúť iný termín</span>
+                        <button onClick={r.closePropose} aria-label="Zavrieť" style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:1.2rem;line-height:1;padding:4px')}>×</button>
+                      </div>
+                      {!r.clientUid && (
+                        <div style={st('border-radius:12px;padding:9px 11px;margin-bottom:10px;background:var(--wait-bg);color:var(--wait);font-family:var(--font-sans);font-size:.66rem;line-height:1.45')}>Klientka nemá účet v appke, návrh neuvidí. Lepšie jej zavolajte{r.phone ? ` (${r.phone})` : ''} a termín zapíšte ručne.</div>
+                      )}
+                      <div style={st('display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px')}>
+                        {proposeDates.map((d) => {
+                          const on = s.proposeDateIso === d.iso;
+                          return (
+                            <button key={d.iso} onClick={() => set({ proposeDateIso: d.iso, proposeTime: '' })} style={st(`all:unset;cursor:pointer;flex-shrink:0;width:42px;text-align:center;padding:6px 0;border-radius:12px;font-family:var(--font-sans);background:${on ? 'var(--espresso)' : 'var(--cream)'};color:${on ? 'var(--porcelain)' : 'var(--ink-2)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--line)'}`)}>
+                              <span style={{ display: 'block', fontSize: '.6rem', textTransform: 'uppercase', letterSpacing: '.08em' }}>{d.dow}</span>
+                              <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
+                              <span style={{ display: 'block', fontSize: '.58rem' }}>{d.mon}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 12 }}>
+                        {r.proposeTimes.map((t) => (
+                          <button key={t.label} disabled={t.taken} onClick={() => !t.taken && set({ proposeTime: t.label })} style={st(`all:unset;cursor:${t.taken ? 'not-allowed' : 'pointer'};text-align:center;padding:7px 0;border-radius:10px;font-family:var(--font-sans);font-size:.66rem;color:${t.taken ? 'var(--ink-3)' : t.selected ? 'var(--porcelain)' : 'var(--ink)'};background:${t.selected ? 'var(--espresso)' : 'transparent'};border:1px solid ${t.selected ? 'var(--espresso)' : 'var(--line)'};opacity:${t.taken ? 0.35 : 1};text-decoration:${t.taken ? 'line-through' : 'none'}`)}>{t.label}</button>
+                        ))}
+                      </div>
+                      <textarea value={s.proposeMsg} onChange={(e) => set({ proposeMsg: e.target.value })} placeholder="Správa pre klientku (nepovinné)" style={st('all:unset;display:block;width:100%;min-height:58px;box-sizing:border-box;padding:11px 13px;border-radius:12px;background:var(--cream);border:1px solid var(--line);color:var(--ink);font-family:var(--font-sans);font-size:.74rem;line-height:1.5;margin-bottom:10px')} />
+                      <div style={st('display:flex;gap:8px;align-items:flex-start;font-family:var(--font-sans);font-size:.64rem;color:var(--ink-3);line-height:1.45;margin-bottom:12px')}>
+                        <Icon name="clock" size={14} />
+                        <span>Vybraný čas sa podrží {PROPOSAL_HOURS} h. Termín sa zapíše až keď ho klientka odsúhlasí.</span>
+                      </div>
+                      <button onClick={r.sendProposal} disabled={!s.proposeTime || s.proposeSending || !r.clientUid} style={st(`all:unset;cursor:${(!s.proposeTime || !r.clientUid) ? 'not-allowed' : 'pointer'};display:block;width:100%;box-sizing:border-box;text-align:center;padding:11px;border-radius:14px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.66rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:${(!s.proposeTime || s.proposeSending || !r.clientUid) ? 0.4 : 1}`)}>
+                        {s.proposeSending ? 'Odosielam…' : s.proposeTime ? `Poslať návrh · ${isoLabel(s.proposeDateIso)} ${s.proposeTime}` : 'Vyberte nový čas'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
 
+          {/* ===================== KLIENTKY ===================== */}
           {adminTabClients && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
+            <div className="aura-rise" style={st(T.page)}>
               {clientsListView && (
                 <React.Fragment>
                   {s.addFormOpen && (
-                    <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:16px')}>
-                      <div style={st('font-family:var(--font-display);font-size:1.05rem;color:var(--ink);margin-bottom:12px')}>Nová klientka</div>
-                      <input value={s.newClientName} onChange={(e) => set({ newClientName: e.target.value })} placeholder="Meno a priezvisko" style={st(inputStyle)} />
-                      <input value={s.newClientPhone} onChange={(e) => set({ newClientPhone: e.target.value })} placeholder="Telefónne číslo" style={st(inputStyle)} />
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Termín z kalendára (nepovinné)</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, marginBottom: 10 }}>
-                        {newClientDateOptions.map((d, i) => (
-                          <button key={i} onClick={d.select} style={st(d.style)}>
-                            <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
-                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
-                          </button>
-                        ))}
+                    <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                        <span style={st(T.serif + ';font-size:1.1rem')}>Nová klientka</span>
+                        <button type="button" aria-label="Zavrieť" onClick={cancelAddClient} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
                       </div>
-                      <input type="time" value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} style={st('all:unset;display:block;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:10px')} />
-                      <input value={s.newClientService} onChange={(e) => set({ newClientService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
-                      <input type="number" step="0.25" min="0.25" max="8" value={s.newClientDuration} onChange={(e) => set({ newClientDuration: e.target.value })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
-                      <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.74rem;color:var(--ink-3);margin:0 0 14px;line-height:1.5')}>Vyplňte termín, ak si klientka dohodla čas telefonicky alebo osobne — obsadí to daný čas aj v rezervačnom kalendári appky.</p>
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={cancelAddClient} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                        <button onClick={saveNewClient} disabled={saveDisabled} style={st(saveBtnStyle)}>Uložiť</button>
+                      <input value={s.newClientName} onChange={(e) => set({ newClientName: e.target.value })} placeholder="Meno a priezvisko" style={st(T.inp)} />
+                      <input value={s.newClientPhone} onChange={(e) => set({ newClientPhone: e.target.value })} placeholder="Telefónne číslo" style={st(T.inp + ';margin-top:7px')} />
+                      <Lbl style={{ marginTop: 12 }}>Termín z kalendára (nepovinné)</Lbl>
+                      <div style={st('display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px')}>
+                        {newClientDateOptions.map((d, i) => {
+                          const on = s.newClientDateIso === d.iso;
+                          return <button type="button" key={i} onClick={d.select} style={st(`all:unset;cursor:pointer;flex-shrink:0;width:46px;text-align:center;padding:7px 0;border-radius:12px;font-family:var(--font-sans);font-size:.58rem;background:${on ? 'var(--espresso)' : 'var(--cream)'};color:${on ? '#3B2722' : 'var(--ink-3)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--sand)'}`)}>{d.dow}<b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: '1.05rem', color: on ? '#17100F' : 'var(--ink)' }}>{d.num}</b></button>;
+                        })}
+                      </div>
+                      <input type="time" value={s.newClientTime} onChange={(e) => set({ newClientTime: e.target.value })} style={st(T.inp + ';margin-top:6px')} />
+                      <Lbl style={{ marginTop: 12 }}>Služba z cenníka</Lbl>
+                      <div style={{ marginTop: 6 }}>{renderServicePicker(s.newClientMainKey, s.newClientAddons, pickNewClientMain, toggleNewClientAddon)}</div>
+                      {newClientPicked && <div style={st(T.mut + ';margin:2px 0 10px')}>Spolu {newClientPicked.priceLabel}</div>}
+                      <Lbl>Trvanie úkonu</Lbl>
+                      <div style={{ marginTop: 8 }}><DurationField value={s.newClientDuration} onChange={(v) => set({ newClientDuration: v })} autoValue={newClientPicked ? newClientPicked.duration : null} /></div>
+                      <Note tone="plain">Vyplňte termín, ak si klientka dohodla čas telefonicky alebo osobne – obsadí to daný čas aj v rezervačnom kalendári appky.</Note>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                        <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelAddClient}>Zrušiť</Btn>
+                        <Btn style={{ flex: 1.5 }} onClick={saveNewClient} disabled={saveDisabled}>Uložiť</Btn>
                       </div>
                     </div>
                   )}
-                  {!s.addFormOpen && (
-                    <button onClick={openAddClient} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:13px;border-radius:999px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px')}>+ Pridať klientku</button>
-                  )}
-                  <input value={s.clientSearch} onChange={(e) => set({ clientSearch: e.target.value })} placeholder="Hľadať podľa mena, emailu alebo telefónu" style={st(inputStyle + ';margin-bottom:16px')} />
-                  {noSearchResults && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)', textAlign: 'center', padding: '20px 0' }}>Žiadna klientka nezodpovedá hľadaniu.</p>}
-                  {adminClientsListFiltered.map((c, i) => (
-                    <button key={i} onClick={c.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:13px 0;border-bottom:1px solid var(--line)')}>
-                      <span style={st('width:40px;height:40px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;flex-shrink:0')}>{c.initials}</span>
-                      <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.9rem', color: 'var(--ink)' }}>{c.name}</div><div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{c.email || c.phone}</div></div>
-                      <span style={{ fontSize: '.68rem', letterSpacing: '.06em', color: 'var(--mocha)', flexShrink: 0 }}>{c.stamps}/5</span>
-                    </button>
-                  ))}
+                  <div style={st('display:flex;align-items:center;gap:8px;margin-top:12px;padding:0 12px;border-radius:12px;background:#1B1311;border:1px solid var(--sand);color:var(--ink-3)')}>
+                    <Icon name="search" size={15} />
+                    <input value={s.clientSearch} onChange={(e) => set({ clientSearch: e.target.value })} placeholder="Meno, e-mail alebo telefón" style={st('all:unset;flex:1;padding:11px 0;font-family:var(--font-sans);font-size:.82rem;color:var(--ink)')} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, gap: 8 }}>
+                    <Lbl style={{ whiteSpace: 'nowrap' }}>{clients.length} {clients.length === 1 ? 'klientka' : clients.length >= 2 && clients.length <= 4 ? 'klientky' : 'klientok'}</Lbl>
+                    <div style={{ width: 150 }}><Seg small items={[{ id: 'visits', label: 'Podľa návštev' }, { id: 'alpha', label: 'Abecedne' }]} value={s.clientSort === 'alpha' ? 'alpha' : 'visits'} onChange={(v) => set({ clientSort: v })} /></div>
+                  </div>
+                  {noSearchResults && <div style={{ marginTop: 10 }}><Note tone="plain" icon="search">Žiadna klientka nezodpovedá hľadaniu.</Note></div>}
+                  {adminClientsListFiltered.map((c) => {
+                    const bd = c.birthday ? daysUntilBirthday(c.birthday) : null;
+                    return (
+                      <div key={c.id} style={st('display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid var(--sand)')}>
+                        <button type="button" onClick={c.open} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;flex:1;min-width:0')}>
+                          <Avatar name={c.name} size={32} />
+                          <span style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-sans)', fontSize: '.76rem', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}{bd !== null && bd <= 7 && <span style={{ color: 'var(--espresso)' }}><Icon name="cake" size={12} /></span>}</span>
+                            <span style={st(T.mut + ';font-size:.64rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{c.visitCount} {c.visitCount === 1 ? 'návšteva' : c.visitCount >= 2 && c.visitCount <= 4 ? 'návštevy' : 'návštev'}{bd === 0 ? ' · dnes narodeniny' : bd === 1 ? ' · zajtra narodeniny' : c.lastIso ? ` · ${isoLabel(c.lastIso)}` : ''}</span>
+                          </span>
+                          <span style={{ display: 'flex', gap: 2 }}>{[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i < (c.stamps || 0) ? 'var(--espresso)' : '#4A3A35' }}></i>)}</span>
+                        </button>
+                        {c.phone && c.phone !== '—' && <a href={`tel:${normalizePhone(c.phone)}`} aria-label={`Zavolať ${c.name}`} style={{ textDecoration: 'none' }}><Sq icon="phone" size={30} round /></a>}
+                      </div>
+                    );
+                  })}
                 </React.Fragment>
               )}
 
               {!clientsListView && (
                 <React.Fragment>
-                  <button onClick={backToClients} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:16px;color:var(--mocha);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase')}><span style={{ transform: 'rotate(180deg)', display: 'inline-flex' }}><Icon name="arrow" size={13} /></span>Klientky</button>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-                    <span style={st('width:52px;height:52px;border-radius:50%;background:var(--taupe);color:var(--espresso);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.25rem;flex-shrink:0')}>{selClientInitials}</span>
-                    <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--ink)' }}>{selClient.name}</div><div style={{ fontSize: '.78rem', color: 'var(--ink-3)' }}>{selClient.phone}</div></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                    <button type="button" aria-label="Späť na klientky" onClick={backToClients} style={st('all:unset;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--font-sans);font-size:.74rem')}><Icon name="back" size={18} />Klientky</button>
+                    <span style={{ display: 'flex', gap: 6 }}>
+                      {selClient.phone && selClient.phone !== '—' && <a href={`tel:${normalizePhone(selClient.phone)}`} aria-label="Zavolať" style={{ textDecoration: 'none' }}><Sq icon="phone" size={32} /></a>}
+                      <Sq icon="merge" size={32} onClick={openMergeForm} label="Zlúčiť s inou klientkou" />
+                      <Sq icon="trash" size={32} color="var(--danger)" onClick={deleteClient} label="Zmazať klientku" />
+                    </span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-                    <div style={st('border-radius:14px;padding:14px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{selClient.visits}</div><div style={{ fontSize: '.66rem', color: 'var(--ink-3)' }}>Návštev spolu</div></div>
-                    <div style={st('border-radius:14px;padding:14px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)' }}>{computedLastVisit}</div><div style={{ fontSize: '.66rem', color: 'var(--ink-3)' }}>Posledná návšteva</div></div>
-                  </div>
-                  <div style={st('border-radius:14px;padding:14px 16px;background:var(--white);border:1px solid var(--line);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px')}>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--ink)', textAlign: 'right', border: '1px solid var(--line-gold)', borderRadius: 8, padding: '6px 10px', background: 'var(--cream)', cursor: 'pointer' }} />
-                  </div>
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin-bottom:10px')}>Aura Pass pečiatky</div>
-                  <div style={st('border-radius:18px;padding:18px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:22px')}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8, marginBottom: 14 }}>
-                      {selClientStamps.map((p, i) => (<div key={i} style={st(p.style)}><Icon name="sparkle" size={16} /></div>))}
-                    </div>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <button onClick={removeStampSel} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>− Pečiatka</button>
-                      <button onClick={addStampSel} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>+ Pečiatka</button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
+                    <Avatar name={selClient.name} size={48} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={st(T.serif + ';font-size:1.2rem')}>{selClient.name}</div>
+                      <div style={st(T.mut)}>{clientApptStats(selClient).visits} návštev · {money(clientApptStats(selClient).spend)} · naposledy {computedLastVisit}</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink)')}>Termíny</div>
-                    {!s.apptFormOpen && <button onClick={openAddAppt} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mocha)')}>+ Pridať termín</button>}
+
+                  <div style={st(T.card + ';margin-top:12px;padding:12px')}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Lbl>Aura Pass</Lbl>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Sq icon="minus" size={28} onClick={removeStampSel} label="Odobrať pečiatku" />
+                        <span style={st(T.serif + ';font-size:1.1rem')}>{selClient.stamps || 0}/5</span>
+                        <Sq icon="plus" size={28} bg="var(--espresso)" color="#17100F" onClick={addStampSel} label="Pridať pečiatku" />
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>{[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ flex: 1, height: 8, borderRadius: 4, background: i < (selClient.stamps || 0) ? 'var(--espresso)' : 'rgba(255,255,255,.12)' }}></i>)}</div>
                   </div>
-                  {selClientAppts.length === 0 && !s.apptFormOpen && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)', margin: '0 0 14px' }}>Žiadne termíny.</p>}
-                  {selClientAppts.map((a, i) => (
-                    <div key={i} style={st('display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)')}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>{a.service}</div>
-                        <div style={{ fontSize: '.76rem', color: 'var(--ink-3)', marginTop: 2 }}>{isoLabel(a.date)} · {a.time}</div>
-                      </div>
-                      <button onClick={() => openEditAppt(a)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha)')}>Upraviť</button>
-                      <button onClick={() => cancelAppt(a.id)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b23b3b')}>Zrušiť</button>
+
+                  <div style={st('display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid var(--sand)')}>
+                    <Sq icon="cake" size={32} />
+                    <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Dátum narodenia</span>
+                    <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={st(T.inp + ';width:auto;padding:7px 9px;font-size:.78rem')} />
+                  </div>
+
+                  <Lbl style={{ marginTop: 14 }}>Poznámky</Lbl>
+                  <textarea value={selClient.notes || ''} onChange={updateClientNotes} placeholder="Farba, tvar, dĺžka, citlivosť, alergie, preferencie…" style={st(T.inp + ';margin-top:6px;min-height:80px;line-height:1.5;font-size:.78rem;color:#E4D4CC')}></textarea>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
+                    <Lbl>Termíny</Lbl>
+                    {!s.apptFormOpen && <button type="button" onClick={openAddAppt} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.7rem;font-weight:600;color:var(--espresso)')}>+ Pridať termín</button>}
+                  </div>
+                  {selClientAppts.length === 0 && !s.apptFormOpen && <div style={{ marginTop: 6 }}><Note tone="plain" icon="cal">Žiadne termíny.</Note></div>}
+                  {selClientAppts.map((a) => (
+                    <div key={a.id} style={st('display:flex;align-items:center;gap:10px;margin-top:6px;padding:9px 11px;border-radius:14px;background:var(--white);border:1px solid var(--sand)')}>
+                      <span style={{ flex: 1, minWidth: 0 }}><span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)' }}>{shortDate(a.date)} · {a.time}</span><span style={st(T.mut)}>{a.service}</span></span>
+                      <button type="button" aria-label="Upraviť termín" onClick={() => openEditAppt(a)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="edit" size={15} /></button>
+                      <button type="button" aria-label="Zrušiť termín" onClick={() => cancelAppt(a.id)} style={st('all:unset;cursor:pointer;color:var(--danger)')}><Icon name="x" size={15} /></button>
                     </div>
                   ))}
                   {s.apptFormOpen && (
-                    <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin:12px 0')}>
-                      <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:12px')}>{s.apptEditingId ? 'Upraviť termín' : 'Nový termín'}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, marginBottom: 10 }}>
-                        {apptDateOptions.map((d, i) => (
-                          <button key={i} onClick={d.select} style={st(d.style)}>
-                            <span style={{ display: 'block', fontSize: '.55rem', textTransform: 'uppercase', opacity: .7 }}>{d.dow}</span>
-                            <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>{d.num}</span>
-                          </button>
-                        ))}
+                    <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                      <div style={st(T.serif + ';font-size:1.05rem;margin-bottom:8px')}>{s.apptEditingId ? 'Upraviť termín' : 'Nový termín'}</div>
+                      <div style={st('display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px')}>
+                        {apptDateOptions.map((d, i) => {
+                          const on = s.apptDateIso === d.iso;
+                          return <button type="button" key={i} onClick={d.select} style={st(`all:unset;cursor:pointer;flex-shrink:0;width:46px;text-align:center;padding:7px 0;border-radius:12px;font-family:var(--font-sans);font-size:.58rem;background:${on ? 'var(--espresso)' : 'var(--cream)'};color:${on ? '#3B2722' : 'var(--ink-3)'};border:1px solid ${on ? 'var(--espresso)' : 'var(--sand)'}`)}>{d.dow}<b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: '1.05rem', color: on ? '#17100F' : 'var(--ink)' }}>{d.num}</b></button>;
+                        })}
                       </div>
-                      <input type="time" value={s.apptTime} onChange={(e) => set({ apptTime: e.target.value })} style={st(inputStyle)} />
-                      <input value={s.apptService} onChange={(e) => set({ apptService: e.target.value })} placeholder="Služba (napr. Gélové nechty)" style={st(inputStyle)} />
-                      <div style={{ fontSize: '.68rem', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>Trvanie úkonu (v hodinách)</div>
-                      <input type="number" step="0.25" min="0.25" max="8" value={s.apptDuration} onChange={(e) => set({ apptDuration: e.target.value })} style={st('all:unset;display:block;width:120px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.86rem;color:var(--ink);margin-bottom:14px')} />
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={cancelApptForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                        <button onClick={saveAppt} disabled={apptSaveDisabled} style={st(`all:unset;cursor:${apptSaveDisabled ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${apptSaveDisabled ? 0.5 : 1}`)}>Uložiť</button>
+                      <input type="time" value={s.apptTime} onChange={(e) => set({ apptTime: e.target.value })} style={st(T.inp + ';margin-top:4px')} />
+                      <Lbl style={{ marginTop: 12 }}>Služba z cenníka</Lbl>
+                      {s.apptEditingId && !s.apptMainKey && s.apptService && <div style={{ marginTop: 6 }}><Note tone="wait">Pôvodne zapísané ako „{s.apptService}“ – nie je v cenníku. Vyberte službu nižšie, aby sedeli štatistiky.</Note></div>}
+                      <div style={{ marginTop: 6 }}>{renderServicePicker(s.apptMainKey, s.apptAddons, pickApptMain, toggleApptAddon)}</div>
+                      {apptPicked && <div style={st(T.mut + ';margin:2px 0 10px')}>Spolu {apptPicked.priceLabel}</div>}
+                      <Lbl>Trvanie úkonu</Lbl>
+                      <div style={{ marginTop: 8 }}><DurationField value={s.apptDuration} onChange={(v) => set({ apptDuration: v })} autoValue={apptPicked ? apptPicked.duration : null} /></div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelApptForm}>Zrušiť</Btn>
+                        <Btn style={{ flex: 1.5 }} onClick={saveAppt} disabled={apptSaveDisabled}>Uložiť</Btn>
                       </div>
                     </div>
                   )}
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>História návštev</div>
+
+                  <Lbl style={{ marginTop: 14 }}>História návštev</Lbl>
+                  {selClientHistory.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>Zatiaľ žiadna história.</div>}
                   {selClientHistory.map((h, i) => (
-                    <div key={i} style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink-2)' }}>{h.service}</span>
-                      <span style={{ fontSize: '.76rem', color: 'var(--ink-3)' }}>{h.date}</span>
-                    </div>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontFamily: 'var(--font-sans)', fontSize: '.76rem', marginTop: 7 }}><span style={{ color: 'var(--ink)' }}>{h.service}</span><span style={{ color: 'var(--ink-3)', flexShrink: 0 }}>{h.date}</span></div>
                   ))}
-                  <div style={st('font-family:var(--font-display);font-size:1.1rem;color:var(--ink);margin:20px 0 10px')}>Karta klientky</div>
-                  <textarea value={selClient.notes} onChange={updateClientNotes} placeholder="napr. alergie, preferencie, poznámky k nechtom…" style={st('all:unset;display:block;width:100%;min-height:90px;box-sizing:border-box;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--white);font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink);line-height:1.6;margin-bottom:20px;resize:none')}></textarea>
-                  {!s.mergeFormOpen && <button onClick={openMergeForm} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px')}>Zlúčiť s inou klientkou</button>}
+
                   {s.mergeFormOpen && (
-                    <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold);margin-bottom:10px')}>
-                      <div style={st('font-family:var(--font-display);font-size:1rem;color:var(--ink);margin-bottom:4px')}>Zlúčiť duplicitný záznam</div>
-                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.76rem', color: 'var(--ink-3)', margin: '0 0 12px', lineHeight: 1.5 }}>Vyber duplicitnú klientku — jej návštevy, pečiatky a história sa presunú sem a jej záznam sa zmaže.</p>
-                      <input value={s.mergeSearchQuery} onChange={(e) => set({ mergeSearchQuery: e.target.value, mergeSourceId: null })} placeholder="Hľadať podľa mena alebo telefónu" style={st(inputStyle)} />
-                      <div style={{ maxHeight: 180, overflowY: 'auto', marginBottom: 12 }}>
-                        {mergeCandidates.map((c, i) => (
-                          <button key={i} onClick={() => set({ mergeSourceId: c.id })} style={st(`all:unset;cursor:pointer;display:flex;justify-content:space-between;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;margin-bottom:4px;background:${s.mergeSourceId === c.id ? 'var(--cream)' : 'transparent'};border:1px solid ${s.mergeSourceId === c.id ? 'var(--line-gold)' : 'transparent'}`)}>
-                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.82rem', color: 'var(--ink)' }}>{c.name}</span>
-                            <span style={{ fontSize: '.74rem', color: 'var(--ink-3)' }}>{c.phone}</span>
-                          </button>
+                    <div style={st(T.card + ';margin-top:14px;border-color:var(--taupe)')}>
+                      <div style={st(T.serif + ';font-size:1.05rem')}>Zlúčiť duplicitný záznam</div>
+                      <p style={st(T.mut + ';margin:4px 0 10px')}>Vyberte duplicitnú klientku – jej návštevy, pečiatky a história sa presunú sem a jej záznam sa zmaže.</p>
+                      <input value={s.mergeSearchQuery} onChange={(e) => set({ mergeSearchQuery: e.target.value, mergeSourceId: null })} placeholder="Hľadať podľa mena alebo telefónu" style={st(T.inp)} />
+                      <div style={{ maxHeight: 180, overflowY: 'auto', margin: '8px 0' }}>
+                        {mergeCandidates.map((c) => (
+                          <button type="button" key={c.id} onClick={() => set({ mergeSourceId: c.id })} style={st(`all:unset;cursor:pointer;display:flex;justify-content:space-between;width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;margin-bottom:4px;font-family:var(--font-sans);font-size:.8rem;color:var(--ink);background:${s.mergeSourceId === c.id ? 'var(--cream)' : 'transparent'};border:1px solid ${s.mergeSourceId === c.id ? 'var(--taupe)' : 'transparent'}`)}><span>{c.name}</span><span style={{ color: 'var(--ink-3)' }}>{c.phone}</span></button>
                         ))}
-                        {mergeCandidates.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-3)' }}>Žiadne zhody.</p>}
+                        {mergeCandidates.length === 0 && <div style={st(T.mut)}>Žiadne zhody.</div>}
                       </div>
-                      {mergeBlocked && <p style={{ color: '#b23b3b', fontFamily: 'var(--font-sans)', fontSize: '.76rem', margin: '0 0 12px', lineHeight: 1.5 }}>{mergeSource.name} má prihlasovací účet (email) — jej zmazaním by stratila prístup do appky. Otvor namiesto toho detail klientky {mergeSource.name} a zlúč do nej tento záznam.</p>}
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={cancelMergeForm} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                        <button onClick={confirmMerge} disabled={!mergeSource || mergeBlocked} style={st(`all:unset;cursor:${(!mergeSource || mergeBlocked) ? 'not-allowed' : 'pointer'};flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:${(!mergeSource || mergeBlocked) ? 0.5 : 1}`)}>Zlúčiť</button>
+                      {mergeBlocked && <Note tone="danger">{mergeSource.name} má prihlasovací účet (email) – jej zmazaním by stratila prístup do appky. Otvorte namiesto toho detail klientky {mergeSource.name} a zlúčte do nej tento záznam.</Note>}
+                      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                        <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelMergeForm}>Zrušiť</Btn>
+                        <Btn style={{ flex: 1.5 }} onClick={confirmMerge} disabled={!mergeSource || mergeBlocked}>Zlúčiť</Btn>
                       </div>
                     </div>
                   )}
-                  <button onClick={deleteClient} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid rgba(178,59,59,.4);color:#b23b3b;font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase')}>Zmazať klientku</button>
                 </React.Fragment>
               )}
             </div>
           )}
 
+          {/* ===================== CENNÍK (úpravy) ===================== */}
           {adminTabPricing && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <p style={st('font-family:var(--font-sans);font-weight:300;font-size:.84rem;color:var(--ink-2);margin:0 0 18px;line-height:1.6')}>Zmeny sa hneď zobrazia klientkam v appke.</p>
+            <div className="aura-rise" style={st(T.page)}>
+              <div style={st(T.mut + ';margin-top:2px')}>Zmeny sa hneď zobrazia klientkam v appke.</div>
               {pricing.map((cat, ci) => (
-                <div key={ci} style={st('border-radius:18px;background:var(--white);border:1px solid var(--line);margin-bottom:14px;overflow:hidden;padding:16px')}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div><span style={{ fontFamily: 'var(--font-display)', fontSize: '1.08rem', color: 'var(--ink)', display: 'block' }}>{cat.name}</span><span style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>{cat.sub}</span></div>
-                    <button onClick={() => deletePricingCategory(ci)} style={st('all:unset;cursor:pointer;color:#b23b3b;font-family:var(--font-sans);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase')}>Zmazať</button>
+                <div key={ci} style={st('background:var(--white);border:1px solid var(--sand);border-radius:18px;padding:4px 13px;margin-top:10px')}>
+                  <div style={st('display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--sand)')}>
+                    <span><span style={st(T.serif + ';font-size:1.05rem;display:block')}>{cat.name}</span>{cat.sub && <span style={st(T.mut + ';font-size:.64rem')}>{cat.sub}</span>}</span>
+                    <button type="button" aria-label="Zmazať kategóriu" onClick={() => deletePricingCategory(ci)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="trash" size={15} /></button>
                   </div>
-                  {cat.items.map((it, ii) => (
+                  {(cat.items || []).map((it, ii) => (
                     s.editItemCatIndex === ci && s.editItemIndex === ii ? (
-                      <div key={ii} style={{ padding: '9px 0', borderTop: '1px solid var(--line)' }}>
-                        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                          <input value={s.editItemLabel} onChange={(e) => set({ editItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                          <input value={s.editItemPrice} onChange={(e) => set({ editItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                      <div key={ii} style={{ padding: '10px 0', borderBottom: '1px solid var(--sand)' }}>
+                        <input value={s.editItemLabel} onChange={(e) => set({ editItemLabel: e.target.value })} placeholder="Názov služby" style={st(T.inp + ';padding:9px 11px')} />
+                        <div style={{ display: 'flex', gap: 6, marginTop: 6, alignItems: 'center' }}>
+                          <input value={s.editItemPrice} onChange={(e) => set({ editItemPrice: e.target.value })} placeholder="35 €" style={st(T.inp + ';padding:9px 11px;width:90px')} />
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-2)' }}><Toggle on={s.editItemAddon} onClick={() => set({ editItemAddon: !s.editItemAddon })} label="Doplnok" />Doplnok</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                          <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
-                          <input type="number" step="0.25" min="0.25" max="8" value={s.editItemDuration} onChange={(e) => set({ editItemDuration: e.target.value })} style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                          <button onClick={() => set({ editItemAddon: !s.editItemAddon })} style={st('all:unset;cursor:pointer;margin-left:auto;padding:7px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.7rem;color:' + (s.editItemAddon ? 'var(--porcelain)' : 'var(--ink-2)') + ';background:' + (s.editItemAddon ? 'var(--espresso)' : 'var(--white)') + ';border:1px solid ' + (s.editItemAddon ? 'var(--espresso)' : 'var(--line-gold)'))}>Doplnok</button>
-                        </div>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={cancelEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
-                          <button onClick={saveEditItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Uložiť</button>
+                        <div style={{ marginTop: 8 }}><DurationField value={parseDurationInput(s.editItemDuration)} onChange={(v) => set({ editItemDuration: String(v) })} /></div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <Btn kind="ghost" small style={{ flex: 1, padding: 9 }} onClick={cancelEditItem}>Zrušiť</Btn>
+                          <Btn small style={{ flex: 1, padding: 9 }} onClick={saveEditItem}>Uložiť</Btn>
                         </div>
                       </div>
                     ) : (
-                      <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)')}>
-                        <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;text-align:left;flex:1;min-width:0')}>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-2)', display: 'block' }}>{it.label}</span>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.7rem', color: 'var(--ink-3)' }}>{formatDuration(itemDuration(it))}{isAddonItem(it) ? ' · doplnok' : ''}</span>
+                      <div key={ii} style={st('display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--sand)')}>
+                        <button type="button" onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;flex:1;min-width:0')}>
+                          <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>{it.label}</span>
+                          <span style={st(T.mut)}>{isAddonItem(it) ? 'doplnok · ' : ''}{formatDuration(itemDuration(it))}</span>
                         </button>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <button onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;font-family:var(--font-sans);font-size:.84rem;color:var(--mocha)')}>{it.price}</button>
-                          <button onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1')}>×</button>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>
+                          {it.price}
+                          <button type="button" aria-label="Upraviť" onClick={() => openEditItem(ci, ii, it)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="edit" size={14} /></button>
+                          <button type="button" aria-label="Zmazať" onClick={() => deletePricingItem(ci, ii)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={14} /></button>
                         </span>
                       </div>
                     )
                   ))}
                   {s.addItemCatIndex === ci ? (
-                    <div style={{ marginTop: 10 }}>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                        <input value={s.newItemLabel} onChange={(e) => set({ newItemLabel: e.target.value })} placeholder="Názov služby" style={st('all:unset;flex:1;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                        <input value={s.newItemPrice} onChange={(e) => set({ newItemPrice: e.target.value })} placeholder="35 €" style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
+                    <div style={{ padding: '10px 0' }}>
+                      <input value={s.newItemLabel} onChange={(e) => set({ newItemLabel: e.target.value })} placeholder="Názov služby" style={st(T.inp + ';padding:9px 11px')} />
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6, alignItems: 'center' }}>
+                        <input value={s.newItemPrice} onChange={(e) => set({ newItemPrice: e.target.value })} placeholder="35 €" style={st(T.inp + ';padding:9px 11px;width:90px')} />
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-2)' }}><Toggle on={s.newItemAddon} onClick={() => set({ newItemAddon: !s.newItemAddon })} label="Doplnok" />Doplnok</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <span style={{ fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Trvanie (h)</span>
-                        <input type="number" step="0.25" min="0.25" max="8" value={s.newItemDuration} onChange={(e) => set({ newItemDuration: e.target.value })} style={st('all:unset;width:70px;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font-family:var(--font-sans);font-size:.8rem;color:var(--ink)')} />
-                        <button onClick={() => set({ newItemAddon: !s.newItemAddon })} style={st('all:unset;cursor:pointer;margin-left:auto;padding:7px 12px;border-radius:999px;font-family:var(--font-sans);font-size:.7rem;color:' + (s.newItemAddon ? 'var(--porcelain)' : 'var(--ink-2)') + ';background:' + (s.newItemAddon ? 'var(--espresso)' : 'var(--white)') + ';border:1px solid ' + (s.newItemAddon ? 'var(--espresso)' : 'var(--line-gold)'))}>Doplnok</button>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={cancelAddItem} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Zrušiť</button>
-                        <button onClick={() => saveNewItem(ci)} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase')}>Uložiť</button>
+                      <div style={{ marginTop: 8 }}><DurationField value={parseDurationInput(s.newItemDuration)} onChange={(v) => set({ newItemDuration: String(v) })} /></div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <Btn kind="ghost" small style={{ flex: 1, padding: 9 }} onClick={cancelAddItem}>Zrušiť</Btn>
+                        <Btn small style={{ flex: 1, padding: 9 }} onClick={() => saveNewItem(ci)}>Uložiť</Btn>
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => openAddItem(ci)} style={st('all:unset;cursor:pointer;display:block;margin-top:10px;font-family:var(--font-sans);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mocha)')}>+ Pridať službu</button>
+                    <button type="button" onClick={() => openAddItem(ci)} style={st('all:unset;cursor:pointer;display:block;padding:10px 0;font-family:var(--font-sans);font-size:.72rem;font-weight:600;color:var(--espresso)')}>+ Pridať službu</button>
                   )}
                 </div>
               ))}
-              {s.addCatFormOpen ? (
-                <div style={st('border-radius:18px;padding:16px;background:var(--white);border:1px solid var(--line-gold)')}>
-                  <input value={s.newCatName} onChange={(e) => set({ newCatName: e.target.value })} placeholder="Názov kategórie (napr. Pedikúra)" style={st(inputStyle)} />
-                  <input value={s.newCatSub} onChange={(e) => set({ newCatSub: e.target.value })} placeholder="Podnadpis (nepovinné)" style={st(inputStyle)} />
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button onClick={cancelAddCategory} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Zrušiť</button>
-                    <button onClick={saveNewCategory} style={st('all:unset;cursor:pointer;flex:1;text-align:center;padding:11px;border-radius:999px;background:var(--espresso);color:var(--porcelain);font-family:var(--font-sans);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase')}>Uložiť</button>
+              {s.addCatFormOpen && (
+                <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                  <input value={s.newCatName} onChange={(e) => set({ newCatName: e.target.value })} placeholder="Názov kategórie (napr. Pedikúra)" style={st(T.inp)} />
+                  <input value={s.newCatSub} onChange={(e) => set({ newCatSub: e.target.value })} placeholder="Podnadpis (nepovinné)" style={st(T.inp + ';margin-top:7px')} />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelAddCategory}>Zrušiť</Btn>
+                    <Btn style={{ flex: 1.5 }} onClick={saveNewCategory}>Uložiť</Btn>
                   </div>
                 </div>
-              ) : (
-                <button onClick={openAddCategory} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:13px;border-radius:999px;border:1px dashed var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase')}>+ Nová kategória</button>
               )}
             </div>
           )}
 
+          {/* ===================== ŠTATISTIKY ===================== */}
           {adminTabStats && (
-            <div style={st('flex:1;padding:4px 20px 100px;overflow:auto')}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{statsThisWeek}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov tento týždeň</div></div>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{statsThisMonth}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Termínov tento mesiac</div></div>
+            <div className="aura-rise" style={st(T.page)}>
+              <div style={{ marginTop: 10 }}><Seg small items={STATS_PERIODS.map((p) => ({ id: p.id, label: p.label }))} value={s.statsPeriod} onChange={(v) => set({ statsPeriod: v })} /></div>
+              <div style={st(T.mut + ';margin-top:6px;font-size:.66rem')}>{isoLabel(pFrom)} – {isoLabel(pTo)}</div>
+              <div style={st('position:relative;overflow:hidden;margin-top:8px;padding:14px;border-radius:22px;background:var(--hero);border:1px solid #4A322B')}>
+                <Lbl gold>Tržby (odrobené)</Lbl>
+                <div style={st(T.serif + ';font-size:2rem;line-height:1.15;margin-top:4px')}>{money(revenueDone)}</div>
+                {revenuePlanned > 0 && <div style={st(T.mut)}>+ {money(revenuePlanned)} objednané</div>}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 22 }}>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{totalClientsCount}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Klientok celkovo</div></div>
-                <div style={st('border-radius:16px;padding:16px;background:var(--white);border:1px solid var(--line)')}><div style={{ fontFamily: 'var(--font-display)', fontSize: '1.7rem', color: 'var(--ink)' }}>{avgVisits.toFixed(1)}</div><div style={{ fontSize: '.68rem', color: 'var(--ink-3)', letterSpacing: '.06em' }}>Priemer návštev/klientka</div></div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+                {[['Termíny', periodDone.length, periodPlanned.length ? `+ ${periodPlanned.length} naplánovaných` : null, null], ['Priemer / návšteva', money(avgTicket), null, null], ['Odpracované', `${String(Math.round(hoursDone * 10) / 10).replace('.', ',')} h`, null, null], ['Vyťaženosť', pct(occupancyPeriod), 'bez voľna', 'var(--espresso)']].map(([l, v, sub, c]) => (
+                  <div key={l} style={st(T.card + ';padding:12px')}>
+                    <span style={st(T.mut + ';white-space:nowrap')}>{l}</span>
+                    <b style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: '1.5rem', lineHeight: 1.2, marginTop: 4, color: c || 'var(--ink)' }}>{v}</b>
+                    {sub && <span style={st(T.mut + ';font-size:.6rem')}>{sub}</span>}
+                  </div>
+                ))}
               </div>
-              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin-bottom:10px')}>Najobľúbenejšie služby</div>
-              {topServices.length === 0 && <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: '.84rem', color: 'var(--ink-3)' }}>Zatiaľ žiadne dáta.</p>}
-              {topServices.map(([name, count], i) => (
-                <div key={i} style={st('display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)')}>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>{name}</span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--mocha)' }}>{count}×</span>
+              <ListRow icon="users" title="Nové klientky" sub={`celkovo ${totalClientsCount}`} right={<span style={st(T.serif + ';font-size:1.3rem')}>{newClientsInPeriod}</span>} />
+              <ListRow icon="cal" title="Obsadenosť najbližších 7 dní" right={<span style={st(T.serif + ';font-size:1.15rem')}>{pct(occupancyNext7)}</span>} />
+
+              <Lbl style={{ marginTop: 18 }}>Tržby po mesiacoch</Lbl>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 7, height: 96, marginTop: 10 }}>
+                {monthlyRevenue.map((m, i) => {
+                  const tot = m.done + m.planned;
+                  const isLast = i === monthlyRevenue.length - 1;
+                  return (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                      <span style={st(T.mut + ';font-size:.54rem;margin-bottom:3px')}>{tot ? Math.round(tot) : ''}</span>
+                      {m.planned > 0 && <div style={{ width: '100%', height: Math.max(2, (m.planned / monthlyMax) * 62), background: 'rgba(217,185,155,.35)', borderRadius: m.done ? '5px 5px 0 0' : '5px 5px 2px 2px' }}></div>}
+                      <div style={{ width: '100%', height: Math.max(2, (m.done / monthlyMax) * 62), background: isLast ? '#D9B99B' : '#A47C60', borderRadius: m.planned ? '0 0 2px 2px' : '5px 5px 2px 2px', opacity: m.done ? 1 : 0.25 }}></div>
+                      <span style={st(T.mut + `;font-size:.56rem;margin-top:3px;${isLast ? 'color:var(--espresso)' : ''}`)}>{String(m.label).split(" ")[0]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={st(T.mut + ';font-size:.58rem;margin-top:4px')}>Plná časť odrobená, svetlá objednaná · ceny podľa cenníka</div>
+
+              <Lbl style={{ marginTop: 18 }}>Najobľúbenejšie služby</Lbl>
+              {topServices.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>V tomto období zatiaľ žiadne dáta.</div>}
+              {topServices.map((t, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontFamily: 'var(--font-sans)', fontSize: '.72rem' }}>
+                  <span style={{ width: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--ink)' }}>{t.label}</span>
+                  <span style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((t.count / topServiceMax) * 100)}%`, background: 'var(--espresso)' }}></i></span>
+                  <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', width: 62, textAlign: 'right' }}>{t.count}× · {money(t.revenue)}</em>
                 </div>
               ))}
-              <div style={st('font-family:var(--font-display);font-size:1.15rem;color:var(--ink);margin:22px 0 10px')}>Ostatné</div>
-              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Nadchádzajúce termíny spolu</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{totalUpcoming}</span></div>
-              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Čakajúce žiadosti</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{requests.length}</span></div>
-              <div style={st('display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)')}><span style={{ fontFamily: 'var(--font-sans)', fontSize: '.86rem', color: 'var(--ink-2)' }}>Priemerné hodnotenie návštev</span><span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--ink)' }}>{avgRating ? `${avgRating.toFixed(1)} / 5 (${ratedAppts.length})` : '—'}</span></div>
-              <button onClick={exportClientsCsv} style={st('all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;text-align:center;padding:13px;border-radius:999px;border:1px solid var(--line-gold);color:var(--mocha);font-family:var(--font-sans);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-top:22px')}>Stiahnuť zálohu klientok (CSV)</button>
+              {unspecifiedCount > 0 && <div style={st(T.mut + ';font-size:.62rem;margin-top:6px')}>Ďalších {unspecifiedCount} termínov je bez uvedenej služby.</div>}
+
+              <Lbl style={{ marginTop: 18 }}>Najrušnejšie dni</Lbl>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginTop: 8 }}>
+                {weekdayCounts.map((n, i) => {
+                  const f = n / weekdayMax;
+                  const bg = !n ? '#1F1715' : f > 0.8 ? '#D9B99B' : f > 0.55 ? '#A47C60' : f > 0.3 ? '#6B4A3B' : '#3A2A23';
+                  return <div key={i} style={{ height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: bg, color: f > 0.55 ? '#17100F' : 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '.66rem', lineHeight: 1.2, textAlign: 'center' }}><span>{WEEKDAYS[i]}<br /><b style={{ fontWeight: 600 }}>{n || ''}</b></span></div>;
+                })}
+              </div>
+
+              <Lbl style={{ marginTop: 18 }}>Najvernejšie klientky</Lbl>
+              {topClients.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>Zatiaľ žiadne dáta.</div>}
+              {topClients.map((x) => (
+                <button type="button" key={x.c.id} onClick={() => set({ adminTab: 'clients', selectedClientId: x.c.id })} style={st('all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;font-family:var(--font-sans);font-size:.72rem')}>
+                  <span style={{ width: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--ink)' }}>{x.c.name}</span>
+                  <span style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,.05)' }}><i style={{ display: 'block', height: 8, borderRadius: 4, width: `${Math.round((x.r.visits / Math.max(1, topClients[0].r.visits)) * 100)}%`, background: 'var(--espresso)' }}></i></span>
+                  <em style={{ fontStyle: 'normal', color: 'var(--ink-3)', fontSize: '.66rem', width: 62, textAlign: 'right' }}>{x.r.visits}× · {money(x.r.spend)}</em>
+                </button>
+              ))}
+
+              <Lbl style={{ marginTop: 18 }}>Dlho neboli <span style={{ textTransform: 'none', letterSpacing: 0 }}>· viac ako {LAPSED_DAYS / 7} týždňov</span></Lbl>
+              {lapsedClients.length === 0 && <div style={st(T.mut + ';margin-top:6px')}>Všetky pravidelné klientky majú termín alebo boli nedávno.</div>}
+              {lapsedClients.map((x) => (
+                <div key={x.c.id} style={st('display:flex;align-items:center;gap:10px;margin-top:7px;padding:9px 12px;border-radius:16px;background:var(--white);border:1px solid var(--sand)')}>
+                  <button type="button" onClick={() => set({ adminTab: 'clients', selectedClientId: x.c.id })} style={st('all:unset;cursor:pointer;flex:1;min-width:0')}>
+                    <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink)' }}>{x.c.name}</span>
+                    <span style={st(T.mut)}>naposledy {isoLabel(x.r.last)} · pred {Math.round(x.since / 7)} týž.</span>
+                  </button>
+                  {x.c.phone && x.c.phone !== '—' && <a href={`tel:${normalizePhone(x.c.phone)}`} style={st('display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:14px;border:1px solid var(--taupe);color:var(--ink);font-family:var(--font-sans);font-size:.66rem;text-decoration:none')}><Icon name="phone" size={12} />Zavolať</a>}
+                </div>
+              ))}
+
+              {unmatchedServices.length > 0 && (
+                <React.Fragment>
+                  <div style={{ marginTop: 18 }}><Note tone="wait">{unmatchedServices.length} {unmatchedServices.length === 1 ? 'starý názov služby nesedí' : 'staré názvy služieb nesedia'} s cenníkom, preto sa v štatistikách počítajú zvlášť. Vyberte, ktorej službe zodpovedajú – prepíšu sa vo všetkých termínoch.</Note></div>
+                  {unmatchedServices.map(([raw, count]) => (
+                    <div key={raw} style={st(T.card + ';margin-top:8px;padding:11px 12px')}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}><span>„{raw}“</span><span style={{ color: 'var(--ink-3)' }}>{count}×</span></div>
+                      <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                        <select value={s.mapServiceSel[raw] || ''} onChange={(e) => set({ mapServiceSel: { ...s.mapServiceSel, [raw]: e.target.value } })} style={st(T.inp + ';flex:1;width:auto;padding:8px 10px;font-size:.76rem;appearance:auto;-webkit-appearance:menulist')}>
+                          <option value="">Vyberte službu z cenníka…</option>
+                          {cennikMainByCat.map((cat) => (
+                            <optgroup key={cat.ci} label={cat.name}>
+                              {cat.items.map((m) => <option key={m.key} value={m.key}>{m.label} · {m.price}</option>)}
+                            </optgroup>
+                          ))}
+                        </select>
+                        <Btn small onClick={() => remapService(raw)} disabled={!s.mapServiceSel[raw]}>Zjednotiť</Btn>
+                      </div>
+                    </div>
+                  ))}
+                </React.Fragment>
+              )}
+
+              <Lbl style={{ marginTop: 18 }}>Ostatné</Lbl>
+              <ListRow icon="inbox" title="Čakajúce žiadosti" right={<span style={st(T.serif + ';font-size:1.1rem')}>{requests.length}</span>} onClick={goRequests} />
+              <ListRow icon="star" title="Priemerné hodnotenie návštev" right={<span style={st(T.serif + ';font-size:1.05rem;color:var(--espresso)')}>{avgRating ? `${avgRating.toFixed(1).replace('.', ',')} ★` : '—'}</span>} sub={avgRating ? `${ratedAppts.length} hodnotení` : null} />
+              <div style={{ marginTop: 12 }}><Btn full kind="ghost" icon="dl" onClick={exportClientsCsv}>Stiahnuť zálohu klientok (CSV)</Btn></div>
             </div>
           )}
 
-          <div style={st('display:flex;justify-content:space-around;align-items:center;padding:10px 6px 26px;background:rgba(247,242,239,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;box-sizing:border-box;z-index:20')}>
-            <button onClick={goOverview} style={st(navBtn(adminTabOverview))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M8 3v4M16 3v4" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Prehľad</span>
-            </button>
-            <button onClick={goRequests} style={st(navBtn(adminTabRequests))}>
-              <span style={{ position: 'relative' }}>
-                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M18 8.5c0-3.6-2.7-6-6-6s-6 2.4-6 6c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5z" /><path d="M10 18.5a2 2 0 004 0" /></svg>
-                {hasPending && <span style={{ position: 'absolute', top: -2, right: -4, width: 8, height: 8, borderRadius: '50%', background: 'var(--mocha)' }}></span>}
-              </span>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Žiadosti</span>
-            </button>
-            <button onClick={goClients} style={st(navBtn(adminTabClients))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19c0-3.4 2.6-5.6 5.5-5.6s5.5 2.2 5.5 5.6" /><circle cx="17" cy="9" r="2.4" /><path d="M15 13.6c2.4.3 4.5 2.1 4.5 5.4" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Klientky</span>
-            </button>
-            <button onClick={goPricingAdmin} style={st(navBtn(adminTabPricing))}>
-              <Icon name="list" size={21} />
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Cenník</span>
-            </button>
-            <button onClick={goStats} style={st(navBtn(adminTabStats))}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 19V10M12 19V5M19 19v-7" /></svg>
-              <span style={{ fontSize: '.56rem', letterSpacing: '.04em', marginTop: 3 }}>Štatistiky</span>
-            </button>
-          </div>
+          <TabBar items={[
+            { icon: 'home', label: 'Prehľad', on: adminTabOverview, onClick: goOverview },
+            { icon: 'inbox', label: 'Žiadosti', on: adminTabRequests, onClick: goRequests, badge: adminPendingCount || null },
+            { icon: 'users', label: 'Klientky', on: adminTabClients, onClick: goClients },
+            { icon: 'tag', label: 'Cenník', on: adminTabPricing, onClick: goPricingAdmin },
+            { icon: 'chart', label: 'Štatistiky', on: adminTabStats, onClick: goStats },
+          ]} />
         </div>
       )}
 
       {s.toast.visible && (
-        <div style={st('position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--espresso);color:var(--porcelain);padding:10px 18px;border-radius:999px;font-family:var(--font-sans);font-size:.76rem;letter-spacing:.04em;white-space:nowrap;box-shadow:var(--shadow-lg);z-index:50')}>{s.toast.msg}</div>
+        <div style={st('position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#17100F;padding:10px 18px;border-radius:999px;font-family:var(--font-sans);font-size:.76rem;font-weight:500;white-space:nowrap;box-shadow:var(--shadow-lg);z-index:80')}>{s.toast.msg}</div>
       )}
 
-      {/* Chatbot — len pre klientky (nie v admin rozhraní) */}
-      {s.screen === 'client' && !s.chatOpen && (
-        <button onClick={chatOpen} aria-label="Otvoriť chat" style={st('all:unset;cursor:pointer;position:absolute;right:18px;bottom:88px;width:52px;height:52px;border-radius:50%;background:var(--espresso);color:var(--porcelain);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg);z-index:60')}>
-          <Icon name="sparkle" size={22} />
+      {/* Chatbot Aura — len pre klientky, nie počas rezervácie */}
+      {s.screen === 'client' && !s.chatOpen && s.clientTab !== 'booking' && !s.notifOpen && (
+        <button type="button" onClick={chatOpen} aria-label="Otvoriť chat" style={st('all:unset;cursor:pointer;position:fixed;right:max(16px,calc(50% - 125px));bottom:calc(84px + env(safe-area-inset-bottom));height:44px;border-radius:22px;padding:0 16px 0 12px;background:var(--espresso);color:#17100F;display:flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:.72rem;font-weight:600;box-shadow:0 12px 24px -8px rgba(0,0,0,.6);z-index:21')}>
+          <Icon name="chat" size={16} strokeWidth={1.8} />Aura
         </button>
       )}
-      {s.screen === 'client' && s.chatOpen && (
-        <div style={st('position:absolute;left:12px;right:12px;bottom:80px;max-height:70%;display:flex;flex-direction:column;background:var(--porcelain);border:1px solid var(--line-gold);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);z-index:60')}>
-          <div style={st('display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--espresso);color:var(--porcelain)')}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem' }}>Aura — asistentka</span>
-            <button onClick={chatClose} aria-label="Zavrieť chat" style={st('all:unset;cursor:pointer;font-size:1.1rem;line-height:1;opacity:.85')}>×</button>
+      {s.screen === 'client' && s.chatOpen && s.clientTab !== 'booking' && (
+        <div style={st('position:fixed;left:50%;transform:translateX(-50%);bottom:0;top:0;width:100%;max-width:282px;display:flex;flex-direction:column;background:var(--porcelain);z-index:60')}>
+          <div style={st('display:flex;align-items:center;justify-content:space-between;padding:var(--top) 18px 12px;border-bottom:1px solid #2C201C')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={st('width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#D9B99B,#9A7558);color:#17100F;font-family:var(--font-display);font-size:1rem')}>A</span>
+              <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.84rem', color: 'var(--ink)' }}>Aura — asistentka</div><div style={{ fontFamily: 'var(--font-sans)', fontSize: '.68rem', color: '#7FB08A' }}>online</div></div>
+            </div>
+            <button type="button" onClick={chatClose} aria-label="Zavrieť chat" style={st('all:unset;cursor:pointer;color:var(--ink-2)')}><Icon name="x" size={20} /></button>
           </div>
-          <div style={st('flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px')}>
+          <div style={st('flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:8px')}>
             {s.chatLog.map((m, i) => (
-              <div key={i} style={st(`max-width:85%;padding:9px 13px;border-radius:14px;font-family:var(--font-sans);font-size:.82rem;line-height:1.5;white-space:pre-line;${m.from === 'me' ? 'align-self:flex-end;background:var(--espresso);color:var(--porcelain)' : 'align-self:flex-start;background:var(--white);color:var(--ink);border:1px solid var(--line)'}`)}>{m.text}</div>
+              <div key={i} style={st(`max-width:82%;padding:9px 12px;border-radius:16px;font-family:var(--font-sans);font-size:.8rem;line-height:1.45;white-space:pre-line;${m.from === 'me' ? 'align-self:flex-end;background:var(--espresso);color:#17100F;border-bottom-right-radius:5px' : 'align-self:flex-start;background:var(--white);color:var(--ink);border:1px solid var(--sand);border-bottom-left-radius:5px'}`)}>{m.text}</div>
             ))}
           </div>
-          <div style={st('padding:12px 14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:7px')}>
-            {chatCurrentOptions.length === 0 && (
-              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink-3)' }}>Na tento deň, žiaľ, nie sú voľné časy.</span>
-            )}
+          <div style={st('padding:12px 18px calc(16px + env(safe-area-inset-bottom));border-top:1px solid #2C201C;display:flex;flex-wrap:wrap;gap:6px')}>
+            {chatCurrentOptions.length === 0 && <span style={st(T.mut)}>Na tento deň, žiaľ, nie sú voľné časy.</span>}
             {chatCurrentOptions.map((o, i) => (
-              <button key={i} onClick={o.run} style={st('all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;background:var(--white);border:1px solid var(--line-gold);color:var(--ink-2);font-family:var(--font-sans);font-size:.78rem')}>{o.label}</button>
+              <button type="button" key={i} onClick={o.run} style={st('all:unset;cursor:pointer;padding:7px 12px;border-radius:99px;border:1px solid #4A322B;color:var(--espresso);font-family:var(--font-sans);font-size:.74rem')}>{o.label}</button>
             ))}
-            {chatShowBack && (
-              <button onClick={chatReset} style={st('all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;color:var(--ink-3);font-family:var(--font-sans);font-size:.78rem')}>← Späť na začiatok</button>
-            )}
+            {chatShowBack && <button type="button" onClick={chatReset} style={st('all:unset;cursor:pointer;padding:7px 12px;border-radius:99px;color:var(--ink-3);font-family:var(--font-sans);font-size:.74rem')}>← Späť na začiatok</button>}
           </div>
         </div>
       )}
@@ -2125,10 +3000,10 @@ class AppErrorBoundary extends React.Component {
   render() {
     if (this.state.error) {
       return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: '#F7F2EF', color: '#3E2727', fontFamily: 'sans-serif', padding: 24, textAlign: 'center' }}>
+        <div style={{ minHeight: 'calc(100vh / var(--z, 1))', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: '#17100F', color: '#F1E6DF', fontFamily: 'Inter, sans-serif', padding: 24, textAlign: 'center' }}>
           <div style={{ fontSize: '1.1rem' }}>Niečo sa pokazilo.</div>
-          <div style={{ fontSize: '.8rem', color: '#9D8B84', maxWidth: 320 }}>Skúste appku znova načítať. Ak problém pretrváva, dajte nám vedieť.</div>
-          <button onClick={() => window.location.reload()} style={{ all: 'unset', cursor: 'pointer', padding: '12px 28px', borderRadius: 999, background: '#3E2727', color: '#F7F2EF', fontSize: '.8rem', letterSpacing: '.08em', textTransform: 'uppercase' }}>Načítať znova</button>
+          <div style={{ fontSize: '.8rem', color: '#9C8981', maxWidth: 320 }}>Skúste appku znova načítať. Ak problém pretrváva, dajte nám vedieť.</div>
+          <button onClick={() => window.location.reload()} style={{ all: 'unset', cursor: 'pointer', padding: '12px 28px', borderRadius: 999, background: '#D9B99B', color: '#17100F', fontSize: '.8rem', letterSpacing: '.08em', textTransform: 'uppercase' }}>Načítať znova</button>
         </div>
       );
     }

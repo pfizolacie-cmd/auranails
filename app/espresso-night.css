@@ -1,0 +1,101 @@
+/* ============================================================
+   AURA NAILS — „Espresso Night“ (redesign, október 2026)
+   Načítava sa ZA aura-design.css a prepisuje len farebné/typografické
+   tokeny. app.jsx používa tieto premenné všade, takže tmavý vzhľad
+   sa prejaví v celej appke bez zmeny logiky.
+
+   Logika mapovania (svetlé ↔ tmavé sa vymenia):
+   --porcelain  pozadie appky + text na hlavných tlačidlách  → tmavá espresso
+   --white      karty                                         → tmavší povrch
+   --espresso   hlavná farba (tlačidlá, aktívne stavy)        → šampanské zlato
+   --ink*       texty                                         → svetlé
+   ============================================================ */
+:root {
+  --top: max(14px, calc(env(safe-area-inset-top) / var(--z, 1) + 8px));
+  --porcelain: #17100F;
+  --white: #231917;
+  --cream: #2A1E1B;
+  --sand: #33241F;
+  --beige: #3E2C27;
+  --blush: #3B2722;
+  --taupe: #4A322B;
+  --taupe-light: #F0D9C2;
+  --taupe-dark: #6B4A3E;
+
+  --ink: #F1E6DF;
+  --ink-2: #C9B6AE;
+  --ink-3: #9C8981;
+  --mocha: #C9A27F;
+  --espresso: #D9B99B;
+  --espresso-light: #E6CDB3;
+  --espresso-deep: #0E0908;
+
+  --line: rgba(241, 230, 223, 0.09);
+  --line-gold: rgba(217, 185, 155, 0.26);
+  --line-accent: rgba(217, 185, 155, 0.26);
+  --veil: rgba(0, 0, 0, 0.6);
+  --glass: rgba(23, 16, 15, 0.82);
+
+  --text: #F1E6DF;
+  --border: #33241F;
+  --bg: #17100F;
+  --bg-raised: #231917;
+  --fg: #F1E6DF;
+  --fg-soft: #C9B6AE;
+  --fg-muted: #9C8981;
+
+  /* nové tokeny redesignu */
+  --hdr: linear-gradient(160deg, #2A1C19 0%, #17100F 100%);
+  --hero: linear-gradient(135deg, #3B2722 0%, #231917 100%);
+  --wallet: linear-gradient(140deg, #5B3D33 0%, #2A1B18 55%, #3E2A24 100%);
+  --ok: #9FD1AB;
+  --ok-bg: rgba(127, 176, 138, 0.14);
+  --wait: #E5B86E;
+  --wait-bg: rgba(229, 184, 110, 0.13);
+  --danger: #E59C8E;
+  --danger-bg: rgba(229, 156, 142, 0.12);
+
+  --font-display: "Fraunces", "Cormorant Garamond", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 48px -20px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 30px 60px -24px rgba(0, 0, 0, 0.75);
+  --shadow-2xl: 0 40px 80px -30px rgba(0, 0, 0, 0.8);
+}
+
+html, body { background: var(--porcelain); color: var(--ink); }
+body { -webkit-font-smoothing: antialiased; }
+::selection { background: rgba(217, 185, 155, 0.35); color: #F1E6DF; }
+
+/* Nadpisy Fraunces pôsobia najlepšie v ľahkom reze */
+[style*="var(--font-display)"] { font-weight: 300; font-variation-settings: "opsz" 72; }
+
+/* Polia formulárov v tmavom režime */
+input, textarea, select { color-scheme: dark; }
+input::placeholder, textarea::placeholder { color: #6E5B55; }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8) sepia(0.3); }
+
+/* Jemná spätná väzba pri ťuknutí na všetky tlačidlá */
+button { transition: transform .18s cubic-bezier(.22,.61,.36,1), box-shadow .25s ease, background-color .25s ease, border-color .25s ease, color .25s ease; -webkit-tap-highlight-color: transparent; }
+button:active:not(:disabled) { transform: scale(0.97); }
+
+/* Načítavanie (skeleton) */
+@keyframes auraShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.aura-sk { background: linear-gradient(90deg, #231917 0%, #33241F 50%, #231917 100%); background-size: 200% 100%; animation: auraShimmer 1.4s infinite; border-radius: 14px; }
+
+/* Lesk na Aura Pass karte */
+@keyframes auraSheen { 0%, 100% { transform: translateX(-30%) rotate(8deg); opacity: .0; } 40% { opacity: .9; } 60% { transform: translateX(60%) rotate(8deg); opacity: 0; } }
+.aura-wallet-sheen { position: absolute; inset: -40% -20%; background: linear-gradient(105deg, transparent 40%, rgba(255, 230, 205, 0.16) 50%, transparent 60%); animation: auraSheen 6s ease-in-out infinite; pointer-events: none; }
+
+/* Plynulý nástup obrazoviek */
+@keyframes auraRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.aura-rise { animation: auraRise .45s cubic-bezier(.22,.61,.36,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aura-sk, .aura-wallet-sheen, .aura-rise { animation: none !important; }
+  button:active:not(:disabled) { transform: none; }
+}
