@@ -25,11 +25,20 @@ class NotificationManager {
   setupListener() {
     if (!this.userId) return;
 
+    let firstSnapshot = true;
     const unsub = this.db
       .collection('notifications')
       .where('userId', '==', this.userId)
       .limit(50)
       .onSnapshot((snap) => {
+        // nová neprečítaná notifikácia počas behu appky → systémové upozornenie na tomto telefóne
+        if (!firstSnapshot) {
+          snap.docChanges().forEach((ch) => {
+            const n = ch.doc.data();
+            if (ch.type === 'added' && !n.read) this.sendPushNotification(n.title || 'Aura Nails', n.message || '', { appointmentId: n.appointmentId || ch.doc.id });
+          });
+        }
+        firstSnapshot = false;
         this.notifications = snap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -254,6 +263,10 @@ class NotificationManager {
   async sendPushNotification(title, message, data = {}) {
     // Check if browser supports notifications
     if (!('Notification' in window)) return;
+    // systémové upozornenie len pre toho, komu notifikácia patrí
+    // (keď Michaela posiela správu klientke, nemá vyskočiť na Michaelinom telefóne)
+    const me = this.auth && this.auth.currentUser;
+    if (!me || me.uid !== this.userId) return;
 
     // Request permission if not already granted
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
@@ -266,8 +279,8 @@ class NotificationManager {
           const registration = await navigator.serviceWorker.ready;
           registration.showNotification(title, {
             body: message,
-            icon: '/icons/aura-192.png',
-            badge: '/icons/aura-badge-72.png',
+            icon: '/app/icon-192.png',
+            badge: '/app/icon-192.png',
             tag: data.appointmentId || 'aura-notif',
             requireInteraction: false,
             data,
@@ -524,6 +537,10 @@ function formatTimeAgo(timestamp) {
 }
 
 // Export for use in app
+// appka načítava tento súbor cez eval – trieda (na rozdiel od funkcií) sa tak sama nestane globálnou,
+// preto ju sprístupníme ručne, inak app.jsx nevie klientke poslať notifikáciu
+if (typeof window !== 'undefined') window.NotificationManager = NotificationManager;
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     NotificationManager,
