@@ -163,9 +163,9 @@ function Glow({ style }) {
 }
 function TabBar({ items }) {
   return (
-    <div style={st('display:flex;justify-content:space-around;align-items:center;padding:12px 0 calc(14px + env(safe-area-inset-bottom));background:rgba(23,16,15,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #2C201C;position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:282px;box-sizing:border-box;z-index:20')}>
+    <div style={st('display:flex;justify-content:space-around;align-items:center;padding:7px 0 calc(5px + env(safe-area-inset-bottom));background:rgba(23,16,15,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #2C201C;position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:282px;box-sizing:border-box;z-index:20')}>
       {items.map((it) => (
-        <button type="button" key={it.label} aria-label={it.label} onClick={it.onClick} style={st(`all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:44px;padding:0;position:relative;color:${it.on ? 'var(--espresso)' : '#7D6A62'}`)}>
+        <button type="button" key={it.label} aria-label={it.label} onClick={it.onClick} style={st(`all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;padding:0;position:relative;color:${it.on ? 'var(--espresso)' : '#7D6A62'}`)}>
           <Icon name={it.icon} size={18} strokeWidth={1.6} />
           <span style={{ fontFamily: 'var(--font-sans)', fontSize: '.56rem' }}>{it.label}</span>
           {it.badge ? <span style={st('position:absolute;top:-2px;right:6px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--danger);color:var(--porcelain);font:700 .55rem Inter,sans-serif;display:grid;place-items:center')}>{it.badge}</span> : null}
@@ -195,6 +195,20 @@ const SK_DOW = ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So'];
 const SK_MON = ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'];
 const CLOSE_HOUR = 18;
 const OPEN_HOUR = 8;
+// Po–Pi musí byť posledná klientka hotová do 14:45 (Michaela ide pre deti do škôlky)
+const WEEKDAY_CLOSE_HOUR = 14.75;
+// po každej klientke aspoň 10 minút oddych
+const BREAK_HOURS = 10 / 60;
+function closeHourFor(iso) {
+  if (!iso) return CLOSE_HOUR;
+  const [y, m, d] = iso.split('-').map(Number);
+  const dow = new Date(y, m - 1, d).getDay();
+  return dow >= 1 && dow <= 5 ? WEEKDAY_CLOSE_HOUR : CLOSE_HOUR;
+}
+function hoursToTime(h) {
+  const total = Math.round(h * 60);
+  return Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
+}
 
 function isoOffset(daysFromToday) {
   const d = new Date();
@@ -322,10 +336,28 @@ function isPastSlot(iso, timeStr) {
 }
 function slotAvailable(iso, timeStr, durationHours, appointments) {
   const start = timeToHours(timeStr);
-  if (start + durationHours > CLOSE_HOUR) return false;
-  return !appointments.some((a) => a.date === iso && overlaps(start, durationHours, timeToHours(a.time), a.duration));
+  if (start + durationHours > closeHourFor(iso) + 1e-6) return false;
+  // medzi klientkami 10 min oddych (pri nastavenom voľne netreba)
+  return !appointments.some((a) => {
+    if (a.date !== iso) return false;
+    const gap = a.blocked ? 0 : BREAK_HOURS;
+    return overlaps(start, durationHours + gap, timeToHours(a.time), (Number(a.duration) || 0) + gap);
+  });
 }
-function buildTimeOptions() { return ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30']; }
+// základné časy po pol hodine + čas hneď po oddychu za každou klientkou v daný deň,
+// aby sa po 10 min prestávke nestrácala celá polhodina
+function buildTimeOptions(iso, appointments) {
+  const base = BASE_TIME_OPTIONS.slice();
+  if (!iso || !appointments) return base;
+  appointments.forEach((a) => {
+    if (a.date !== iso || a.blocked) return;
+    const after = Math.ceil((timeToHours(a.time) + (Number(a.duration) || 0) + BREAK_HOURS) * 12 - 1e-6) / 12; // zaokrúhlené na 5 min
+    const t = hoursToTime(after);
+    if (after >= OPEN_HOUR && after < closeHourFor(iso) && !base.includes(t)) base.push(t);
+  });
+  return base.sort((x, y) => timeToHours(x) - timeToHours(y));
+}
+const BASE_TIME_OPTIONS = ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'];
 const DURATION_PRESETS = [{ label: '30 min', val: 0.5 }, { label: '1 h', val: 1 }, { label: '1,5 h', val: 1.5 }, { label: '2 h', val: 2 }];
 const DEMO_CLIENT_NAME = 'Zuzana Kráľová';
 
@@ -814,7 +846,7 @@ function App() {
   const bookingPriceNum = bookingMain ? bookingMain.priceNum + bookingAddons.reduce((sum, a) => sum + a.priceNum, 0) : 0;
   const svcDuration = bookingMain ? bookingMain.duration + bookingAddons.reduce((sum, a) => sum + a.duration, 0) : 1;
   const dateOptions = dates.map((d) => {
-    const freeCount = buildTimeOptions().filter((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, svcDuration, busyAppointments)).length;
+    const freeCount = buildTimeOptions(d.iso, busyAppointments).filter((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, svcDuration, busyAppointments)).length;
     const dayFull = freeCount === 0;
     return {
       iso: d.iso, dow: d.dow, num: d.num, mon: d.mon, full: dayFull, free: freeCount, select: () => setBooking({ dateIso: d.iso, time: null }),
@@ -825,21 +857,16 @@ function App() {
   const bookingMaxIso = dates.length ? dates[dates.length - 1].iso : todayIso;
   const apptsByDateForFull = {};
   busyAppointments.forEach((a) => { (apptsByDateForFull[a.date] = apptsByDateForFull[a.date] || []).push(a); });
-  const timeOptionsForFull = buildTimeOptions();
   const isDayFull = (iso) => {
     const dayAppts = apptsByDateForFull[iso] || [];
-    return timeOptionsForFull.every((t) => {
-      const start = timeToHours(t);
-      if (isPastSlot(iso, t) || start + svcDuration > CLOSE_HOUR) return true;
-      return dayAppts.some((a) => overlaps(start, svcDuration, timeToHours(a.time), a.duration));
-    });
+    return buildTimeOptions(iso, dayAppts).every((t) => isPastSlot(iso, t) || !slotAvailable(iso, t, svcDuration, dayAppts));
   };
   const clientMonthGrid = buildMonthGrid(b.monthOffset || 0, b.dateIso, todayIso,
     (iso, muted) => muted || iso < todayIso || iso > bookingMaxIso,
     (iso) => (iso >= todayIso && iso <= bookingMaxIso) ? (isDayFull(iso) ? 'var(--line-gold)' : 'var(--taupe)') : null);
   const selectedDateFull = b.dateIso ? !!dateOptions.find((d) => d.iso === b.dateIso)?.full : false;
   const nearestAvailableDate = dateOptions.find((d) => !d.full && d.iso !== b.dateIso) || null;
-  const timeOptions = buildTimeOptions().map((t) => {
+  const timeOptions = buildTimeOptions(b.dateIso, busyAppointments).map((t) => {
     const taken = b.dateIso === null ? true : (isPastSlot(b.dateIso, t) || !slotAvailable(b.dateIso, t, svcDuration, busyAppointments));
     const selected = b.time === t;
     return {
@@ -896,7 +923,7 @@ function App() {
   const chatMenuOptions = [
     { label: 'Chcem sa objednať', run: () => chatPick('Chcem sa objednať', 'Rada vám pomôžem. Akú službu si želáte?', 'svc') },
     { label: 'Aké máte ceny?', run: () => chatPick('Aké máte ceny?', chatPriceText + '\n\nCelý cenník nájdete v záložke Cenník.') },
-    { label: 'Otváracie hodiny', run: () => chatPick('Otváracie hodiny', `Otvorené máme ${OPEN_HOUR}:00 – ${CLOSE_HOUR}:00. Termíny sa dajú rezervovať až 30 dní dopredu.`) },
+    { label: 'Otváracie hodiny', run: () => chatPick('Otváracie hodiny', `Cez týždeň (Po–Pi) robím od ${OPEN_HOUR}:00 do ${hoursToTime(WEEKDAY_CLOSE_HOUR)}, cez víkend do ${CLOSE_HOUR}:00. Termíny sa dajú rezervovať až 30 dní dopredu.`) },
     { label: 'Kde vás nájdem?', run: () => chatPick('Kde vás nájdem?', 'Nechtové štúdio Aura Nails, Handlová. Presnú adresu a kontakt nájdete na našej stránke auranails.sk.') },
     { label: 'Ako funguje Aura Pass?', run: () => chatPick('Ako funguje Aura Pass?', 'Za každú návštevu vám Michaela pridá pečiatku. Po 5 pečiatkach získate odmenu. Aktuálny stav vidíte v záložke Pass.') },
   ];
@@ -914,7 +941,7 @@ function App() {
   // krok: výber dňa (najbližších 7 dní, plné dni sa neponúkajú)
   const chatSvcDuration = chatSvc ? chatSvc.duration : 1;
   const chatDateOptions = buildDateOptions(7)
-    .filter((d) => buildTimeOptions().some((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, chatSvcDuration, busyAppointments)))
+    .filter((d) => buildTimeOptions(d.iso, busyAppointments).some((t) => !isPastSlot(d.iso, t) && slotAvailable(d.iso, t, chatSvcDuration, busyAppointments)))
     .map((d) => ({
       label: `${d.dow} ${d.num}. ${d.mon}`,
       run: () => {
@@ -925,7 +952,7 @@ function App() {
       },
     }));
   // krok: výber času (len skutočne voľné)
-  const chatTimeOptions = (s.chatDateIso ? buildTimeOptions().filter((t) => !isPastSlot(s.chatDateIso, t) && slotAvailable(s.chatDateIso, t, chatSvcDuration, busyAppointments)) : [])
+  const chatTimeOptions = (s.chatDateIso ? buildTimeOptions(s.chatDateIso, busyAppointments).filter((t) => !isPastSlot(s.chatDateIso, t) && slotAvailable(s.chatDateIso, t, chatSvcDuration, busyAppointments)) : [])
     .map((t) => ({
       label: t,
       run: async () => {
@@ -1005,7 +1032,7 @@ function App() {
     const startHours = timeToHours(s.rescheduleTime);
     if (startHours < OPEN_HOUR) return `Štúdio otvára až o ${OPEN_HOUR}:00.`;
     if (isPastSlot(s.rescheduleDateIso, s.rescheduleTime)) return 'Tento čas už prešiel, vyberte neskorší.';
-    if (startHours + (rescheduleTarget.duration || 1) > CLOSE_HOUR) return `Tento čas presahuje otváracie hodiny (do ${CLOSE_HOUR}:00).`;
+    if (startHours + (rescheduleTarget.duration || 1) > closeHourFor(s.rescheduleDateIso) + 1e-6) return `Termín musí skončiť do ${hoursToTime(closeHourFor(s.rescheduleDateIso))}.`;
     const others = busyAppointments.filter((x) => x.id !== rescheduleTarget.id);
     if (!slotAvailable(s.rescheduleDateIso, s.rescheduleTime, rescheduleTarget.duration || 1, others)) return 'Tento čas je už obsadený, vyberte iný.';
     return null;
@@ -1175,7 +1202,7 @@ function App() {
   const dayAddDuration = (s.dayAddDuration === null || s.dayAddDuration === undefined) ? dayAddAutoDuration : s.dayAddDuration;
   const dayAddPriceNum = dayAddMain ? dayAddMain.priceNum + dayAddAddonItems.reduce((sum, a) => sum + a.priceNum, 0) : 0;
   const dayAddServiceLabel = dayAddMain ? [dayAddMain.label, ...dayAddAddonItems.map((a) => a.label)].join(' + ') : '';
-  const dayAddTimeOptions = buildTimeOptions().map((t) => {
+  const dayAddTimeOptions = buildTimeOptions(s.adminSelectedDate, busyAppointments).map((t) => {
     const taken = !slotAvailable(s.adminSelectedDate, t, dayAddDuration, busyAppointments);
     const selected = s.dayAddTime === t;
     return {
@@ -1463,11 +1490,11 @@ function App() {
     const dur = getRequestDuration(r);
     const conflict = !slotAvailable(r.date, r.time, dur, busyAppointments) || isPastSlot(r.date, r.time);
     const proposing = s.proposeFor === r.id;
-    const proposeTimes = proposing && s.proposeDateIso ? buildTimeOptions().map((t) => {
+    const proposeTimes = proposing && s.proposeDateIso ? buildTimeOptions(s.proposeDateIso, busyAppointments).map((t) => {
       const start = timeToHours(t);
       const ownHold = r.proposal && r.proposal.holdId;
       const others = busyAppointments.filter((a) => a.id !== ownHold);
-      const taken = isPastSlot(s.proposeDateIso, t) || start + dur > CLOSE_HOUR || !slotAvailable(s.proposeDateIso, t, dur, others);
+      const taken = isPastSlot(s.proposeDateIso, t) || !slotAvailable(s.proposeDateIso, t, dur, others);
       return { label: t, taken, selected: s.proposeTime === t };
     }) : [];
     return {
@@ -2220,13 +2247,17 @@ function App() {
                     <React.Fragment>
                       <div style={st('display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid var(--sand)')}>
                         <Sq icon="cake" size={34} />
-                        <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                        <input type="date" value={clientBirthday} onChange={setClientBirthday} style={st(T.inp + ';width:auto;padding:7px 9px;font-size:.78rem')} />
+                        <label style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-2)' }}>Dátum narodenia</span>
+                          <input type="date" value={clientBirthday} onChange={setClientBirthday} style={st(T.inp + ';margin-top:5px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                        </label>
                       </div>
                       <div style={st(`display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid ${clientMissingPhone ? '#5A4322' : 'var(--sand)'}`)}>
                         <Sq icon="phone" size={34} />
-                        <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Mobilné číslo</span>
-                        <input key={loggedInClient ? loggedInClient.phone : ''} type="tel" defaultValue={loggedInClient && loggedInClient.phone !== '—' ? loggedInClient.phone : ''} onBlur={saveClientPhone} placeholder="0915 123 456" style={st(T.inp + ';width:130px;padding:7px 9px;font-size:.78rem;text-align:right')} />
+                        <label style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-2)' }}>Mobilné číslo</span>
+                          <input key={loggedInClient ? loggedInClient.phone : ''} type="tel" inputMode="tel" autoComplete="tel" defaultValue={loggedInClient && loggedInClient.phone !== '—' ? loggedInClient.phone : ''} onBlur={saveClientPhone} placeholder="0915 123 456" style={st(T.inp + ';margin-top:5px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                        </label>
                       </div>
                     </React.Fragment>
                   )}
@@ -2331,15 +2362,21 @@ function App() {
                 {adminMonthGrid.weeks.map((week) => week.map((cell) => {
                   const n = apptCountByDate[cell.iso] || 0;
                   const closed = !!closedByDate[cell.iso];
-                  const bg = cell.muted ? 'transparent' : closed ? 'repeating-linear-gradient(45deg,#2A1E1B 0 4px,#1F1715 4px 8px)' : n >= 4 ? '#D9B99B' : n === 3 ? '#A47C60' : n === 2 ? '#6B4A3B' : n === 1 ? '#3A2A23' : '#1F1715';
-                  const dark = !cell.muted && !closed && n >= 3;
+                  const bg = cell.muted ? 'transparent' : closed ? 'repeating-linear-gradient(45deg,#2A1E1B 0 4px,#1F1715 4px 8px)' : '#1F1715';
+                  const dots = cell.muted ? 0 : Math.min(n, 5);
                   return (
-                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false })} style={st(`all:unset;cursor:pointer;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : dark ? '#17100F' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>{cell.num}</button>
+                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false })} style={st(`all:unset;cursor:pointer;height:38px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>
+                      <span style={{ lineHeight: 1 }}>{cell.num}</span>
+                      <span style={{ display: 'flex', gap: 2, height: 4, alignItems: 'center' }}>
+                        {Array.from({ length: dots }, (_, i) => <i key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--espresso)', display: 'block' }}></i>)}
+                        {n > 5 && !cell.muted && <b style={{ fontSize: '.45rem', fontWeight: 700, color: 'var(--espresso)', lineHeight: 1 }}>+</b>}
+                      </span>
+                    </button>
                   );
                 }))}
               </div>
               <div style={{ display: 'flex', gap: 9, alignItems: 'center', marginTop: 7, flexWrap: 'wrap' }}>
-                {[['#3A2A23', '1'], ['#6B4A3B', '2'], ['#A47C60', '3'], ['#D9B99B', '4+']].map(([c, l]) => <span key={l} style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 10, height: 10, borderRadius: 3, background: c, display: 'inline-block' }}></i>{l}</span>)}
+                <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--espresso)', display: 'inline-block' }}></i>1 bodka = 1 objednaná klientka</span>
                 <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'repeating-linear-gradient(45deg,#2A1E1B 0 3px,#1F1715 3px 6px)', display: 'inline-block' }}></i>voľno</span>
               </div>
 
@@ -2696,8 +2733,10 @@ function App() {
 
                   <div style={st('display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 12px;background:var(--white);border-radius:18px;border:1px solid var(--sand)')}>
                     <Sq icon="cake" size={32} />
-                    <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: '.8rem', color: 'var(--ink)' }}>Dátum narodenia</span>
-                    <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={st(T.inp + ';width:auto;padding:7px 9px;font-size:.78rem')} />
+                    <label style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.72rem', color: 'var(--ink-2)' }}>Dátum narodenia</span>
+                      <input type="date" value={selClient.birthday || ''} onChange={updateClientBirthday} style={st(T.inp + ';margin-top:5px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                    </label>
                   </div>
 
                   <Lbl style={{ marginTop: 14 }}>Poznámky</Lbl>
@@ -2962,7 +3001,7 @@ function App() {
 
       {/* Chatbot Aura — len pre klientky, nie počas rezervácie */}
       {s.screen === 'client' && !s.chatOpen && s.clientTab !== 'booking' && !s.notifOpen && (
-        <button type="button" onClick={chatOpen} aria-label="Otvoriť chat" style={st('all:unset;cursor:pointer;position:fixed;right:max(16px,calc(50% - 125px));bottom:calc(84px + env(safe-area-inset-bottom));height:44px;border-radius:22px;padding:0 16px 0 12px;background:var(--espresso);color:#17100F;display:flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:.72rem;font-weight:600;box-shadow:0 12px 24px -8px rgba(0,0,0,.6);z-index:21')}>
+        <button type="button" onClick={chatOpen} aria-label="Otvoriť chat" style={st('all:unset;cursor:pointer;position:fixed;right:max(16px,calc(50% - 125px));bottom:calc(68px + env(safe-area-inset-bottom));height:44px;border-radius:22px;padding:0 16px 0 12px;background:var(--espresso);color:#17100F;display:flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:.72rem;font-weight:600;box-shadow:0 12px 24px -8px rgba(0,0,0,.6);z-index:21')}>
           <Icon name="chat" size={16} strokeWidth={1.8} />Aura
         </button>
       )}

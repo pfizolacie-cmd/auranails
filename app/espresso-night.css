@@ -99,3 +99,9 @@ button:active:not(:disabled) { transform: scale(0.97); }
   .aura-sk, .aura-wallet-sheen, .aura-rise { animation: none !important; }
   button:active:not(:disabled) { transform: none; }
 }
+
+/* Polia nesmú pretekať mimo rámik (iOS dáva dátumu/času pevnú min. šírku) */
+input, textarea, select { min-width: 0; max-width: 100%; box-sizing: border-box; }
+input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; }
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
