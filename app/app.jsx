@@ -694,7 +694,7 @@ function App() {
     reqView: 'new', proposeFor: null, proposeDateIso: null, proposeTime: '', proposeMsg: '', proposeSending: false,
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
     dayMoveId: null, dayMoveDate: null, dayMoveTime: '', dayMoveDuration: 1,
-    agendaFormOpen: false, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaDuration: 1, agendaWeekly: false,
+    agendaFormOpen: false, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaEnd: '16:00', agendaWeekly: false,
     clientSearch: '', clientSort: 'visits', statsPeriod: 'month', mapServiceSel: {},
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5, apptMainKey: null, apptAddons: [],
     mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
@@ -1227,20 +1227,22 @@ function App() {
   const adminWarn = (iso, timeStr, dur, appts) => [adminSlotWarning(iso, timeStr, dur, appts), agendaClash(iso, timeStr, dur)].filter(Boolean).join(' ') || null;
   const openAgendaForm = (g) => set(g ? {
     agendaFormOpen: true, agendaEditId: g.id, agendaKind: g.kind || 'poznamka', agendaText: g.text || '',
-    agendaHasTime: !!g.time, agendaTime: g.time || '15:00', agendaDuration: Number(g.duration) || 1, agendaWeekly: !!g.repeatWeekly,
+    agendaHasTime: !!g.time, agendaTime: g.time || '15:00', agendaEnd: g.time ? hoursToTime(timeToHours(g.time) + (Number(g.duration) || 1)) : '16:00', agendaWeekly: !!g.repeatWeekly,
     dayAddOpen: false, blockFormOpen: false, dayMoveId: null,
   } : {
-    agendaFormOpen: true, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaDuration: 1, agendaWeekly: false,
+    agendaFormOpen: true, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaEnd: '16:00', agendaWeekly: false,
     dayAddOpen: false, blockFormOpen: false, dayMoveId: null,
   });
   const cancelAgendaForm = () => set({ agendaFormOpen: false, agendaEditId: null });
-  const agendaSaveDisabled = (s.agendaHasTime && !s.agendaTime) || (s.agendaKind === 'poznamka' && !s.agendaText.trim());
+  const agendaDur = s.agendaTime && s.agendaEnd ? timeToHours(s.agendaEnd) - timeToHours(s.agendaTime) : 0;
+  const agendaEndBad = s.agendaHasTime && !!s.agendaTime && !!s.agendaEnd && agendaDur <= 0;
+  const agendaSaveDisabled = (s.agendaHasTime && (!s.agendaTime || !s.agendaEnd || agendaEndBad)) || (s.agendaKind === 'poznamka' && !s.agendaText.trim());
   const saveAgenda = async () => {
     if (agendaSaveDisabled) return;
     const editing = s.agendaEditId ? agenda.find((g) => g.id === s.agendaEditId) : null;
     const payload = {
       kind: s.agendaKind, text: s.agendaText.trim(),
-      time: s.agendaHasTime ? s.agendaTime : '', duration: s.agendaHasTime ? clampDuration(s.agendaDuration) : 0,
+      time: s.agendaHasTime ? s.agendaTime : '', duration: s.agendaHasTime ? Math.round(agendaDur * 60) / 60 : 0,
       repeatWeekly: !!s.agendaWeekly,
       // pri úprave opakovaného záznamu ostáva pôvodný začiatok série
       date: editing && editing.repeatWeekly && s.agendaWeekly ? editing.date : s.adminSelectedDate,
@@ -2546,12 +2548,17 @@ function App() {
                   <div style={{ marginTop: 12 }}><Seg items={[{ id: 'time', label: 'V čase' }, { id: 'none', label: 'Celý deň / bez času' }]} value={s.agendaHasTime ? 'time' : 'none'} onChange={(v) => set({ agendaHasTime: v === 'time' })} /></div>
                   {s.agendaHasTime && (
                     <React.Fragment>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-                        <span style={st(T.mut + ';flex-shrink:0')}>Od</span>
-                        <input type="time" step="300" value={s.agendaTime ? s.agendaTime.padStart(5, '0') : ''} onChange={(e) => set({ agendaTime: normTime(e.target.value) })} style={st(T.inp + ';padding:8px 10px;font-size:.8rem')} />
-                      </label>
-                      <Lbl style={{ marginTop: 12 }}>Trvanie</Lbl>
-                      <div style={{ marginTop: 8 }}><DurationField value={s.agendaDuration} onChange={(v) => set({ agendaDuration: v })} /></div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                        <label style={{ flex: 1, minWidth: 0 }}>
+                          <Lbl>Od</Lbl>
+                          <input type="time" step="300" value={s.agendaTime ? s.agendaTime.padStart(5, '0') : ''} onChange={(e) => set({ agendaTime: normTime(e.target.value) })} style={st(T.inp + ';margin-top:6px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                        </label>
+                        <label style={{ flex: 1, minWidth: 0 }}>
+                          <Lbl>Do</Lbl>
+                          <input type="time" step="300" value={s.agendaEnd ? s.agendaEnd.padStart(5, '0') : ''} onChange={(e) => set({ agendaEnd: normTime(e.target.value) })} style={st(T.inp + ';margin-top:6px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                        </label>
+                      </div>
+                      {agendaEndBad && <div style={{ marginTop: 8 }}><Note tone="wait" icon="clock">Čas „Do“ musí byť neskôr ako „Od“.</Note></div>}
                     </React.Fragment>
                   )}
                   <button type="button" onClick={() => set({ agendaWeekly: !s.agendaWeekly })} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;margin-top:12px;font-family:var(--font-sans);font-size:.78rem;color:var(--ink)')}>
@@ -2682,7 +2689,7 @@ function App() {
                       <span style={{ color: 'var(--taupe)', flexShrink: 0 }}><Icon name={k.icon} size={14} /></span>
                       <span style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}{g.text ? ` · ${g.text}` : ''}</span>
-                        <span style={st(T.mut + ';font-size:.62rem')}>{g.time ? formatDuration(g.duration) : 'bez času'}{g.repeatWeekly ? ' · každý týždeň' : ''} · len pre vás</span>
+                        <span style={st(T.mut + ';font-size:.62rem')}>{g.time ? `${g.time} – ${hoursToTime(timeToHours(g.time) + (Number(g.duration) || 0))}` : 'bez času'}{g.repeatWeekly ? ' · každý týždeň' : ''} · len pre vás</span>
                       </span>
                     </button>
                   </div>
