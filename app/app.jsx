@@ -344,6 +344,22 @@ function slotAvailable(iso, timeStr, durationHours, appointments) {
     return overlaps(start, durationHours + gap, timeToHours(a.time), (Number(a.duration) || 0) + gap);
   });
 }
+// Admin (Michaela) si čas organizuje sama – nič jej neblokujeme, len upozorníme.
+// Pravidlá vyššie (14:45, oddych, prekryv) platia iba pre klientky.
+function normTime(t) { return t ? hoursToTime(timeToHours(t)) : ''; }
+function adminSlotWarning(iso, timeStr, durationHours, appointments) {
+  if (!iso || !timeStr) return null;
+  const start = timeToHours(timeStr);
+  const dur = Number(durationHours) || 0;
+  const dayAppts = appointments.filter((a) => a.date === iso);
+  const clash = dayAppts.find((a) => overlaps(start, dur, timeToHours(a.time), Number(a.duration) || 0));
+  if (clash) return `Prekrýva sa s ${clash.blocked ? 'voľnom' : clash.name} (${clash.time}).`;
+  const tight = dayAppts.find((a) => !a.blocked && overlaps(start, dur + BREAK_HOURS, timeToHours(a.time), (Number(a.duration) || 0) + BREAK_HOURS));
+  if (tight) return `Bez 10 min oddychu pri ${tight.name} (${tight.time}).`;
+  if (start < OPEN_HOUR || start + dur > closeHourFor(iso) + 1e-6) return `Mimo bežného času (${OPEN_HOUR}:00 – ${hoursToTime(closeHourFor(iso))}).`;
+  if (isPastSlot(iso, timeStr)) return 'Tento čas už prešiel.';
+  return null;
+}
 // základné časy po pol hodine + čas hneď po oddychu za každou klientkou v daný deň,
 // aby sa po 10 min prestávke nestrácala celá polhodina
 function buildTimeOptions(iso, appointments) {
@@ -661,6 +677,7 @@ function App() {
     requestDurations: {},
     reqView: 'new', proposeFor: null, proposeDateIso: null, proposeTime: '', proposeMsg: '', proposeSending: false,
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
+    dayMoveId: null, dayMoveDate: null, dayMoveTime: '', dayMoveDuration: 1,
     clientSearch: '', clientSort: 'visits', statsPeriod: 'month', mapServiceSel: {},
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5, apptMainKey: null, apptAddons: [],
     mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
@@ -1198,6 +1215,22 @@ function App() {
     showToast('Voľno nastavené');
   };
   const deleteBlock = async (id) => { await db.collection('appointments').doc(id).delete(); showToast('Voľno zrušené'); };
+  // presun termínu priamo z kalendára – adminka môže dať ľubovoľný čas
+  const openDayMove = (a) => set({ dayMoveId: a.id, dayMoveDate: a.date, dayMoveTime: normTime(a.time), dayMoveDuration: Number(a.duration) || 1, dayAddOpen: false, blockFormOpen: false });
+  const cancelDayMove = () => set({ dayMoveId: null });
+  const dayMoveTarget = appointments.find((a) => a.id === s.dayMoveId) || null;
+  const dayMoveWarning = dayMoveTarget ? adminSlotWarning(s.dayMoveDate, s.dayMoveTime, s.dayMoveDuration, busyAppointments.filter((a) => a.id !== dayMoveTarget.id)) : null;
+  const saveDayMove = async () => {
+    if (!dayMoveTarget || !s.dayMoveDate || !s.dayMoveTime) return;
+    const changed = dayMoveTarget.date !== s.dayMoveDate || normTime(dayMoveTarget.time) !== s.dayMoveTime;
+    await db.collection('appointments').doc(dayMoveTarget.id).update({ date: s.dayMoveDate, time: s.dayMoveTime, duration: clampDuration(s.dayMoveDuration) });
+    set({ dayMoveId: null, adminSelectedDate: s.dayMoveDate });
+    showToast('Termín presunutý');
+    if (changed && !dayMoveTarget.blocked) {
+      await notifyClient(dayMoveTarget.clientUid, 'Zmena termínu',
+        `Michaela presunula váš termín na ${isoLabel(s.dayMoveDate)} o ${s.dayMoveTime}.`, 'reschedule');
+    }
+  };
 
   /* ---------- pridanie klientky priamo z kalendára ---------- */
   const openDayAdd = () => set({
@@ -1233,14 +1266,16 @@ function App() {
   const dayAddDuration = (s.dayAddDuration === null || s.dayAddDuration === undefined) ? dayAddAutoDuration : s.dayAddDuration;
   const dayAddPriceNum = dayAddMain ? dayAddMain.priceNum + dayAddAddonItems.reduce((sum, a) => sum + a.priceNum, 0) : 0;
   const dayAddServiceLabel = dayAddMain ? [dayAddMain.label, ...dayAddAddonItems.map((a) => a.label)].join(' + ') : '';
+  // adminka môže zvoliť aj obsadený / neskorší čas – je len označený
   const dayAddTimeOptions = buildTimeOptions(s.adminSelectedDate, busyAppointments).map((t) => {
     const taken = !slotAvailable(s.adminSelectedDate, t, dayAddDuration, busyAppointments);
     const selected = s.dayAddTime === t;
     return {
-      label: t, taken, select: () => !taken && set({ dayAddTime: t }),
+      label: t, taken, select: () => set({ dayAddTime: t }),
       style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(255,255,255,.02)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
     };
   });
+  const dayAddWarning = adminSlotWarning(s.adminSelectedDate, s.dayAddTime, dayAddDuration, busyAppointments);
   const dayAddDisabled = !dayAddName || !s.dayAddTime;
   const saveDayAdd = async () => {
     if (dayAddDisabled) return;
@@ -1528,8 +1563,10 @@ function App() {
       const taken = isPastSlot(s.proposeDateIso, t) || !slotAvailable(s.proposeDateIso, t, dur, others);
       return { label: t, taken, selected: s.proposeTime === t };
     }) : [];
+    const proposeWarning = proposing ? adminSlotWarning(s.proposeDateIso, s.proposeTime, dur,
+      busyAppointments.filter((a) => a.id !== (r.proposal && r.proposal.holdId))) : null;
     return {
-      ...r, dateLabel: isoLabel(r.date), durationValue: dur, pState, conflict, proposing, proposeTimes,
+      ...r, dateLabel: isoLabel(r.date), durationValue: dur, pState, conflict, proposing, proposeTimes, proposeWarning,
       approve: async () => {
         const apptRef = await db.collection('appointments').add({
           date: r.date, time: r.time, name: r.name, service: r.service, duration: dur,
@@ -2401,7 +2438,7 @@ function App() {
                   const bg = cell.muted ? 'transparent' : closed ? 'repeating-linear-gradient(45deg,#2A1E1B 0 4px,#1F1715 4px 8px)' : '#1F1715';
                   const dots = cell.muted ? 0 : Math.min(n, 5);
                   return (
-                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false })} style={st(`all:unset;cursor:pointer;height:38px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>
+                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false, dayMoveId: null })} style={st(`all:unset;cursor:pointer;height:38px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>
                       <span style={{ lineHeight: 1 }}>{cell.num}</span>
                       <span style={{ display: 'flex', gap: 2, height: 4, alignItems: 'center' }}>
                         {Array.from({ length: dots }, (_, i) => <i key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--espresso)', display: 'block' }}></i>)}
@@ -2485,12 +2522,17 @@ function App() {
                       <Lbl>Trvanie úkonu</Lbl>
                       <div style={{ marginTop: 8 }}><DurationField value={dayAddDuration} onChange={(v) => set({ dayAddDuration: v, dayAddTime: '' })} autoValue={dayAddMain ? dayAddAutoDuration : null} /></div>
                       <Lbl>Čas — voľné a obsadené</Lbl>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 5, margin: '8px 0 12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 5, margin: '8px 0 8px' }}>
                         {dayAddTimeOptions.map((t) => {
                           const on = s.dayAddTime === t.label;
-                          return <button type="button" key={t.label} onClick={t.select} disabled={t.taken} style={st(`all:unset;cursor:${t.taken ? 'not-allowed' : 'pointer'};text-align:center;padding:9px 0;border-radius:12px;font-family:var(--font-sans);font-size:.76rem;border:1px solid ${on ? 'var(--ink)' : 'var(--sand)'};background:${on ? 'var(--ink)' : 'transparent'};color:${on ? '#17100F' : 'var(--ink)'};opacity:${t.taken ? 0.25 : 1};text-decoration:${t.taken ? 'line-through' : 'none'}`)}>{t.label}</button>;
+                          return <button type="button" key={t.label} onClick={t.select} style={st(`all:unset;cursor:pointer;text-align:center;padding:9px 0;border-radius:12px;font-family:var(--font-sans);font-size:.76rem;border:1px ${t.taken && !on ? 'dashed' : 'solid'} ${on ? 'var(--ink)' : 'var(--sand)'};background:${on ? 'var(--ink)' : 'transparent'};color:${on ? '#17100F' : 'var(--ink)'};opacity:${t.taken && !on ? 0.45 : 1}`)}>{t.label}</button>;
                         })}
                       </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <span style={st(T.mut + ';flex-shrink:0')}>Iný čas</span>
+                        <input type="time" step="300" value={s.dayAddTime ? s.dayAddTime.padStart(5, '0') : ''} onChange={(e) => set({ dayAddTime: normTime(e.target.value) })} style={st(T.inp + ';padding:8px 10px;font-size:.8rem')} />
+                      </label>
+                      {dayAddWarning && <div style={{ marginBottom: 10 }}><Note tone="wait" icon="clock">{dayAddWarning} Uložiť sa dá aj tak.</Note></div>}
                     </React.Fragment>
                   )}
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
@@ -2537,10 +2579,37 @@ function App() {
                       <span style={st(T.mut + ';font-size:.66rem')}>{formatDuration(ap.duration)}{ap.priceLabel ? ` · ${ap.priceLabel}` : ''}</span>
                     </button>
                     <span style={st(ap.badgeStyle + ';font-size:.52rem;padding:3px 7px')}>{ap.badgeLabel}</span>
+                    {!ap.hold && <button type="button" aria-label="Presunúť termín" onClick={() => openDayMove(ap)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="swap" size={14} /></button>}
                     {!ap.blocked && !ap.hold && <button type="button" aria-label="Zmazať termín" onClick={() => cancelAppt(ap.id)} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={14} /></button>}
                   </div>
                 </div>
               ))}
+              {dayMoveTarget && (
+                <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={st(T.serif + ';font-size:1.1rem')}>Presunúť · {dayMoveTarget.blocked ? (dayMoveTarget.service || 'Voľno') : dayMoveTarget.name}</span>
+                    <button type="button" aria-label="Zavrieť" onClick={cancelDayMove} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <label style={{ flex: 1.3, minWidth: 0 }}>
+                      <Lbl>Deň</Lbl>
+                      <input type="date" value={s.dayMoveDate || ''} onChange={(e) => e.target.value && set({ dayMoveDate: e.target.value })} style={st(T.inp + ';margin-top:6px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                    </label>
+                    <label style={{ flex: 1, minWidth: 0 }}>
+                      <Lbl>Čas</Lbl>
+                      <input type="time" step="300" value={s.dayMoveTime ? s.dayMoveTime.padStart(5, '0') : ''} onChange={(e) => set({ dayMoveTime: normTime(e.target.value) })} style={st(T.inp + ';margin-top:6px;padding:8px 10px;font-size:.8rem;min-width:0;max-width:100%')} />
+                    </label>
+                  </div>
+                  <Lbl style={{ marginTop: 12 }}>Trvanie</Lbl>
+                  <div style={{ marginTop: 8 }}><DurationField value={s.dayMoveDuration} onChange={(v) => set({ dayMoveDuration: v })} /></div>
+                  {dayMoveWarning && <div style={{ marginBottom: 10 }}><Note tone="wait" icon="clock">{dayMoveWarning} Uložiť sa dá aj tak.</Note></div>}
+                  {dayMoveTarget.clientUid && !dayMoveTarget.blocked && <div style={st(T.mut + ';margin-bottom:10px')}>Klientke príde upozornenie o novom čase.</div>}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelDayMove}>Zrušiť</Btn>
+                    <Btn style={{ flex: 1.5 }} onClick={saveDayMove} disabled={!s.dayMoveTime || !s.dayMoveDate}>Uložiť</Btn>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -2656,11 +2725,16 @@ function App() {
                           );
                         })}
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 8 }}>
                         {r.proposeTimes.map((t) => (
-                          <button key={t.label} disabled={t.taken} onClick={() => !t.taken && set({ proposeTime: t.label })} style={st(`all:unset;cursor:${t.taken ? 'not-allowed' : 'pointer'};text-align:center;padding:7px 0;border-radius:10px;font-family:var(--font-sans);font-size:.66rem;color:${t.taken ? 'var(--ink-3)' : t.selected ? 'var(--porcelain)' : 'var(--ink)'};background:${t.selected ? 'var(--espresso)' : 'transparent'};border:1px solid ${t.selected ? 'var(--espresso)' : 'var(--line)'};opacity:${t.taken ? 0.35 : 1};text-decoration:${t.taken ? 'line-through' : 'none'}`)}>{t.label}</button>
+                          <button key={t.label} onClick={() => set({ proposeTime: t.label })} style={st(`all:unset;cursor:pointer;text-align:center;padding:7px 0;border-radius:10px;font-family:var(--font-sans);font-size:.66rem;color:${t.selected ? 'var(--porcelain)' : t.taken ? 'var(--ink-3)' : 'var(--ink)'};background:${t.selected ? 'var(--espresso)' : 'transparent'};border:1px ${t.taken && !t.selected ? 'dashed' : 'solid'} ${t.selected ? 'var(--espresso)' : 'var(--line)'};opacity:${t.taken && !t.selected ? 0.5 : 1}`)}>{t.label}</button>
                         ))}
                       </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <span style={st(T.mut + ';flex-shrink:0')}>Iný čas</span>
+                        <input type="time" step="300" value={s.proposeTime ? s.proposeTime.padStart(5, '0') : ''} onChange={(e) => set({ proposeTime: normTime(e.target.value) })} style={st(T.inp + ';padding:8px 10px;font-size:.8rem')} />
+                      </label>
+                      {r.proposeWarning && <div style={{ marginBottom: 10 }}><Note tone="wait" icon="clock">{r.proposeWarning} Návrh sa dá poslať aj tak.</Note></div>}
                       <textarea value={s.proposeMsg} onChange={(e) => set({ proposeMsg: e.target.value })} placeholder="Správa pre klientku (nepovinné)" style={st('all:unset;display:block;width:100%;min-height:58px;box-sizing:border-box;padding:11px 13px;border-radius:12px;background:var(--cream);border:1px solid var(--line);color:var(--ink);font-family:var(--font-sans);font-size:.74rem;line-height:1.5;margin-bottom:10px')} />
                       <div style={st('display:flex;gap:8px;align-items:flex-start;font-family:var(--font-sans);font-size:.64rem;color:var(--ink-3);line-height:1.45;margin-bottom:12px')}>
                         <Icon name="clock" size={14} />
