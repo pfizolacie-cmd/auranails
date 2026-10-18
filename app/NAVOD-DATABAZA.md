@@ -45,6 +45,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    match /agenda/{id} {
+      allow read, write: if isAdmin();
+    }
     match /referrals/{id} {
       allow create: if request.auth != null;
       allow read, delete: if isAdmin();
@@ -124,3 +127,8 @@ Rovnako ako predtým — nahraď obsah priečinka `app/` v repozitári
 - Klientky pridané ručne Michaelou (bez registrácie, napr. telefonické
   objednávky) nemajú vlastný prihlasovací účet — to je v poriadku, sú to
   "papierové" záznamy, kým si klientka sama nezaloží účet.
+
+**Build 28 (október 2026) – Môj program:** pribudla kolekcia `agenda`
+(krúžky, deti, poznámky Michaely). Pravidlo `match /agenda/{id}` ju sprístupní
+len adminovi – klientky ju nevidia a na voľné časy pri rezervácii nemá vplyv.
+Bez tohto pravidla sa záznamy v programe neuložia.

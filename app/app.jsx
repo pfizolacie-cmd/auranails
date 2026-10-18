@@ -360,6 +360,20 @@ function adminSlotWarning(iso, timeStr, durationHours, appointments) {
   if (isPastSlot(iso, timeStr)) return 'Tento čas už prešiel.';
   return null;
 }
+// osobný program Michaely – len pre ňu, na voľné časy klientok nemá vplyv
+const AGENDA_KINDS = [
+  { id: 'kruzok', label: 'Krúžok', icon: 'star' },
+  { id: 'deti', label: 'Deti', icon: 'heart' },
+  { id: 'osobne', label: 'Osobné', icon: 'user' },
+  { id: 'poznamka', label: 'Poznámka', icon: 'edit' },
+];
+function agendaKind(id) { return AGENDA_KINDS.find((k) => k.id === id) || AGENDA_KINDS[3]; }
+// opakovaný záznam (napr. krúžok každý utorok) platí od dátumu založenia v ten istý deň v týždni
+function agendaOn(item, iso) {
+  if (!item.repeatWeekly) return item.date === iso;
+  if (iso < item.date) return false;
+  return new Date(iso + 'T00:00:00').getDay() === new Date(item.date + 'T00:00:00').getDay();
+}
 // základné časy po pol hodine + čas hneď po oddychu za každou klientkou v daný deň,
 // aby sa po 10 min prestávke nestrácala celá polhodina
 function buildTimeOptions(iso, appointments) {
@@ -602,6 +616,8 @@ function App() {
   // account — false right after a fresh sign-in, until the check for that
   // specific uid finishes, so a leftover value from before is never reused.
   const isAdminFresh = authUser ? isAdminForUid === authUser.uid : true;
+  // osobný program Michaely (krúžky, deti, poznámky) – vidí len admin, rezervácie klientok ho nepoznajú
+  const agendaRaw = useCollection('agenda', authUser && isAdminFresh && isAdmin ? authUser.uid : undefined);
   const myClientDoc = useOwnClientDoc(authUser ? authUser.uid : null);
   const myRequests = useOwnRequests(authUser && isAdminFresh && isAdmin === false ? authUser.uid : null);
 
@@ -678,6 +694,7 @@ function App() {
     reqView: 'new', proposeFor: null, proposeDateIso: null, proposeTime: '', proposeMsg: '', proposeSending: false,
     rescheduleApptId: null, rescheduleDateIso: null, rescheduleTime: '',
     dayMoveId: null, dayMoveDate: null, dayMoveTime: '', dayMoveDuration: 1,
+    agendaFormOpen: false, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaDuration: 1, agendaWeekly: false,
     clientSearch: '', clientSort: 'visits', statsPeriod: 'month', mapServiceSel: {},
     apptFormOpen: false, apptEditingId: null, apptDateIso: null, apptTime: '', apptService: '', apptDuration: 1.5, apptMainKey: null, apptAddons: [],
     mergeFormOpen: false, mergeSearchQuery: '', mergeSourceId: null,
@@ -1195,6 +1212,55 @@ function App() {
 
   const adminMonthGrid = buildMonthGrid(s.adminMonthOffset || 0, s.adminSelectedDate, todayIso, null, (iso) => occupancyColor(countsByDate[iso] || 0) !== 'var(--line)' ? occupancyColor(countsByDate[iso] || 0) : null);
   const calendarSelectedLabel = isoLabel(s.adminSelectedDate);
+  /* ---------- Môj program (krúžky, deti, poznámky) ---------- */
+  const agenda = agendaRaw || [];
+  const agendaForDay = (iso) => agenda.filter((g) => agendaOn(g, iso))
+    .sort((x, y) => (x.time ? timeToHours(x.time) : -1) - (y.time ? timeToHours(y.time) : -1));
+  const selectedDayAgenda = agendaForDay(s.adminSelectedDate);
+  // upozornenie pri plánovaní klientky, ak má Michaela v tom čase niečo svoje
+  const agendaClash = (iso, timeStr, dur) => {
+    if (!iso || !timeStr) return null;
+    const start = timeToHours(timeStr);
+    const g = agendaForDay(iso).find((x) => x.time && overlaps(start, Number(dur) || 0, timeToHours(x.time), Number(x.duration) || 0));
+    return g ? `V tom čase máte: ${agendaKind(g.kind).label}${g.text ? ' – ' + g.text : ''} (${g.time}).` : null;
+  };
+  const adminWarn = (iso, timeStr, dur, appts) => [adminSlotWarning(iso, timeStr, dur, appts), agendaClash(iso, timeStr, dur)].filter(Boolean).join(' ') || null;
+  const openAgendaForm = (g) => set(g ? {
+    agendaFormOpen: true, agendaEditId: g.id, agendaKind: g.kind || 'poznamka', agendaText: g.text || '',
+    agendaHasTime: !!g.time, agendaTime: g.time || '15:00', agendaDuration: Number(g.duration) || 1, agendaWeekly: !!g.repeatWeekly,
+    dayAddOpen: false, blockFormOpen: false, dayMoveId: null,
+  } : {
+    agendaFormOpen: true, agendaEditId: null, agendaKind: 'kruzok', agendaText: '', agendaHasTime: true, agendaTime: '15:00', agendaDuration: 1, agendaWeekly: false,
+    dayAddOpen: false, blockFormOpen: false, dayMoveId: null,
+  });
+  const cancelAgendaForm = () => set({ agendaFormOpen: false, agendaEditId: null });
+  const agendaSaveDisabled = (s.agendaHasTime && !s.agendaTime) || (s.agendaKind === 'poznamka' && !s.agendaText.trim());
+  const saveAgenda = async () => {
+    if (agendaSaveDisabled) return;
+    const editing = s.agendaEditId ? agenda.find((g) => g.id === s.agendaEditId) : null;
+    const payload = {
+      kind: s.agendaKind, text: s.agendaText.trim(),
+      time: s.agendaHasTime ? s.agendaTime : '', duration: s.agendaHasTime ? clampDuration(s.agendaDuration) : 0,
+      repeatWeekly: !!s.agendaWeekly,
+      // pri úprave opakovaného záznamu ostáva pôvodný začiatok série
+      date: editing && editing.repeatWeekly && s.agendaWeekly ? editing.date : s.adminSelectedDate,
+    };
+    try {
+      if (editing) await db.collection('agenda').doc(editing.id).update(payload);
+      else await db.collection('agenda').add({ ...payload, createdAt: Date.now() });
+      set({ agendaFormOpen: false, agendaEditId: null });
+      showToast(editing ? 'Záznam upravený' : 'Pridané do programu');
+    } catch (e) {
+      console.error('agenda save failed', e);
+      showToast('Nepodarilo sa uložiť – skontrolujte pravidlá databázy (agenda)');
+    }
+  };
+  const deleteAgenda = async (g) => {
+    if (!window.confirm(g.repeatWeekly ? 'Zmazať tento opakovaný záznam (všetky týždne)?' : 'Zmazať tento záznam?')) return;
+    await db.collection('agenda').doc(g.id).delete().catch((e) => console.error('agenda delete failed', e));
+    set({ agendaFormOpen: false, agendaEditId: null });
+    showToast('Záznam zmazaný');
+  };
   const selectedDayAppts = appointments.concat(holds).filter((a) => a.date === s.adminSelectedDate).sort((a, bb) => timeToHours(a.time) - timeToHours(bb.time)).map((a) => {
     const matched = clients.find((c) => c.name === a.name);
     return {
@@ -1219,7 +1285,7 @@ function App() {
   const openDayMove = (a) => set({ dayMoveId: a.id, dayMoveDate: a.date, dayMoveTime: normTime(a.time), dayMoveDuration: Number(a.duration) || 1, dayAddOpen: false, blockFormOpen: false });
   const cancelDayMove = () => set({ dayMoveId: null });
   const dayMoveTarget = appointments.find((a) => a.id === s.dayMoveId) || null;
-  const dayMoveWarning = dayMoveTarget ? adminSlotWarning(s.dayMoveDate, s.dayMoveTime, s.dayMoveDuration, busyAppointments.filter((a) => a.id !== dayMoveTarget.id)) : null;
+  const dayMoveWarning = dayMoveTarget ? adminWarn(s.dayMoveDate, s.dayMoveTime, s.dayMoveDuration, busyAppointments.filter((a) => a.id !== dayMoveTarget.id)) : null;
   const saveDayMove = async () => {
     if (!dayMoveTarget || !s.dayMoveDate || !s.dayMoveTime) return;
     const changed = dayMoveTarget.date !== s.dayMoveDate || normTime(dayMoveTarget.time) !== s.dayMoveTime;
@@ -1275,7 +1341,7 @@ function App() {
       style: `all:unset;cursor:${taken ? 'not-allowed' : 'pointer'};padding:10px 4px;border-radius:10px;text-align:center;font-family:var(--font-sans);font-size:.78rem;color:${taken ? 'var(--ink-3)' : selected ? 'var(--porcelain)' : 'var(--ink-2)'};background:${taken ? 'rgba(255,255,255,.02)' : selected ? 'var(--espresso)' : 'var(--white)'};border:1px solid ${taken ? 'var(--line)' : selected ? 'var(--espresso)' : 'var(--line-gold)'};text-decoration:${taken ? 'line-through' : 'none'}`,
     };
   });
-  const dayAddWarning = adminSlotWarning(s.adminSelectedDate, s.dayAddTime, dayAddDuration, busyAppointments);
+  const dayAddWarning = adminWarn(s.adminSelectedDate, s.dayAddTime, dayAddDuration, busyAppointments);
   const dayAddDisabled = !dayAddName || !s.dayAddTime;
   const saveDayAdd = async () => {
     if (dayAddDisabled) return;
@@ -1563,7 +1629,7 @@ function App() {
       const taken = isPastSlot(s.proposeDateIso, t) || !slotAvailable(s.proposeDateIso, t, dur, others);
       return { label: t, taken, selected: s.proposeTime === t };
     }) : [];
-    const proposeWarning = proposing ? adminSlotWarning(s.proposeDateIso, s.proposeTime, dur,
+    const proposeWarning = proposing ? adminWarn(s.proposeDateIso, s.proposeTime, dur,
       busyAppointments.filter((a) => a.id !== (r.proposal && r.proposal.holdId))) : null;
     return {
       ...r, dateLabel: isoLabel(r.date), durationValue: dur, pState, conflict, proposing, proposeTimes, proposeWarning,
@@ -2438,11 +2504,12 @@ function App() {
                   const bg = cell.muted ? 'transparent' : closed ? 'repeating-linear-gradient(45deg,#2A1E1B 0 4px,#1F1715 4px 8px)' : '#1F1715';
                   const dots = cell.muted ? 0 : Math.min(n, 5);
                   return (
-                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false, dayMoveId: null })} style={st(`all:unset;cursor:pointer;height:38px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>
+                    <button type="button" key={cell.iso} onClick={() => set({ adminSelectedDate: cell.iso, dayAddOpen: false, blockFormOpen: false, dayMoveId: null, agendaFormOpen: false })} style={st(`all:unset;cursor:pointer;height:38px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:.74rem;font-weight:${cell.today ? 700 : 500};background:${bg};color:${cell.muted ? '#4A3A35' : 'var(--ink)'};outline:${cell.selected ? '2px solid var(--ink)' : cell.today ? '1px solid var(--espresso)' : 'none'};outline-offset:1px`)}>
                       <span style={{ lineHeight: 1 }}>{cell.num}</span>
                       <span style={{ display: 'flex', gap: 2, height: 4, alignItems: 'center' }}>
                         {Array.from({ length: dots }, (_, i) => <i key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--espresso)', display: 'block' }}></i>)}
                         {n > 5 && !cell.muted && <b style={{ fontSize: '.45rem', fontWeight: 700, color: 'var(--espresso)', lineHeight: 1 }}>+</b>}
+                        {!cell.muted && agendaForDay(cell.iso).length > 0 && <i style={{ width: 4, height: 4, borderRadius: '50%', border: '1px solid var(--taupe)', boxSizing: 'border-box', display: 'block' }}></i>}
                       </span>
                     </button>
                   );
@@ -2450,18 +2517,55 @@ function App() {
               </div>
               <div style={{ display: 'flex', gap: 9, alignItems: 'center', marginTop: 7, flexWrap: 'wrap' }}>
                 <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--espresso)', display: 'inline-block' }}></i>1 bodka = 1 objednaná klientka</span>
+                <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 5, height: 5, borderRadius: '50%', border: '1px solid var(--taupe)', boxSizing: 'border-box', display: 'inline-block' }}></i>môj program</span>
                 <span style={st(T.mut + ';font-size:.58rem;display:flex;align-items:center;gap:3px')}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'repeating-linear-gradient(45deg,#2A1E1B 0 3px,#1F1715 3px 6px)', display: 'inline-block' }}></i>voľno</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
                 <Lbl>{calendarSelectedLabel}</Lbl>
-                {!s.blockFormOpen && !s.dayAddOpen && (
+                {!s.blockFormOpen && !s.dayAddOpen && !s.agendaFormOpen && (
                   <span style={{ display: 'flex', gap: 5 }}>
                     <Btn small icon="plus" onClick={openDayAdd}>Klientka</Btn>
+                    <Btn small kind="ghost" icon="star" onClick={() => openAgendaForm(null)}>Môj</Btn>
                     <Btn small kind="ghost" icon="moon" onClick={openBlockForm}>Voľno</Btn>
                   </span>
                 )}
               </div>
+
+              {s.agendaFormOpen && (
+                <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe);border-style:dashed')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span style={st(T.serif + ';font-size:1.1rem')}>{s.agendaEditId ? 'Upraviť' : 'Môj program'} · {calendarSelectedLabel}</span>
+                    <button type="button" aria-label="Zavrieť" onClick={cancelAgendaForm} style={st('all:unset;cursor:pointer;color:var(--ink-3)')}><Icon name="x" size={18} /></button>
+                  </div>
+                  <div style={st(T.mut + ';margin-bottom:10px')}>Vidíte to len vy. Klientky si môžu tento čas naďalej rezervovať.</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    {AGENDA_KINDS.map((k) => <button type="button" key={k.id} onClick={() => set({ agendaKind: k.id })} style={st(chipStyle(s.agendaKind === k.id))}>{k.label}</button>)}
+                  </div>
+                  <input value={s.agendaText} onChange={(e) => set({ agendaText: e.target.value })} placeholder={s.agendaKind === 'kruzok' ? 'Napr. Tanečný – Ema' : s.agendaKind === 'deti' ? 'Napr. vyzdvihnúť zo škôlky' : 'Text'} style={st(T.inp + ';margin-top:10px')} />
+                  <div style={{ marginTop: 12 }}><Seg items={[{ id: 'time', label: 'V čase' }, { id: 'none', label: 'Celý deň / bez času' }]} value={s.agendaHasTime ? 'time' : 'none'} onChange={(v) => set({ agendaHasTime: v === 'time' })} /></div>
+                  {s.agendaHasTime && (
+                    <React.Fragment>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
+                        <span style={st(T.mut + ';flex-shrink:0')}>Od</span>
+                        <input type="time" step="300" value={s.agendaTime ? s.agendaTime.padStart(5, '0') : ''} onChange={(e) => set({ agendaTime: normTime(e.target.value) })} style={st(T.inp + ';padding:8px 10px;font-size:.8rem')} />
+                      </label>
+                      <Lbl style={{ marginTop: 12 }}>Trvanie</Lbl>
+                      <div style={{ marginTop: 8 }}><DurationField value={s.agendaDuration} onChange={(v) => set({ agendaDuration: v })} /></div>
+                    </React.Fragment>
+                  )}
+                  <button type="button" onClick={() => set({ agendaWeekly: !s.agendaWeekly })} style={st('all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;margin-top:12px;font-family:var(--font-sans);font-size:.78rem;color:var(--ink)')}>
+                    <span>Opakovať každý týždeň ({isoParts(s.adminSelectedDate).dow})</span>
+                    <span style={st(toggleTrack(s.agendaWeekly))}><span style={st(toggleKnob(s.agendaWeekly))}></span></span>
+                  </button>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                    {s.agendaEditId
+                      ? <Btn kind="ghost" style={{ flex: 1 }} onClick={() => deleteAgenda(agenda.find((g) => g.id === s.agendaEditId))}>Zmazať</Btn>
+                      : <Btn kind="ghost" style={{ flex: 1 }} onClick={cancelAgendaForm}>Zrušiť</Btn>}
+                    <Btn style={{ flex: 1.5 }} onClick={saveAgenda} disabled={agendaSaveDisabled}>Uložiť</Btn>
+                  </div>
+                </div>
+              )}
 
               {s.dayAddOpen && (
                 <div style={st(T.card + ';margin-top:10px;border-color:var(--taupe)')}>
@@ -2569,7 +2673,22 @@ function App() {
                 </div>
               )}
 
-              {noDayAppts && !s.dayAddOpen && <div style={{ marginTop: 10 }}><Note tone="plain" icon="cal">Žiadne termíny na tento deň.</Note></div>}
+              {selectedDayAgenda.map((g) => {
+                const k = agendaKind(g.kind);
+                return (
+                  <div key={'g' + g.id} style={{ display: 'flex', gap: 10, marginTop: 7 }}>
+                    <span style={st(T.mut + ';width:40px;padding-top:10px;flex-shrink:0')}>{g.time || '—'}</span>
+                    <button type="button" onClick={() => openAgendaForm(g)} style={st('all:unset;cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:8px;border-radius:14px;padding:9px 11px;background:transparent;border:1px dashed var(--line-gold)')}>
+                      <span style={{ color: 'var(--taupe)', flexShrink: 0 }}><Icon name={k.icon} size={14} /></span>
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '.78rem', color: 'var(--ink-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}{g.text ? ` · ${g.text}` : ''}</span>
+                        <span style={st(T.mut + ';font-size:.62rem')}>{g.time ? formatDuration(g.duration) : 'bez času'}{g.repeatWeekly ? ' · každý týždeň' : ''} · len pre vás</span>
+                      </span>
+                    </button>
+                  </div>
+                );
+              })}
+              {noDayAppts && selectedDayAgenda.length === 0 && !s.dayAddOpen && <div style={{ marginTop: 10 }}><Note tone="plain" icon="cal">Žiadne termíny na tento deň.</Note></div>}
               {selectedDayAppts.map((ap) => (
                 <div key={ap.id} style={{ display: 'flex', gap: 10, marginTop: 7 }}>
                   <span style={st(T.mut + ';width:40px;padding-top:10px;flex-shrink:0')}>{ap.time}</span>
