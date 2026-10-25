@@ -222,7 +222,8 @@ function isoParts(iso) {
   const dateObj = new Date(y, m - 1, d);
   return { dow: SK_DOW[dateObj.getDay()], num: d, mon: SK_MON[m - 1] };
 }
-const BOOKING_WINDOW_DAYS = 30;
+// ako ďaleko dopredu sa dá rezervovať (~4 mesiace, aby šli aj Vianoce a január)
+const BOOKING_WINDOW_DAYS = 120;
 function buildDateOptions(days = BOOKING_WINDOW_DAYS) {
   const out = [];
   for (let i = 0; i < days; i++) {
@@ -959,7 +960,7 @@ function App() {
   const chatMenuOptions = [
     { label: 'Chcem sa objednať', run: () => chatPick('Chcem sa objednať', 'Rada vám pomôžem. Akú službu si želáte?', 'svc') },
     { label: 'Aké máte ceny?', run: () => chatPick('Aké máte ceny?', chatPriceText + '\n\nCelý cenník nájdete v záložke Cenník.') },
-    { label: 'Otváracie hodiny', run: () => chatPick('Otváracie hodiny', `Cez týždeň (Po–Pi) robím od ${OPEN_HOUR}:00 do ${hoursToTime(WEEKDAY_CLOSE_HOUR)}, cez víkend do ${CLOSE_HOUR}:00. Termíny sa dajú rezervovať až 30 dní dopredu.`) },
+    { label: 'Otváracie hodiny', run: () => chatPick('Otváracie hodiny', `Cez týždeň (Po–Pi) robím od ${OPEN_HOUR}:00 do ${hoursToTime(WEEKDAY_CLOSE_HOUR)}, cez víkend do ${CLOSE_HOUR}:00. Termíny sa dajú rezervovať približne ${Math.round(BOOKING_WINDOW_DAYS / 30)} mesiace dopredu.`) },
     { label: 'Kde vás nájdem?', run: () => chatPick('Kde vás nájdem?', 'Nechtové štúdio Aura Nails, Handlová. Presnú adresu a kontakt nájdete na našej stránke auranails.sk.') },
     { label: 'Ako funguje Aura Pass?', run: () => chatPick('Ako funguje Aura Pass?', 'Za každú návštevu vám Michaela pridá pečiatku. Po 5 pečiatkach získate odmenu. Aktuálny stav vidíte v záložke Pass.') },
   ];
@@ -1908,6 +1909,15 @@ function App() {
     const a = new Date(visibleDays[0].iso + 'T00:00:00'); const z = new Date(visibleDays[visibleDays.length - 1].iso + 'T00:00:00');
     return a.getMonth() === z.getMonth() ? `${MONTHS_FULL[a.getMonth()]} ${a.getFullYear()}` : `${MONTHS_FULL[a.getMonth()].slice(0, 3)} – ${MONTHS_FULL[z.getMonth()].slice(0, 3)} ${z.getFullYear()}`;
   })();
+  // rýchly skok na mesiac – pri 4 mesiacoch by sa po 4 dňoch preklikávalo dlho
+  const visibleMonthKey = visibleDays.length ? visibleDays[0].iso.slice(0, 7) : '';
+  const bookingMonths = [];
+  dateOptions.forEach((d, i) => {
+    const key = d.iso.slice(0, 7);
+    if (!bookingMonths.some((m) => m.key === key)) {
+      bookingMonths.push({ key, label: MONTHS_FULL[Number(key.slice(5, 7)) - 1], jump: () => setBooking({ dayPage: Math.floor(i / 4) }) });
+    }
+  });
   const bookCatPosRaw = b.catTab != null ? b.catTab : (bookingMain ? cennikMainByCat.findIndex((c) => c.ci === bookingMain.ci) : 0);
   const bookCatPos = bookCatPosRaw >= 0 && bookCatPosRaw < cennikMainByCat.length ? bookCatPosRaw : 0;
   const shortCat = (n) => { const t = String(n || ''); if (/g[ée]l/i.test(t)) return 'Gélové'; if (/manik/i.test(t)) return 'Manikúra'; if (/starostl/i.test(t)) return 'Starostl.'; if (/dizajn|doplnk/i.test(t)) return 'Dizajn'; return t.split(' ')[0]; };
@@ -2172,6 +2182,9 @@ function App() {
                           <button type="button" aria-label="Predchádzajúce dni" disabled={bookingDayPage === 0} onClick={() => setBooking({ dayPage: Math.max(0, bookingDayPage - 1) })} style={st(`all:unset;cursor:pointer;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sand);color:var(--espresso);opacity:${bookingDayPage === 0 ? 0.35 : 1}`)}><Icon name="back" size={15} /></button>
                           <button type="button" aria-label="Ďalšie dni" disabled={bookingDayPage >= maxDayPage} onClick={() => setBooking({ dayPage: Math.min(maxDayPage, bookingDayPage + 1) })} style={st(`all:unset;cursor:pointer;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sand);color:var(--espresso);opacity:${bookingDayPage >= maxDayPage ? 0.35 : 1}`)}><Icon name="fwd" size={15} /></button>
                         </span>
+                      </div>
+                      <div style={st('display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px')}>
+                        {bookingMonths.map((m) => <button type="button" key={m.key} onClick={m.jump} style={st(chipStyle(m.key === visibleMonthKey) + ';flex-shrink:0')}>{m.label}</button>)}
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginTop: 10 }}>
                         {visibleDays.map((d) => {
